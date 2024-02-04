@@ -6,7 +6,7 @@ function mergeDeepCore(source: Map<string, unknown>, merging: Map<string, unknow
 
   for (const [key, value] of merging.entries()) {
     if (value instanceof Map) {
-      const sourceValue = merging.get(key);
+      const sourceValue = source.get(key);
 
       next.set(key, mergeDeepCore(sourceValue instanceof Map ? sourceValue : new Map(), value));
     } else {

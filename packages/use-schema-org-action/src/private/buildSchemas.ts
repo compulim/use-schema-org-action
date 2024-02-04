@@ -1,8 +1,8 @@
 import { type JsonObject } from 'type-fest';
 import {
-  any,
-  array,
+  bigint,
   boolean,
+  date,
   number,
   object,
   optional,
@@ -18,7 +18,7 @@ import isPlainObject from './isPlainObject';
 
 type ObjectSchemaOf<T> = ObjectSchema<Record<string, BaseSchema>, undefined, T> & JsonObject;
 
-const jsonValue = () => union([array(any()), boolean(), number(), object({}), string()]);
+const propertyValue = () => union([bigint(), boolean(), date(), number(), string()]);
 
 function mapToObject<T>(map: Map<string, T>): { [k: string]: T } {
   return Object.fromEntries(map.entries());
@@ -33,12 +33,12 @@ function buildSchemasCore(action: object): [BaseSchema | undefined, BaseSchema |
       const spec = parse(PropertyValueSpecificationSchema, value);
       const rawKey = key.substring(0, key.length - 6);
 
-      inputSchema.set(rawKey, spec.valueRequired ? jsonValue() : optional(jsonValue()));
+      inputSchema.set(rawKey, spec.valueRequired ? propertyValue() : optional(propertyValue()));
     } else if (key.endsWith('-output')) {
       const spec = parse(PropertyValueSpecificationSchema, value);
       const rawKey = key.substring(0, key.length - 7);
 
-      outputSchema.set(rawKey, spec.valueRequired ? jsonValue() : optional(jsonValue()));
+      outputSchema.set(rawKey, spec.valueRequired ? propertyValue() : optional(propertyValue()));
     } else if (isPlainObject(value)) {
       const [subInputSchema, subOutputSchema] = buildSchemasCore(value);
 
