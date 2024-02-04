@@ -18,10 +18,10 @@ const [action, setAction, performAction, isValid] = useSchemaOrgAction(
       valueName: 'action'
     }
   },
-  (request, values) => {
+  useCallback((request, values) => {
     request === { actionOption: 'upvote' };
     values.get('action') === 'upvote';
-  }
+  }, [])
 );
 
 action === { actionOption: 'upvote', actionStatus: 'PotentialActionStatus' };
@@ -85,6 +85,12 @@ After an action is performed, only results marked with output constraints are pr
 Marks the action with `actionStatus-output`. In the handler, returns `actionStatus` with a supported value. It will be propagated to the updated action.
 
 If the handler did not respond with `actionStatus` or not output constraints is defined, it will set `actionStatus` to `"CompletedActionStatus"` for resolutions, or `"FailedActionStatus"` for rejections.
+
+### Why the `performAction` function is invalidated on every re-render?
+
+The handler function (second argument) should be memoized via `useCallback`.
+
+Every time the handler function is changed, the `performAction` will be invalidated.
 
 ## Contributions
 
