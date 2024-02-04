@@ -1,8 +1,10 @@
+import { type ReadonlyDeep } from 'type-fest';
+
 import isPlainObject from './isPlainObject';
 
 export default function omitInputOutputDeep<T extends Record<string, unknown>>(
   object: T
-): T & Record<`${string}-input`, never> {
+): ReadonlyDeep<T & Record<`${string}-input`, never>> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const result: any = {};
 
@@ -12,5 +14,5 @@ export default function omitInputOutputDeep<T extends Record<string, unknown>>(
     }
   }
 
-  return result;
+  return Object.freeze(result);
 }

@@ -37,7 +37,10 @@ test('Spec: Text search deep link with -input', async () => {
     }
   };
 
-  const handler = jest.fn<Promise<Partial<SearchAction>>, [Partial<SearchAction>, Map<string, unknown>]>();
+  const handler = jest.fn<
+    Promise<Readonly<Partial<SearchAction>>>,
+    [Readonly<Partial<SearchAction>>, ReadonlyMap<string, unknown>]
+  >();
 
   // WHEN: Render the hook.
   const renderResult = renderHook(() => useSchemaOrgAction(searchAction, handler));
@@ -111,7 +114,10 @@ test('Spec: Product purchase API call with -output', async () => {
     }
   };
 
-  const handler = jest.fn<Promise<Partial<BuyAction>>, [Partial<BuyAction>, Map<string, unknown>]>(() =>
+  const handler = jest.fn<
+    Promise<Readonly<Partial<BuyAction>>>,
+    [Readonly<Partial<BuyAction>>, ReadonlyMap<string, unknown>]
+  >(() =>
     Promise.resolve({
       '@type': 'BuyAction',
       actionStatus: 'CompletedActionStatus',
@@ -210,7 +216,10 @@ test('Spec: Movie review site API with -input and -output', async () => {
     }
   };
 
-  const handler = jest.fn<Promise<Partial<ReviewAction>>, [Partial<ReviewAction>, Map<string, unknown>]>(() =>
+  const handler = jest.fn<
+    Promise<Readonly<Partial<ReviewAction>>>,
+    [Readonly<Partial<ReviewAction>>, ReadonlyMap<string, unknown>]
+  >(() =>
     Promise.resolve({
       '@context': 'https://schema.org',
       '@type': 'ReviewAction',

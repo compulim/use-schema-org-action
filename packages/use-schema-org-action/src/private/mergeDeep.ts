@@ -1,7 +1,12 @@
+import { type ReadonlyDeep } from 'type-fest';
+
 import mapToObjectDeep from './mapToObjectDeep';
 import objectToMapDeep from './objectToMapDeep';
 
-function mergeDeepCore(source: Map<string, unknown>, merging: Map<string, unknown>): Map<string, unknown> {
+function mergeDeepCore(
+  source: ReadonlyMap<string, unknown>,
+  merging: ReadonlyMap<string, unknown>
+): ReadonlyMap<string, unknown> {
   const next: Map<string, unknown> = new Map(source);
 
   for (const [key, value] of merging.entries()) {
@@ -18,8 +23,8 @@ function mergeDeepCore(source: Map<string, unknown>, merging: Map<string, unknow
 }
 
 export default function mergeDeep(
-  source: Record<string, unknown>,
-  merging: Record<string, unknown>
-): Record<string, unknown> {
+  source: ReadonlyDeep<Record<string, unknown>>,
+  merging: ReadonlyDeep<Record<string, unknown>>
+): ReadonlyDeep<Record<string, unknown>> {
   return mapToObjectDeep(mergeDeepCore(objectToMapDeep(source), objectToMapDeep(merging)));
 }

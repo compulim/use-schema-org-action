@@ -17,7 +17,7 @@ export default function useSchemaOrgAction<
   TResponse extends Partial<T> = Partial<T>
 >(
   initialAction: T,
-  handler: (request: TRequest, values: Map<string, unknown>) => Promise<TResponse>
+  handler: (request: Readonly<TRequest>, values: ReadonlyMap<string, unknown>) => Promise<Readonly<TResponse>>
 ): readonly [
   ActionWithActionStatus<T>,
   Dispatch<SetStateAction<ActionWithActionStatus<T>>>,
@@ -46,13 +46,13 @@ export default function useSchemaOrgAction<
     let response: Output<typeof outputSchema>;
 
     try {
-      const request = parse(inputSchema, nextAction);
+      const request = Object.freeze(parse(inputSchema, nextAction));
 
       const values = getNamedValues(initialActionRef.current, request);
 
       const result = await handler(request, values);
 
-      response = parse(outputSchema, { actionStatus: 'CompletedActionStatus', ...result });
+      response = Object.freeze(parse(outputSchema, { actionStatus: 'CompletedActionStatus', ...result }));
     } catch (error) {
       abortController.signal.aborted || setAction({ ...actionRef.current, actionStatus: 'FailedActionStatus' });
 

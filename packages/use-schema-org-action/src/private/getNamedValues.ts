@@ -1,12 +1,13 @@
+import { type ReadonlyDeep } from 'type-fest';
 import { parse } from 'valibot';
 
 import PropertyValueSpecificationSchema from '../PropertyValueSpecificationSchema';
 import isPlainObject from './isPlainObject';
 
 export default function getNamedValues(
-  object1: Record<string, unknown>,
-  object2: Record<string, unknown>
-): Map<string, unknown> {
+  object1: ReadonlyDeep<Record<string, unknown>>,
+  object2: ReadonlyDeep<Record<string, unknown>>
+): ReadonlyMap<string, unknown> {
   const map = new Map<string, unknown>();
 
   for (const [key, value] of Object.entries(object1)) {
@@ -29,5 +30,5 @@ export default function getNamedValues(
     }
   }
 
-  return map;
+  return Object.freeze(map);
 }
