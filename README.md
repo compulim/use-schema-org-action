@@ -48,17 +48,16 @@ useSchemaOrgAction<Action, Request, Response>(initialAction: Action, handler: (r
 
 Except [`actionStatus`](https://schema.org/actionStatus), other properties are not controlled.
 
-When `performAction` is called, it will set `actionStatus` accordingly:
+Initially, `actionStatus` is set to `"PotentialActionStatus"`. When `performAction()` is called, it will set `actionStatus` accordingly:
 
-- Initially, `actionStatus` will be `"PotentialActionStatus"`;
-- When `performAction()` is being called, `actionStatus` will become `"ActiveActionStatus"`;
-- When `performAction()` is being resolved, `actionStatus` will become `"CompletedActionStatus"`;
-- When `performAction()` is being rejected, `actionStatus` will become `"FailedActionStatus"`.
+- When `performAction()` is being called, `actionStatus` will become `"ActiveActionStatus"`
+- When `performAction()` is being resolved, `actionStatus` will become `"CompletedActionStatus"`
+- When `performAction()` is being rejected, `actionStatus` will become `"FailedActionStatus"`
 
 In special circumstances:
 
-- If `actionStatus` is set in `initialAction`, its value will be used, replacing `"PotentialActionStatus"`;
-- If `actionStatus-output` is set in `initialAction`, after `performAction()` is resolved, `actionStatus` from the response will be used, replacing `"CompletedActionStatus"`.
+- If `actionStatus` is set in `initialAction`, its value will be used, replacing `"PotentialActionStatus"`
+- If `actionStatus-output` is set in `initialAction`, after `performAction()` is resolved, `actionStatus` from the response will be used, replacing `"CompletedActionStatus"`
 
 ### All input/output properties must have their constraints defined
 
