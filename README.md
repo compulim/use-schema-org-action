@@ -70,27 +70,27 @@ All constraints must be defined in `initialAction` and cannot be modified later.
 
 ### Some properties are not passed to the handler
 
-Make sure all properties that should be part of the request have input constraints (`*-input`) defined.
+Properties of action that should be participated in the request must have input constraints (`*-input`) defined.
 
 Only properties with input constraints will become part of the request.
 
 ### Some results are not reflected in the updated action
 
-Make sure all results have output constraints (`*-output`) defined.
+Properties of response that should be merged into the action must have output constraints (`*-output`) defined.
 
-After an action is performed, only results marked with output constraints are propagated to the updated action.
+After an action is performed, properties marked with output constraints will be merged into the action.
 
 ### After the action is performed, how can I propagate the action status to the updated action?
 
-Marks the action with `actionStatus-output`. In the handler, returns `actionStatus` with a supported value. It will be propagated to the updated action.
+Marks the action with `actionStatus-output`. In the handler, returns `actionStatus` with a [supported value](https://schema.org/ActionStatusType). It will be merged into the action.
 
-If the handler did not respond with `actionStatus` or not output constraints is defined, it will set `actionStatus` to `"CompletedActionStatus"` for resolutions, or `"FailedActionStatus"` for rejections.
+If the handler did not respond with `actionStatus` or output constraints is not defined, it will set `actionStatus` to `"CompletedActionStatus"` for resolutions, or `"FailedActionStatus"` for rejections.
 
 ### Why the `performAction` function is invalidated on every re-render?
 
 The handler function (second argument) should be memoized via `useCallback`.
 
-Every time the handler function is changed, the `performAction` will be invalidated.
+When the handler function change, the `performAction` will be invalidated.
 
 ## Contributions
 
