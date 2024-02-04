@@ -301,3 +301,29 @@ describe('with Action without actionStatus-output', () => {
       }));
   });
 });
+
+describe('"performAction" function', () => {
+  let handler: () => Promise<object>;
+  let renderResult: ReturnType<typeof renderHook<ReturnType<typeof useSchemaOrgAction>, object>>;
+  let firstPerform: ReturnType<typeof useSchemaOrgAction>[2];
+
+  beforeEach(() => {
+    handler = () => Promise.resolve({});
+    renderResult = renderHook(() => useSchemaOrgAction({}, handler));
+
+    firstPerform = renderResult.result.current[2];
+  });
+
+  test('should be memoized if handler is not changed', () => {
+    renderResult.rerender();
+
+    expect(firstPerform).toBe(renderResult.result.current[2]);
+  });
+
+  test('should not be memoized if handler is changed', () => {
+    handler = () => Promise.resolve({});
+    renderResult.rerender();
+
+    expect(firstPerform).not.toBe(renderResult.result.current[2]);
+  });
+});
