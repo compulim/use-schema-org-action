@@ -1,6 +1,6 @@
 # `use-schema-org-action`
 
-React hooks handling logics of [Schema.org Actions](https://schema.org/docs/actions.html).
+React hooks for handling logics of [Schema.org actions](https://schema.org/docs/actions.html).
 
 ## Background
 
