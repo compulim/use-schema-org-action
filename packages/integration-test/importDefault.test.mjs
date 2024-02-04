@@ -6,11 +6,14 @@ import { useSchemaOrgAction } from 'use-schema-org-action';
 test('simple scenario', () => {
   // SETUP: With a VoteAction.
   const App = () => {
-    const [action] = useSchemaOrgAction({
-      '@type': 'VoteAction',
-      actionOption: 'upvote',
-      'actionOption-input': { valueName: 'action' }
-    });
+    const [action] = useSchemaOrgAction(
+      {
+        '@type': 'VoteAction',
+        actionOption: 'upvote',
+        'actionOption-input': { valueName: 'action' }
+      },
+      () => Promise({})
+    );
 
     return JSON.stringify(action);
   };
@@ -18,6 +21,8 @@ test('simple scenario', () => {
   // WHEN: Rendered.
   const renderer = create(<App />);
 
-  // THEN: It should render JSON of { actionOption: 'upvote' }.
-  expect(renderer.toJSON()).toMatchInlineSnapshot(`"{"actionOption":"upvote"}"`);
+  // THEN: It should render JSON of { "@type": "VoteAction", actionOption: 'upvote', actionStatus: 'PotentialActionStatus' }.
+  expect(renderer.toJSON()).toMatchInlineSnapshot(
+    `"{"actionStatus":"PotentialActionStatus","@type":"VoteAction","actionOption":"upvote"}"`
+  );
 });

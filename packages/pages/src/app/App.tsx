@@ -1,27 +1,33 @@
 import { useCallback, useState } from 'react';
 import { useSchemaOrgAction, type PropertyValueSpecification } from 'use-schema-org-action';
 
-const App = () => {
-  const [action, setAction, performAction, canPerform] = useSchemaOrgAction<{
-    actionObject?: 'downvote' | 'upvote';
-    'actionObject-input': PropertyValueSpecification;
-    actionStatus?: `${'Active' | 'Completed' | 'Failed' | 'Potential'}ActionStatus`;
-  }>({
-    'actionObject-input': {
-      valueName: 'action',
-      valueRequired: true
-    }
-  });
+type Action = {
+  actionObject?: 'downvote' | 'upvote';
+  'actionObject-input': PropertyValueSpecification;
+  actionStatus?: `${'Active' | 'Completed' | 'Failed' | 'Potential'}ActionStatus`;
+};
 
+const App = () => {
   const [performed, setPerformed] = useState<object | undefined>(undefined);
 
-  const handleClick = useCallback(() => {
-    performAction((action, values) => {
+  const handler = useCallback(
+    (action: Partial<Action>, values: Map<string, unknown>): Promise<Partial<Action>> => {
       setPerformed({ action, values: Object.fromEntries(values.entries()) });
 
       return new Promise(resolve => setTimeout(() => resolve({}), 1000));
-    });
-  }, [performAction, setPerformed]);
+    },
+    [setPerformed]
+  );
+
+  const [action, setAction, performAction, canPerform] = useSchemaOrgAction<Action>(
+    {
+      'actionObject-input': {
+        valueName: 'action',
+        valueRequired: true
+      }
+    },
+    handler
+  );
 
   const handleDownvoteClick = useCallback(
     () => setAction(action => ({ ...action, actionObject: 'downvote' })),
@@ -43,7 +49,11 @@ const App = () => {
         <input checked={action.actionObject === 'downvote'} onClick={handleDownvoteClick} type="radio" />
         Downvote
       </label>
-      <button disabled={!canPerform} onClick={handleClick} type="button">
+      <button
+        disabled={!canPerform || action.actionStatus === 'ActiveActionStatus'}
+        onClick={performAction}
+        type="button"
+      >
         Perform
       </button>
       <h2>Current action</h2>

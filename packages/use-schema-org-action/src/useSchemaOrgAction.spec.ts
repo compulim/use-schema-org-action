@@ -29,14 +29,19 @@ const voteAction: VoteAction = {
   candidate: { 'name-input': { valueName: 'name', valueRequired: true } }
 };
 
-type Handler = ReturnType<typeof jest.fn<Promise<Partial<VoteAction>>, [Partial<VoteAction>, Map<string, unknown>]>>;
-
 describe('with VoteAction', () => {
+  type UseSchemaOrgAction = typeof useSchemaOrgAction<VoteAction>;
+  type RawHandler = Parameters<UseSchemaOrgAction>[1];
+  type Handler = jest.Mock<ReturnType<RawHandler>, Parameters<RawHandler>>;
+
+  const handler: Handler = jest.fn();
   let renderResult: ReturnType<typeof renderHook<ReturnType<typeof useSchemaOrgAction<VoteAction>>, object>>;
 
   beforeEach(() => {
-    renderResult = renderHook(() => useSchemaOrgAction<VoteAction>(voteAction));
+    renderResult = renderHook(() => useSchemaOrgAction<VoteAction>(voteAction, handler));
   });
+
+  afterEach(() => handler.mockReset());
 
   test('action should not have *-input/*-output', () =>
     expect(renderResult.result.current[0]).toEqual({
@@ -65,15 +70,14 @@ describe('with VoteAction', () => {
 
     describe('when perform', () => {
       let deferred: ReturnType<typeof createDeferred<Partial<ActionWithActionStatus<VoteAction>>>>;
-      let handler: Handler;
       let performPromise: Promise<void>;
 
       beforeEach(() => {
         deferred = createDeferred();
-        handler = jest.fn<ReturnType<Handler>, Parameters<Handler>>(() => deferred.promise);
+        handler.mockImplementation(() => deferred.promise);
 
         act(() => {
-          performPromise = renderResult.result.current[2]?.(handler) || Promise.resolve();
+          performPromise = renderResult.result.current[2]?.() || Promise.resolve();
           performPromise.catch(() => {});
 
           renderResult.rerender();
@@ -121,7 +125,7 @@ describe('with VoteAction', () => {
         test('should change actionStatus to CompletedActionStatus', () =>
           expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'CompletedActionStatus'));
 
-        test('should merge output with *-output', () =>
+        test('should merge response properties with *-output', () =>
           expect(renderResult.result.current[0]).toEqual({
             actionObject: 'upvote',
             actionStatus: 'CompletedActionStatus',
@@ -129,7 +133,7 @@ describe('with VoteAction', () => {
             candidate: { name: 'John Doe' }
           }));
 
-        test('should skip output without *-output', () =>
+        test('should skip response properties without *-output', () =>
           expect(renderResult.result.current[0]).not.toHaveProperty('location'));
       });
 
@@ -151,7 +155,7 @@ describe('with VoteAction', () => {
           }));
       });
 
-      describe('failed with invalid output', () => {
+      describe('failed with invalid response', () => {
         beforeEach(() => act(() => deferred.resolve({})));
 
         test('should throw at the handler', () => expect(performPromise).rejects.toThrow('Invalid type'));
@@ -199,24 +203,21 @@ describe('with VoteAction', () => {
     });
   });
 
-  describe('when input is invalid', () => {
+  describe('when request is invalid', () => {
     test('canPerform should be false', () => expect(renderResult.result.current[3]).toBe(false));
   });
 
-  describe('when perform failed with invalid input', () => {
-    let handler: Handler;
+  describe('when perform failed with invalid request', () => {
     let performPromise: Promise<void>;
 
-    beforeEach(() => {
-      handler = jest.fn();
-
-      return act(() => {
-        performPromise = renderResult.result.current[2](handler);
+    beforeEach(() =>
+      act(() => {
+        performPromise = renderResult.result.current[2]();
         performPromise.catch(() => {});
 
         renderResult.rerender();
-      });
-    });
+      })
+    );
 
     test('should throw at the handler', () => expect(performPromise).rejects.toThrow('Invalid type'));
 
@@ -244,7 +245,9 @@ describe('with Action initialized with CompletedActionStatus', () => {
 
   beforeEach(() => {
     renderResult = renderHook(() =>
-      useSchemaOrgAction<VoteAction>({ ...voteAction, actionStatus: 'CompletedActionStatus' })
+      useSchemaOrgAction<VoteAction>({ ...voteAction, actionStatus: 'CompletedActionStatus' }, () =>
+        Promise.resolve({})
+      )
     );
   });
 
@@ -257,30 +260,41 @@ describe('with Action without actionStatus-output', () => {
     actionOption: string;
     'actionOption-input'?: PropertyValueSpecification;
   };
-  let renderResult: ReturnType<
-    typeof renderHook<
-      ReturnType<
-        typeof useSchemaOrgAction<SimpleAction, Partial<SimpleAction>, ActionWithActionStatus<Partial<SimpleAction>>>
-      >,
-      object
-    >
+
+  type UseSchemaOrgAction = typeof useSchemaOrgAction<
+    SimpleAction,
+    Partial<SimpleAction>,
+    ActionWithActionStatus<Partial<SimpleAction>>
   >;
+
+  type RawHandler = Parameters<UseSchemaOrgAction>[1];
+  type Handler = jest.Mock<ReturnType<RawHandler>, Parameters<RawHandler>>;
+
+  const handler: jest.Mock<ReturnType<Handler>, Parameters<Handler>> = jest.fn();
+  let renderResult: ReturnType<typeof renderHook<ReturnType<UseSchemaOrgAction>, object>>;
 
   beforeEach(() => {
     renderResult = renderHook(() =>
-      useSchemaOrgAction<SimpleAction, Partial<SimpleAction>, ActionWithActionStatus<Partial<SimpleAction>>>({
-        actionOption: 'upvote',
-        'actionOption-input': { valueRequired: true }
-      })
+      useSchemaOrgAction<SimpleAction, Partial<SimpleAction>, ActionWithActionStatus<Partial<SimpleAction>>>(
+        {
+          actionOption: 'upvote',
+          'actionOption-input': { valueRequired: true }
+        },
+        handler
+      )
     );
   });
 
-  describe('when perform and output with actionStatus', () => {
-    beforeEach(() =>
-      act(() => renderResult.result.current[2](() => Promise.resolve({ actionStatus: 'FailedActionStatus' })))
-    );
+  afterEach(() => handler.mockReset());
 
-    test('should not set actionStatus from output', () =>
+  describe('when perform and respond with "actionStatus" property', () => {
+    beforeEach(() => {
+      handler.mockImplementation(() => Promise.resolve({ actionStatus: 'FailedActionStatus' }));
+
+      return act(() => renderResult.result.current[2]());
+    });
+
+    test('should not set "actionStatus" from response', () =>
       expect(renderResult.result.current[0]).toEqual({
         actionOption: 'upvote',
         actionStatus: 'CompletedActionStatus'
