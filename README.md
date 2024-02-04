@@ -11,24 +11,33 @@ Click here for [our live demo](https://compulim.github.io/use-schema-org-action/
 ## How to use
 
 ```ts
-const [action, setAction, performAction, isValid] = useSchemaOrgAction(
-  {
-    actionOption: 'upvote',
-    'actionOption-input': {
-      valueName: 'action'
-    }
-  },
-  useCallback((request, values) => {
-    request === { actionOption: 'upvote' };
-    values.get('action') === 'upvote';
-  }, [])
-);
+function submitVote(request, values) {
+  // Request is created from action property which has an input constraint.
+  request === { actionOption: 'upvote' };
 
-action === { actionOption: 'upvote', actionStatus: 'PotentialActionStatus' };
+  // Values is created from action property which has a named input constraint.
+  values.get('action') === 'upvote';
+}
 
-setAction({ actionOption: 'downvote' });
+function VoteButton() {
+  const [action, setAction, performAction, isValid] = useSchemaOrgAction(
+    {
+      actionOption: 'upvote',
+      'actionOption-input': {
+        valueName: 'action'
+      }
+    },
+    submitVote
+  );
 
-isValid && performAction();
+  // Action exclude all input/output constraints, and include "actionStatus" property.
+  action === { actionOption: 'upvote', actionStatus: 'PotentialActionStatus' };
+
+  // To modify the action.
+  setAction({ actionOption: 'downvote' });
+
+  return <button disabled={!isValid} onClick={performAction}>Vote</button>
+}
 ```
 
 ## API
@@ -59,9 +68,9 @@ In special circumstances:
 - If `actionStatus` is set in `initialAction`, its value will be used, replacing `"PotentialActionStatus"`
 - If `actionStatus-output` is set in `initialAction`, after `performAction()` is resolved, `actionStatus` from the response will be used, replacing `"CompletedActionStatus"`
 
-### All input/output properties must have their constraints defined
+### Request/response are based on input/output constraints
 
-Properties of action that would participate in request must have their input constraints defined. Similarly, properties of response that would merge into action must have their output constraints defined.
+Properties of action that would participate in a request must have their input constraints defined. Similarly, properties of response that would merge into action must have their output constraints defined.
 
 All constraints must be defined in `initialAction` and cannot be modified later.
 
@@ -85,11 +94,11 @@ Marks the action with `actionStatus-output`. In the handler, returns `actionStat
 
 If the handler did not respond with `actionStatus` or output constraints is not defined, it will set `actionStatus` to `"CompletedActionStatus"` for resolutions, or `"FailedActionStatus"` for rejections.
 
-### Why the `performAction` function is invalidated on every re-render?
+### Why the `performAction` function is being invalidated on every re-render?
 
-The handler function (second argument) should be memoized via `useCallback`.
+The `handler` function (passed as second argument) should be memoized via `useCallback`.
 
-When the handler function change, the `performAction` will be invalidated.
+When a different `handler` function is passed, the `performAction` will be invalidated.
 
 ## Contributions
 
