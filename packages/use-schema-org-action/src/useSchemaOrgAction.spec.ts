@@ -4,6 +4,7 @@ import { act, renderHook } from '@testing-library/react';
 import createDeferred from 'p-defer';
 import { type JsonObject } from 'type-fest';
 
+import { type ActionWithActionStatus } from './ActionWithActionStatus';
 import { type PropertyValueSpecification } from './PropertyValueSpecificationSchema';
 import useSchemaOrgAction from './useSchemaOrgAction';
 
@@ -21,12 +22,17 @@ const voteAction: VoteAction = {
   actionObject: 'upvote',
   'actionObject-input': { valueName: 'action' },
   actionStatus: 'PotentialActionStatus',
-  'actionStatus-output': {},
+  'actionStatus-output': { valueRequired: true },
   agent: { 'name-output': { valueRequired: true } },
   candidate: { 'name-input': { valueName: 'name', valueRequired: true } }
 };
 
-type Handler = ReturnType<typeof jest.fn<Promise<Partial<VoteAction>>, [VoteAction, Map<string, unknown>]>>;
+type Handler = ReturnType<
+  typeof jest.fn<
+    Promise<Partial<ActionWithActionStatus<VoteAction>>>,
+    [ActionWithActionStatus<VoteAction>, Map<string, unknown>]
+  >
+>;
 
 describe('with VoteAction', () => {
   let renderResult: ReturnType<typeof renderHook<ReturnType<typeof useSchemaOrgAction<VoteAction>>, object>>;
@@ -61,13 +67,13 @@ describe('with VoteAction', () => {
     test('canPerform should be true', () => expect(renderResult.result.current[3]).toBe(true));
 
     describe('when perform', () => {
-      let deferred: ReturnType<typeof createDeferred<Partial<VoteAction>>>;
+      let deferred: ReturnType<typeof createDeferred<Partial<ActionWithActionStatus<VoteAction>>>>;
       let handler: Handler;
       let performPromise: Promise<void>;
 
       beforeEach(() => {
         deferred = createDeferred();
-        handler = jest.fn<Promise<Partial<VoteAction>>, [VoteAction, Map<string, unknown>]>(() => deferred.promise);
+        handler = jest.fn<ReturnType<Handler>, Parameters<Handler>>(() => deferred.promise);
 
         act(() => {
           performPromise = renderResult.result.current[2]?.(handler) || Promise.resolve();
@@ -162,6 +168,22 @@ describe('with VoteAction', () => {
           }));
       });
 
+      describe('succeed with FailedActionStatus', () => {
+        beforeEach(() =>
+          act(() => deferred.resolve({ actionStatus: 'FailedActionStatus', agent: { name: 'Mary Doe' } }))
+        );
+
+        test('should not throw at the handler', () => performPromise);
+
+        test('should change actionStatus to FailedActionStatus', () =>
+          expect(renderResult.result.current[0]).toEqual({
+            actionObject: 'upvote',
+            actionStatus: 'FailedActionStatus',
+            agent: { name: 'Mary Doe' },
+            candidate: { name: 'John Doe' }
+          }));
+      });
+
       describe('during unmount', () => {
         beforeEach(() => act(() => renderResult.unmount()));
 
@@ -203,5 +225,58 @@ describe('with VoteAction', () => {
 
     test('should change actionStatus to FailedActionStatus', () =>
       expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'FailedActionStatus'));
+  });
+
+  describe('when setting the "actionStatus" field', () => {
+    beforeEach(() =>
+      act(() => renderResult.result.current[1](action => ({ ...action, actionStatus: 'CompletedActionStatus' })))
+    );
+
+    test('should have actionStatus updated', () =>
+      expect(renderResult.result.current[0]).toEqual({
+        actionObject: 'upvote',
+        actionStatus: 'CompletedActionStatus',
+        agent: {},
+        candidate: {}
+      }));
+  });
+});
+
+describe('initial action with CompletedActionStatus', () => {
+  let renderResult: ReturnType<typeof renderHook<ReturnType<typeof useSchemaOrgAction<VoteAction>>, object>>;
+
+  beforeEach(() => {
+    renderResult = renderHook(() =>
+      useSchemaOrgAction<VoteAction>({ ...voteAction, actionStatus: 'CompletedActionStatus' })
+    );
+  });
+
+  test('action should keep actionStatus', () =>
+    expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'CompletedActionStatus'));
+});
+
+describe('action without actionStatus-output', () => {
+  type SimpleAction = {
+    actionOption: string;
+    'actionOption-input'?: PropertyValueSpecification;
+  };
+  let renderResult: ReturnType<typeof renderHook<ReturnType<typeof useSchemaOrgAction<SimpleAction>>, object>>;
+
+  beforeEach(() => {
+    renderResult = renderHook(() =>
+      useSchemaOrgAction<SimpleAction>({ actionOption: 'upvote', 'actionOption-input': { valueRequired: true } })
+    );
+  });
+
+  describe('when perform and output with actionStatus', () => {
+    beforeEach(() =>
+      act(() => renderResult.result.current[2](() => Promise.resolve({ actionStatus: 'FailedActionStatus' })))
+    );
+
+    test('should not use actionStatus from output', () =>
+      expect(renderResult.result.current[0]).toEqual({
+        actionOption: 'upvote',
+        actionStatus: 'CompletedActionStatus'
+      }));
   });
 });
