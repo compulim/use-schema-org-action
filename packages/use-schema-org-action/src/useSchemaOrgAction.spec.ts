@@ -21,9 +21,9 @@ const voteAction: VoteAction = {
   actionObject: 'upvote',
   'actionObject-input': { valueName: 'action' },
   actionStatus: 'PotentialActionStatus',
-  'actionStatus-output': { valueRequired: true },
+  'actionStatus-output': {},
   agent: { 'name-output': { valueRequired: true } },
-  candidate: { 'name-input': { valueName: 'name' } }
+  candidate: { 'name-input': { valueName: 'name', valueRequired: true } }
 };
 
 type Handler = ReturnType<typeof jest.fn<Promise<Partial<VoteAction>>, [VoteAction, Map<string, unknown>]>>;
@@ -58,6 +58,8 @@ describe('with VoteAction', () => {
         candidate: { name: 'John Doe' }
       }));
 
+    test('canPerform should be true', () => expect(renderResult.result.current[3]).toBe(true));
+
     describe('when perform', () => {
       let deferred: ReturnType<typeof createDeferred<Partial<VoteAction>>>;
       let handler: Handler;
@@ -68,7 +70,7 @@ describe('with VoteAction', () => {
         handler = jest.fn<Promise<Partial<VoteAction>>, [VoteAction, Map<string, unknown>]>(() => deferred.promise);
 
         act(() => {
-          performPromise = renderResult.result.current[2](handler);
+          performPromise = renderResult.result.current[2]?.(handler) || Promise.resolve();
           performPromise.catch(() => {});
 
           renderResult.rerender();
@@ -176,6 +178,10 @@ describe('with VoteAction', () => {
         });
       });
     });
+  });
+
+  describe('when input is invalid', () => {
+    test('canPerform should be false', () => expect(renderResult.result.current[3]).toBe(false));
   });
 
   describe('when perform failed with invalid input', () => {

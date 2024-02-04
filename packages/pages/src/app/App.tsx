@@ -2,13 +2,14 @@ import { useCallback, useState } from 'react';
 import { useSchemaOrgAction, type PropertyValueSpecification } from 'use-schema-org-action';
 
 const App = () => {
-  const [action, setAction, performAction] = useSchemaOrgAction<{
+  const [action, setAction, performAction, canPerform] = useSchemaOrgAction<{
     actionObject?: 'downvote' | 'upvote';
     'actionObject-input': PropertyValueSpecification;
     actionStatus?: `${'Active' | 'Completed' | 'Failed' | 'Potential'}ActionStatus`;
   }>({
     'actionObject-input': {
-      valueName: 'action'
+      valueName: 'action',
+      valueRequired: true
     }
   });
 
@@ -42,7 +43,7 @@ const App = () => {
         <input checked={action.actionObject === 'downvote'} onClick={handleDownvoteClick} type="radio" />
         Downvote
       </label>
-      <button disabled={action.actionStatus === 'PotentialActionStatus'} onClick={handleClick} type="button">
+      <button disabled={!canPerform} onClick={handleClick} type="button">
         Perform
       </button>
       <h2>Current action</h2>

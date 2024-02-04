@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, type Dispatch, type SetStateAction } from 'react';
 import { type JsonObject } from 'type-fest';
 import { useStateWithRef } from 'use-state-with-ref';
-import { parse, type Output } from 'valibot';
+import { parse, safeParse, type Output } from 'valibot';
 
 import buildSchemas from './private/buildSchemas';
 import getNamedValues from './private/getNamedValues';
@@ -15,13 +15,15 @@ export default function useSchemaOrgAction<T extends Action>(
 ): [
   T,
   Dispatch<SetStateAction<T>>,
-  (fn: (action: T, values: Map<string, unknown>) => Promise<Partial<T>>) => Promise<void>
+  (fn: (action: T, values: Map<string, unknown>) => Promise<Partial<T>>) => Promise<void>,
+  boolean
 ] {
   const abortController = useMemo(() => new AbortController(), []);
   const initialActionRef = useRef(initialAction);
   const [inputSchema, outputSchema] = useMemo(() => buildSchemas(initialActionRef.current), [initialActionRef]);
 
   const [action, setAction, actionRef] = useStateWithRef<T>(omitInputOutputDeep(initialActionRef.current) as T);
+  const isInputValid = useMemo(() => safeParse(inputSchema, action).success, [action, inputSchema]);
 
   useEffect(() => () => abortController.abort(), [abortController]);
 
@@ -53,5 +55,5 @@ export default function useSchemaOrgAction<T extends Action>(
     [actionRef, initialActionRef, inputSchema, outputSchema, setAction]
   );
 
-  return [action, setAction, perform];
+  return [action, setAction, perform, isInputValid];
 }
