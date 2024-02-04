@@ -45,7 +45,7 @@ export default function useSchemaOrgAction<T extends Action>(
 
         const values = getNamedValues(initialActionRef.current, input);
 
-        const result = await fn(nextAction, values);
+        const result = await fn(input, values);
 
         output = parse(outputSchema, { actionStatus: 'CompletedActionStatus', ...result });
       } catch (error) {

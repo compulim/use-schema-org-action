@@ -12,6 +12,7 @@ type VoteAction = JsonObject & {
   actionObject?: string;
   'actionObject-input'?: PropertyValueSpecification;
   actionStatus?: string;
+  'actionStatus-input'?: PropertyValueSpecification;
   'actionStatus-output'?: PropertyValueSpecification;
   agent?: { name?: string; 'name-output'?: PropertyValueSpecification };
   candidate?: { name?: string; 'name-input'?: PropertyValueSpecification };
@@ -22,6 +23,7 @@ const voteAction: VoteAction = {
   actionObject: 'upvote',
   'actionObject-input': { valueName: 'action' },
   actionStatus: 'PotentialActionStatus',
+  'actionStatus-input': {},
   'actionStatus-output': { valueRequired: true },
   agent: { 'name-output': { valueRequired: true } },
   candidate: { 'name-input': { valueName: 'name', valueRequired: true } }
@@ -92,7 +94,7 @@ describe('with VoteAction', () => {
         expect(handler.mock.lastCall?.[0]).toEqual({
           actionObject: 'upvote',
           actionStatus: 'ActiveActionStatus',
-          agent: {},
+          // "agent" is noticebly missing because nothing in it has input constraints.
           candidate: { name: 'John Doe' }
         }));
 
@@ -242,7 +244,7 @@ describe('with VoteAction', () => {
   });
 });
 
-describe('initial action with CompletedActionStatus', () => {
+describe('with Action initialized with CompletedActionStatus', () => {
   let renderResult: ReturnType<typeof renderHook<ReturnType<typeof useSchemaOrgAction<VoteAction>>, object>>;
 
   beforeEach(() => {
@@ -255,7 +257,7 @@ describe('initial action with CompletedActionStatus', () => {
     expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'CompletedActionStatus'));
 });
 
-describe('action without actionStatus-output', () => {
+describe('with Action without actionStatus-output', () => {
   type SimpleAction = {
     actionOption: string;
     'actionOption-input'?: PropertyValueSpecification;
@@ -264,7 +266,10 @@ describe('action without actionStatus-output', () => {
 
   beforeEach(() => {
     renderResult = renderHook(() =>
-      useSchemaOrgAction<SimpleAction>({ actionOption: 'upvote', 'actionOption-input': { valueRequired: true } })
+      useSchemaOrgAction<SimpleAction>({
+        actionOption: 'upvote',
+        'actionOption-input': { valueRequired: true }
+      })
     );
   });
 
@@ -273,7 +278,7 @@ describe('action without actionStatus-output', () => {
       act(() => renderResult.result.current[2](() => Promise.resolve({ actionStatus: 'FailedActionStatus' })))
     );
 
-    test('should not use actionStatus from output', () =>
+    test('should not set actionStatus from output', () =>
       expect(renderResult.result.current[0]).toEqual({
         actionOption: 'upvote',
         actionStatus: 'CompletedActionStatus'
