@@ -29,12 +29,7 @@ const voteAction: VoteAction = {
   candidate: { 'name-input': { valueName: 'name', valueRequired: true } }
 };
 
-type Handler = ReturnType<
-  typeof jest.fn<
-    Promise<Partial<ActionWithActionStatus<VoteAction>>>,
-    [ActionWithActionStatus<VoteAction>, Map<string, unknown>]
-  >
->;
+type Handler = ReturnType<typeof jest.fn<Promise<Partial<VoteAction>>, [Partial<VoteAction>, Map<string, unknown>]>>;
 
 describe('with VoteAction', () => {
   let renderResult: ReturnType<typeof renderHook<ReturnType<typeof useSchemaOrgAction<VoteAction>>, object>>;
@@ -262,11 +257,18 @@ describe('with Action without actionStatus-output', () => {
     actionOption: string;
     'actionOption-input'?: PropertyValueSpecification;
   };
-  let renderResult: ReturnType<typeof renderHook<ReturnType<typeof useSchemaOrgAction<SimpleAction>>, object>>;
+  let renderResult: ReturnType<
+    typeof renderHook<
+      ReturnType<
+        typeof useSchemaOrgAction<SimpleAction, Partial<SimpleAction>, ActionWithActionStatus<Partial<SimpleAction>>>
+      >,
+      object
+    >
+  >;
 
   beforeEach(() => {
     renderResult = renderHook(() =>
-      useSchemaOrgAction<SimpleAction>({
+      useSchemaOrgAction<SimpleAction, Partial<SimpleAction>, ActionWithActionStatus<Partial<SimpleAction>>>({
         actionOption: 'upvote',
         'actionOption-input': { valueRequired: true }
       })

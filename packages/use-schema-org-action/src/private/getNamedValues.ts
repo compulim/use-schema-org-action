@@ -3,9 +3,9 @@ import { parse } from 'valibot';
 import PropertyValueSpecificationSchema from '../PropertyValueSpecificationSchema';
 import isPlainObject from './isPlainObject';
 
-export default function getNamedValues<T extends Record<string, unknown>>(
-  object1: T,
-  object2: T
+export default function getNamedValues(
+  object1: Record<string, unknown>,
+  object2: Record<string, unknown>
 ): Map<string, unknown> {
   const map = new Map<string, unknown>();
 
@@ -16,11 +16,15 @@ export default function getNamedValues<T extends Record<string, unknown>>(
       if (valueName) {
         map.set(valueName, object2?.[key.substring(0, key.length - 6)]);
       }
-    } else if (isPlainObject(value) && object2[key]) {
-      const subMap = getNamedValues(value, object2[key] as T);
+    } else if (isPlainObject(value)) {
+      const subObject2 = object2[key];
 
-      for (const entries of subMap.entries()) {
-        map.set(...entries);
+      if (isPlainObject(subObject2)) {
+        const subMap = getNamedValues(value, subObject2);
+
+        for (const entries of subMap.entries()) {
+          map.set(...entries);
+        }
       }
     }
   }

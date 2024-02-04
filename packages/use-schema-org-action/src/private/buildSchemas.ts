@@ -1,7 +1,22 @@
-import { any, array, boolean, number, object, optional, parse, string, union, type BaseSchema } from 'valibot';
+import { type JsonObject } from 'type-fest';
+import {
+  any,
+  array,
+  boolean,
+  number,
+  object,
+  optional,
+  parse,
+  string,
+  union,
+  type BaseSchema,
+  type ObjectSchema
+} from 'valibot';
 
 import PropertyValueSpecificationSchema from '../PropertyValueSpecificationSchema';
 import isPlainObject from './isPlainObject';
+
+type ObjectSchemaOf<T> = ObjectSchema<Record<string, BaseSchema>, undefined, T> & JsonObject;
 
 const jsonValue = () => union([array(any()), boolean(), number(), object({}), string()]);
 
@@ -38,8 +53,13 @@ function buildSchemasCore(action: object): [BaseSchema | undefined, BaseSchema |
   ];
 }
 
-export default function buildSchemas(action: object): [BaseSchema, BaseSchema] {
+export default function buildSchemas<TInput extends object, TOutput extends object>(
+  action: object
+): readonly [ObjectSchemaOf<TInput>, ObjectSchemaOf<TOutput>] {
   const [inputSchema, outputSchema] = buildSchemasCore(action);
 
-  return [inputSchema || object({}), outputSchema || object({})];
+  return Object.freeze([
+    (inputSchema || object({})) as ObjectSchemaOf<TInput>,
+    (outputSchema || object({})) as ObjectSchemaOf<TOutput>
+  ]);
 }

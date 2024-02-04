@@ -11,19 +11,24 @@ import omitInputOutputDeep from './private/omitInputOutputDeep';
 
 type Action = JsonObject;
 
-export default function useSchemaOrgAction<T extends Action>(
+export default function useSchemaOrgAction<
+  T extends Action,
+  TRequest extends Partial<T> = Partial<T>,
+  TResponse extends Partial<T> = Partial<T>
+>(
   initialAction: T
 ): [
   ActionWithActionStatus<T>,
   Dispatch<SetStateAction<ActionWithActionStatus<T>>>,
-  (
-    fn: (action: ActionWithActionStatus<T>, values: Map<string, unknown>) => Promise<Partial<ActionWithActionStatus<T>>>
-  ) => Promise<void>,
+  (fn: (request: TRequest, values: Map<string, unknown>) => Promise<TResponse>) => Promise<void>,
   boolean
 ] {
   const abortController = useMemo(() => new AbortController(), []);
   const initialActionRef = useRef({ actionStatus: 'PotentialActionStatus', ...initialAction });
-  const [inputSchema, outputSchema] = useMemo(() => buildSchemas(initialActionRef.current), [initialActionRef]);
+  const [inputSchema, outputSchema] = useMemo(
+    () => buildSchemas<TRequest, TResponse>(initialActionRef.current),
+    [initialActionRef]
+  );
 
   const [action, setAction, actionRef] = useStateWithRef<ActionWithActionStatus<T>>(
     omitInputOutputDeep(initialActionRef.current) as ActionWithActionStatus<T>
@@ -33,21 +38,21 @@ export default function useSchemaOrgAction<T extends Action>(
   useEffect(() => () => abortController.abort(), [abortController]);
 
   const perform = useCallback(
-    async (fn: (action: ActionWithActionStatus<T>, values: Map<string, unknown>) => Promise<Partial<T>>) => {
+    async (fn: (request: TRequest, values: Map<string, unknown>) => Promise<TResponse>) => {
       const nextAction: ActionWithActionStatus<T> = { ...actionRef.current, actionStatus: 'ActiveActionStatus' };
 
       setAction({ ...actionRef.current, actionStatus: 'ActiveActionStatus' });
 
-      let output: Output<typeof outputSchema> | undefined = undefined;
+      let response: Output<typeof outputSchema>;
 
       try {
-        const input = parse(inputSchema, nextAction);
+        const request = parse(inputSchema, nextAction);
 
-        const values = getNamedValues(initialActionRef.current, input);
+        const values = getNamedValues(initialActionRef.current, request);
 
-        const result = await fn(input, values);
+        const result = await fn(request, values);
 
-        output = parse(outputSchema, { actionStatus: 'CompletedActionStatus', ...result });
+        response = parse(outputSchema, { actionStatus: 'CompletedActionStatus', ...result });
       } catch (error) {
         abortController.signal.aborted || setAction({ ...actionRef.current, actionStatus: 'FailedActionStatus' });
 
@@ -56,7 +61,8 @@ export default function useSchemaOrgAction<T extends Action>(
 
       if (!abortController.signal.aborted) {
         setAction(
-          action => mergeDeep({ ...action, actionStatus: 'CompletedActionStatus' }, output) as ActionWithActionStatus<T>
+          action =>
+            mergeDeep({ ...action, actionStatus: 'CompletedActionStatus' }, response) as ActionWithActionStatus<T>
         );
       }
     },
