@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, type Dispatch, type SetStateAc
 import { useStateWithRef } from 'use-state-with-ref';
 import { parse, safeParse, type Output } from 'valibot';
 
-import type { ActionWithActionStatus } from './ActionWithActionStatus';
+import { type ActionWithActionStatus } from './ActionWithActionStatus';
 import buildSchemas from './private/buildSchemas';
 import getNamedValues from './private/getNamedValues';
 import omitInputOutputDeep from './private/omitInputOutputDeep';
