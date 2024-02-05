@@ -23,7 +23,7 @@ Click here for [our live demo](https://compulim.github.io/use-schema-org-action/
 
 ## How to use
 
-To install this package, run `npm install use-schema-org-action` or visit our [package on NPM](https://npmjs.com/package/use-schema-org/action).
+To install this package, run `npm install use-schema-org-action` or visit our [package on NPM](https://npmjs.com/package/use-schema-org-action).
 
 ```ts
 import { useSchemaOrgAction } from 'use-schema-org-action';
