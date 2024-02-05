@@ -1,7 +1,7 @@
 {
   "name": "use-schema-org-action",
   "version": "0.0.0-0",
-  "description": "React hooks for handling logics of Schema.org actions.",
+  "description": "React hook for handling logics of Schema.org actions.",
   "files": [
     "./lib/"
   ],
