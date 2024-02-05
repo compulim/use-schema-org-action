@@ -12,10 +12,10 @@ Click here for [our live demo](https://compulim.github.io/use-schema-org-action/
 
 ```ts
 function submitVote(request, values) {
-  // Request is created from action property which has an input constraint.
+  // Request is created from action properties which has an input constraint.
   request === { actionOption: 'upvote' };
 
-  // Values is created from action property which has a named input constraint.
+  // Value is a Map created from action properties which has a named input constraint.
   values.get('action') === 'upvote';
 }
 
@@ -42,7 +42,7 @@ function VoteButton() {
 
 ## API
 
-> For a complete API reference, please refer to TypeScript definition files.
+> For complete API reference, please refer to TypeScript definition files.
 
 ```ts
 useSchemaOrgAction<Action, Request, Response>(
