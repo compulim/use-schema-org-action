@@ -49,7 +49,7 @@ function VoteButton() {
   // To modify the action.
   useEffect(() => setAction({ actionOption: 'downvote' }), [setAction]);
 
-  return <button disabled={!isValid} onClick={performAction}>Vote</button>
+  return <button disabled={!isValid} onClick={performAction}>Vote</button>;
 }
 ```
 
@@ -58,7 +58,7 @@ function VoteButton() {
 > For complete API reference, please refer to TypeScript definition files.
 
 ```ts
-useSchemaOrgAction<Action, Request, Response>(
+function useSchemaOrgAction<Action, Request, Response>(
   initialAction: Action,
   handler: (request: Request, values: Map<string, unknown>) => Promise<Response>
 ): [
@@ -66,7 +66,7 @@ useSchemaOrgAction<Action, Request, Response>(
   Dispatch<SetStateAction<Action>>
   () => Promise<void>,
   boolean
-]
+];
 ```
 
 ## Designs
