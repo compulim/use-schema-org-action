@@ -42,11 +42,16 @@ function VoteButton() {
 
 ## API
 
+> For a complete API reference, please refer to TypeScript definition files.
+
 ```ts
-useSchemaOrgAction<Action, Request, Response>(initialAction: Action, handler: (request: Request, values: Map<string, unknown>): Promise<Response>): [
-  Action,
+useSchemaOrgAction<Action, Request, Response>(
+  initialAction: Action,
+  handler: (request: Request, values: Map<string, unknown>) => Promise<Response>
+): [
+  Action & { actionStatus: ActionStatusType },
   Dispatch<SetStateAction<Action>>
-  (): Promise<void>,
+  () => Promise<void>,
   boolean
 ]
 ```
