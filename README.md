@@ -10,7 +10,7 @@ Schema.org actions is a way to [describe the capability to perform an action and
 1. Validates the request against the defined input constraints
 1. Picks named properties from the action and creates a list of variables for variable expansion (as described in [RFC 6570](https://www.rfc-editor.org/rfc/rfc6570))
 1. Marks the action as in-progress
-1. Performs the action (probably asynchronously)
+1. Performs the action
 1. Marks the action as completed
 1. Validates the response against the defined output constraints
 1. Merges the response into the action
@@ -102,13 +102,13 @@ All constraints must be defined in `initialAction` and cannot be modified later.
 
 ### Some properties are not passed to the handler
 
-Properties of action that should be participated in the request must have input constraints (`*-input`) defined.
+Properties of action that should be participated in the request must have input constraints defined (`*-input`).
 
 Only properties with input constraints will become part of the request.
 
 ### Some results are not reflected in the updated action
 
-Properties of response that should be merged into the action must have output constraints (`*-output`) defined.
+Properties of response that should be merged into the action must have output constraints defined (`*-output`).
 
 After an action is performed, properties marked with output constraints will be merged into the action.
 
