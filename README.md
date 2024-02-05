@@ -23,6 +23,8 @@ Click here for [our live demo](https://compulim.github.io/use-schema-org-action/
 
 ## How to use
 
+The `useSchemaOrgAction` hook is very similar to React built-in `useState` hook with extra functionality to expose the business logics of an action .
+
 To install this package, run `npm install use-schema-org-action` or visit our [package on NPM](https://npmjs.com/package/use-schema-org-action).
 
 ```ts
