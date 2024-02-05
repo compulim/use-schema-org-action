@@ -1,3 +1,5 @@
+import _isPlainObject from 'lodash/isPlainObject';
+
 export default function isPlainObject(object: unknown): object is Record<string, unknown> {
-  return Object.prototype.toString.call(object) === '[object Object]';
+  return _isPlainObject(object);
 }

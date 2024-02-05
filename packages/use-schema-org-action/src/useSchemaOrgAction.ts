@@ -1,3 +1,4 @@
+import mergeDeep from 'merge-deep';
 import { useCallback, useEffect, useMemo, useRef, type Dispatch, type SetStateAction } from 'react';
 import { useStateWithRef } from 'use-state-with-ref';
 import { parse, safeParse, type Output } from 'valibot';
@@ -5,7 +6,6 @@ import { parse, safeParse, type Output } from 'valibot';
 import type { ActionWithActionStatus } from './ActionWithActionStatus';
 import buildSchemas from './private/buildSchemas';
 import getNamedValues from './private/getNamedValues';
-import mergeDeep from './private/mergeDeep';
 import omitInputOutputDeep from './private/omitInputOutputDeep';
 
 type Action = object;
