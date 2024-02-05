@@ -1,8 +1,21 @@
 # `use-schema-org-action`
 
-React hooks for handling logics of [Schema.org actions](https://schema.org/docs/actions.html).
+React hook for handling logics of [Schema.org actions](https://schema.org/docs/actions.html).
 
 ## Background
+
+Schema.org actions is a way to [describe the capability to perform an action and how that capability can be exercised](https://schema.org/docs/actions.html). Performing the action contains multiple steps:
+
+1. Picks properties from the action and creates a request object
+1. Validates the request against the defined input constraints
+1. Picks named properties from the action and creates a list of variables for variable expansion (as described in [RFC 6570](https://www.rfc-editor.org/rfc/rfc6570))
+1. Marks the action as in-progress
+1. Performs the action (probably asynchronously)
+1. Marks the action as completed
+1. Validates the response against the defined output constraints
+1. Merges the response into the action
+
+This package wraps all these steps as a React hook.
 
 ## Demo
 
@@ -13,10 +26,10 @@ Click here for [our live demo](https://compulim.github.io/use-schema-org-action/
 ```ts
 function submitVote(request, values) {
   // Request is created from action properties which has an input constraint.
-  request === { actionOption: 'upvote' };
+  console.log(request); // { actionOption: 'upvote' };
 
   // Value is a Map created from action properties which has a named input constraint.
-  values.get('action') === 'upvote';
+  console.log(values.get('action')); // 'upvote';
 }
 
 function VoteButton() {
@@ -31,10 +44,10 @@ function VoteButton() {
   );
 
   // Action exclude all input/output constraints, and include "actionStatus" property.
-  action === { actionOption: 'upvote', actionStatus: 'PotentialActionStatus' };
+  console.log(action); // { actionOption: 'upvote', actionStatus: 'PotentialActionStatus' };
 
   // To modify the action.
-  setAction({ actionOption: 'downvote' });
+  useEffect(() => setAction({ actionOption: 'downvote' }), [setAction]);
 
   return <button disabled={!isValid} onClick={performAction}>Vote</button>
 }
@@ -75,7 +88,7 @@ In special circumstances:
 
 ### Request/response are based on input/output constraints
 
-Properties of action that would participate in a request must have their input constraints defined. Similarly, properties of response that would merge into action must have their output constraints defined.
+Properties of action that would participate in a request must have their input constraints defined (`*-input`). Similarly, properties of response that would merge into action must have their output constraints defined (`*-output`).
 
 All constraints must be defined in `initialAction` and cannot be modified later.
 
