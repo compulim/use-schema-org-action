@@ -1,4 +1,3 @@
-import { type JsonObject } from 'type-fest';
 import {
   bigint,
   boolean,
@@ -16,7 +15,7 @@ import {
 import PropertyValueSpecificationSchema from '../PropertyValueSpecificationSchema';
 import isPlainObject from './isPlainObject';
 
-type ObjectSchemaOf<T> = ObjectSchema<Record<string, BaseSchema>, undefined, T> & JsonObject;
+type ObjectSchemaOf<T> = ObjectSchema<Record<string, BaseSchema>, undefined, T>;
 
 const propertyValue = () => union([bigint(), boolean(), date(), number(), string()]);
 
@@ -30,12 +29,12 @@ function buildSchemasCore(action: object): [BaseSchema | undefined, BaseSchema |
 
   for (const [key, value] of Object.entries(action)) {
     if (key.endsWith('-input')) {
-      const spec = parse(PropertyValueSpecificationSchema, value);
+      const spec = parse(PropertyValueSpecificationSchema(), value);
       const rawKey = key.substring(0, key.length - 6);
 
       inputSchema.set(rawKey, spec.valueRequired ? propertyValue() : optional(propertyValue()));
     } else if (key.endsWith('-output')) {
-      const spec = parse(PropertyValueSpecificationSchema, value);
+      const spec = parse(PropertyValueSpecificationSchema(), value);
       const rawKey = key.substring(0, key.length - 7);
 
       outputSchema.set(rawKey, spec.valueRequired ? propertyValue() : optional(propertyValue()));

@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, type Dispatch, type SetStateAction } from 'react';
-import { type JsonObject } from 'type-fest';
 import { useStateWithRef } from 'use-state-with-ref';
 import { parse, safeParse, type Output } from 'valibot';
 
@@ -9,7 +8,7 @@ import getNamedValues from './private/getNamedValues';
 import mergeDeep from './private/mergeDeep';
 import omitInputOutputDeep from './private/omitInputOutputDeep';
 
-type Action = JsonObject;
+type Action = object;
 
 export default function useSchemaOrgAction<
   T extends Action,

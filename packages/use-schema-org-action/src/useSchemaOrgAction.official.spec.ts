@@ -28,12 +28,7 @@ test('Spec: Text search deep link with -input', async () => {
     potentialAction: {
       '@type': 'SearchAction',
       target: 'http://example.com/search?q={q}',
-      // TODO: Textual PropertyValueSpecification is not supported yet.
-      'query-input': {
-        valueName: 'q',
-        valueRequired: true
-      }
-      // 'query-input': 'required maxlength=100 name=q'
+      'query-input': 'required maxlength=100 name=q'
     }
   };
 
@@ -102,14 +97,10 @@ test('Spec: Product purchase API call with -output', async () => {
       },
       result: {
         '@type': 'Order',
-        // TODO: Textual PropertyValueSpecification is not supported yet.
-        'url-output': { valueRequired: true },
-        // TODO: Textual PropertyValueSpecification is not supported yet.
-        'confirmationNumber-output': { valueRequired: true },
-        // TODO: Textual PropertyValueSpecification is not supported yet.
-        'orderNumber-output': { valueRequired: true },
-        // TODO: Textual PropertyValueSpecification is not supported yet.
-        'orderStatus-output': { valueRequired: true }
+        'url-output': 'required',
+        'confirmationNumber-output': 'required',
+        'orderNumber-output': 'required',
+        'orderStatus-output': 'required'
       }
     }
   };
@@ -200,18 +191,14 @@ test('Spec: Movie review site API with -input and -output', async () => {
     },
     object: {
       '@type': 'Movie',
-      // TODO: Textual PropertyValueSpecification is not supported yet.
-      'url-input': { valueRequired: true }
+      'url-input': 'required'
     },
     result: {
       '@type': 'Review',
-      // TODO: Textual PropertyValueSpecification is not supported yet.
-      'url-output': { valueRequired: true },
-      // TODO: Textual PropertyValueSpecification is not supported yet.
-      'reviewBody-input': { valueRequired: true },
+      'url-output': 'required',
+      'reviewBody-input': 'required',
       reviewRating: {
-        // TODO: Textual PropertyValueSpecification is not supported yet.
-        'ratingValue-input': { valueRequired: true }
+        'ratingValue-input': 'required'
       }
     }
   };

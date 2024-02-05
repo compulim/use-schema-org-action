@@ -12,7 +12,7 @@ export default function getNamedValues(
 
   for (const [key, value] of Object.entries(object1)) {
     if (key.endsWith('-input')) {
-      const { valueName } = parse(PropertyValueSpecificationSchema, value);
+      const { valueName } = parse(PropertyValueSpecificationSchema(), value);
 
       if (valueName) {
         map.set(valueName, object2?.[key.substring(0, key.length - 6)]);

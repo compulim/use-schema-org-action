@@ -2,13 +2,12 @@
 
 import { act, renderHook } from '@testing-library/react';
 import createDeferred from 'p-defer';
-import { type JsonObject } from 'type-fest';
 
 import { type ActionWithActionStatus } from './ActionWithActionStatus';
 import { type PropertyValueSpecification } from './PropertyValueSpecificationSchema';
 import useSchemaOrgAction from './useSchemaOrgAction';
 
-type VoteAction = JsonObject & {
+type VoteAction = {
   actionObject?: string;
   'actionObject-input'?: PropertyValueSpecification;
   actionStatus?: string;
