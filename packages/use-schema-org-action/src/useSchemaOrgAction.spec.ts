@@ -101,14 +101,14 @@ describe('with VoteAction', () => {
           candidate: { name: 'John Doe' }
         }));
 
-      test('should have called the handler with values', () => {
-        const values = handler.mock.lastCall?.[1];
+      test('should have called the handler with variables', () => {
+        const variables = handler.mock.lastCall?.[1];
 
-        expect(values).not.toBeUndefined();
+        expect(variables).not.toBeUndefined();
 
-        expect(values?.size).toBe(2);
-        expect(values?.get('action')).toBe('upvote');
-        expect(values?.get('name')).toBe('John Doe');
+        expect(variables?.size).toBe(2);
+        expect(variables?.get('action')).toBe('upvote');
+        expect(variables?.get('name')).toBe('John Doe');
       });
 
       test('should change to ActiveActionStatus', () =>

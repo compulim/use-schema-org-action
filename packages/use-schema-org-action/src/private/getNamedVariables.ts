@@ -4,7 +4,7 @@ import { parse } from 'valibot';
 import PropertyValueSpecificationSchema from '../PropertyValueSpecificationSchema';
 import isPlainObject from './isPlainObject';
 
-export default function getNamedValues(
+export default function getNamedVariables(
   object1: ReadonlyDeep<Record<string, unknown>>,
   object2: ReadonlyDeep<Record<string, unknown>>
 ): ReadonlyMap<string, unknown> {
@@ -21,7 +21,7 @@ export default function getNamedValues(
       const subObject2 = object2[key];
 
       if (isPlainObject(subObject2)) {
-        const subMap = getNamedValues(value, subObject2);
+        const subMap = getNamedVariables(value, subObject2);
 
         for (const entries of subMap.entries()) {
           map.set(...entries);

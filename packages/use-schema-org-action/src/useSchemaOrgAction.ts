@@ -5,7 +5,7 @@ import { parse, safeParse, type Output } from 'valibot';
 
 import { type ActionWithActionStatus } from './ActionWithActionStatus';
 import buildSchemas from './private/buildSchemas';
-import getNamedValues from './private/getNamedValues';
+import getNamedVariables from './private/getNamedVariables';
 import omitInputOutputDeep from './private/omitInputOutputDeep';
 
 type Action = object;
@@ -16,7 +16,7 @@ export default function useSchemaOrgAction<
   TResponse extends Partial<T> = Partial<T>
 >(
   initialAction: T,
-  handler: (request: Readonly<TRequest>, values: ReadonlyMap<string, unknown>) => Promise<Readonly<TResponse>>
+  handler: (request: Readonly<TRequest>, variables: ReadonlyMap<string, unknown>) => Promise<Readonly<TResponse>>
 ): readonly [
   ActionWithActionStatus<T>,
   Dispatch<SetStateAction<ActionWithActionStatus<T>>>,
@@ -47,9 +47,9 @@ export default function useSchemaOrgAction<
     try {
       const request = Object.freeze(parse(inputSchema, nextAction));
 
-      const values = getNamedValues(initialActionRef.current, request);
+      const variables = getNamedVariables(initialActionRef.current, request);
 
-      const result = await handler(request, values);
+      const result = await handler(request, variables);
 
       response = Object.freeze(parse(outputSchema, { actionStatus: 'CompletedActionStatus', ...result }));
     } catch (error) {

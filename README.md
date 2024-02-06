@@ -8,7 +8,7 @@ Schema.org actions is a way to [describe the capability to perform an action and
 
 1. Picks properties from the action and creates a request object
 1. Validates the request against the defined input constraints
-1. Picks named properties from the action and creates a list of variables for variable expansion (as described in [RFC 6570](https://www.rfc-editor.org/rfc/rfc6570))
+1. Picks named properties from the action and creates a list of variables for variable expansion (as described in [RFC 6570 URI Template](https://www.rfc-editor.org/rfc/rfc6570))
 1. Marks the action as in-progress
 1. Performs the action
 1. Marks the action as completed
@@ -30,12 +30,12 @@ To install this package, run `npm install use-schema-org-action` or visit our [p
 ```ts
 import { useSchemaOrgAction } from 'use-schema-org-action';
 
-function submitVote(request, values) {
+function submitVote(request, variables) {
   // Request is created from action properties which has an input constraint.
   console.log(request); // { actionOption: 'upvote' };
 
-  // Value is a Map created from action properties which has a named input constraint.
-  console.log(values.get('action')); // 'upvote';
+  // Variables is a Map created from action properties which has a named input constraint and can be used in RFC 6570 URI Template for variable expansion.
+  console.log(variables.get('action')); // 'upvote';
 }
 
 function VoteButton() {
@@ -66,7 +66,7 @@ function VoteButton() {
 ```ts
 function useSchemaOrgAction<Action, Request, Response>(
   initialAction: Action,
-  handler: (request: Request, values: Map<string, unknown>) => Promise<Response>
+  handler: (request: Request, variables: Map<string, unknown>) => Promise<Response>
 ): [
   Action & { actionStatus: ActionStatusType },
   Dispatch<SetStateAction<Action>>

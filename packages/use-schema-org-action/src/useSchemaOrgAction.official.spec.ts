@@ -51,7 +51,7 @@ test('Spec: Text search deep link with -input', async () => {
   // WHEN: performAction() is called.
   await act(() => renderResult.result.current[2]());
 
-  // THEN: It should construct the values.
+  // THEN: It should construct the variables.
   expect(handler).toHaveBeenCalledTimes(1);
   expect(Array.from(handler.mock.lastCall?.[1].entries() || [])).toEqual([['q', 'the search']]);
 });
