@@ -93,6 +93,7 @@
     "lodash": "^4.17.21",
     "merge-deep": "^3.0.3",
     "prop-types": "^15.8.1",
-    "use-state-with-ref": "^0.0.1"
+    "use-state-with-ref": "^0.0.1",
+    "valibot": "^0.28.0"
   }
 }
