@@ -71,7 +71,6 @@
     "@tsconfig/strictest": "^2.0.2",
     "@types/jest": "^29.5.11",
     "@types/lodash": "^4.14.202",
-    "@types/merge-deep": "^3.0.3",
     "@types/node": "^20.10.4",
     "@types/react": "^18.2.45",
     "esbuild": "^0.19.9",
@@ -91,9 +90,8 @@
   "dependencies": {
     "@babel/runtime-corejs3": "^7.23.6",
     "lodash": "^4.17.21",
-    "merge-deep": "^3.0.3",
     "prop-types": "^15.8.1",
     "use-state-with-ref": "^0.0.1",
-    "valibot": "^0.28.0"
+    "valibot": "^0.27.1"
   }
 }

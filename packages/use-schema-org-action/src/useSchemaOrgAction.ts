@@ -1,4 +1,4 @@
-import mergeDeep from 'merge-deep';
+import merge from 'lodash/merge';
 import { useCallback, useEffect, useMemo, useRef, type Dispatch, type SetStateAction } from 'react';
 import { useStateWithRef } from 'use-state-with-ref';
 import { parse, safeParse, type Output } from 'valibot';
@@ -60,7 +60,7 @@ export default function useSchemaOrgAction<
 
     if (!abortController.signal.aborted) {
       setAction(
-        action => mergeDeep({ ...action, actionStatus: 'CompletedActionStatus' }, response) as ActionWithActionStatus<T>
+        action => merge({}, action, { actionStatus: 'CompletedActionStatus' }, response) as ActionWithActionStatus<T>
       );
     }
   }, [actionRef, handler, initialActionRef, inputSchema, outputSchema, setAction]);
