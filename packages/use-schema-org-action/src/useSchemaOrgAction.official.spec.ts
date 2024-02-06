@@ -268,11 +268,15 @@ test('Spec: Movie review site API with -input and -output', async () => {
 
   expect(handler).toHaveBeenCalledTimes(1);
   expect(handler.mock.lastCall?.[0]).toEqual({
+    '@context': 'https://schema.org',
+    '@type': 'ReviewAction',
     object: {
+      '@type': 'Movie',
       // The spec wrongly say this is @id instead of url.
       url: 'http://example.com/movies/123'
     },
     result: {
+      '@type': 'Review',
       reviewBody: 'yada, yada, yada',
       reviewRating: {
         ratingValue: '4'

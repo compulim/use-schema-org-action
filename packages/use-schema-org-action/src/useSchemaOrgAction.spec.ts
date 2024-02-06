@@ -8,6 +8,7 @@ import { type PropertyValueSpecification } from './PropertyValueSpecificationSch
 import useSchemaOrgAction from './useSchemaOrgAction';
 
 type VoteAction = {
+  '@type': 'VoteAction';
   actionObject?: string;
   'actionObject-input'?: PropertyValueSpecification;
   actionStatus?: string;
@@ -19,6 +20,7 @@ type VoteAction = {
 };
 
 const voteAction: VoteAction = {
+  '@type': 'VoteAction',
   actionObject: 'upvote',
   'actionObject-input': { valueName: 'action' },
   actionStatus: 'PotentialActionStatus',
@@ -44,6 +46,7 @@ describe('with VoteAction', () => {
 
   test('action should not have *-input/*-output', () =>
     expect(renderResult.result.current[0]).toEqual({
+      '@type': 'VoteAction',
       actionObject: 'upvote',
       actionStatus: 'PotentialActionStatus',
       agent: {},
@@ -59,6 +62,7 @@ describe('with VoteAction', () => {
 
     test('should have action updated with new "candidate.name" field', () =>
       expect(renderResult.result.current[0]).toEqual({
+        '@type': 'VoteAction',
         actionObject: 'upvote',
         actionStatus: 'PotentialActionStatus',
         agent: {},
@@ -90,6 +94,7 @@ describe('with VoteAction', () => {
 
       test('should have called the handler with the updated action', () =>
         expect(handler.mock.lastCall?.[0]).toEqual({
+          '@type': 'VoteAction',
           actionObject: 'upvote',
           actionStatus: 'ActiveActionStatus',
           // "agent" is noticebly missing because nothing in it has input constraints.
@@ -113,6 +118,7 @@ describe('with VoteAction', () => {
         beforeEach(() =>
           act(() =>
             deferred.resolve({
+              '@type': 'VoteAction',
               agent: { name: 'Mary Doe' },
               location: 'Tokyo'
             })
@@ -126,6 +132,7 @@ describe('with VoteAction', () => {
 
         test('should merge response properties with *-output', () =>
           expect(renderResult.result.current[0]).toEqual({
+            '@type': 'VoteAction',
             actionObject: 'upvote',
             actionStatus: 'CompletedActionStatus',
             agent: { name: 'Mary Doe' },
@@ -147,6 +154,7 @@ describe('with VoteAction', () => {
 
         test('should change actionStatus to FailedActionStatus', () =>
           expect(renderResult.result.current[0]).toEqual({
+            '@type': 'VoteAction',
             actionObject: 'upvote',
             actionStatus: 'FailedActionStatus',
             agent: {},
@@ -161,6 +169,7 @@ describe('with VoteAction', () => {
 
         test('should change actionStatus to FailedActionStatus', () =>
           expect(renderResult.result.current[0]).toEqual({
+            '@type': 'VoteAction',
             actionObject: 'upvote',
             actionStatus: 'FailedActionStatus',
             agent: {},
@@ -177,6 +186,7 @@ describe('with VoteAction', () => {
 
         test('should change actionStatus to FailedActionStatus', () =>
           expect(renderResult.result.current[0]).toEqual({
+            '@type': 'VoteAction',
             actionObject: 'upvote',
             actionStatus: 'FailedActionStatus',
             agent: { name: 'Mary Doe' },
@@ -231,6 +241,7 @@ describe('with VoteAction', () => {
 
     test('should have actionStatus updated', () =>
       expect(renderResult.result.current[0]).toEqual({
+        '@type': 'VoteAction',
         actionObject: 'upvote',
         actionStatus: 'CompletedActionStatus',
         agent: {},
@@ -256,6 +267,7 @@ describe('with Action initialized with CompletedActionStatus', () => {
 
 describe('with Action without actionStatus-output', () => {
   type SimpleAction = {
+    '@type': 'VoteAction';
     actionOption: string;
     'actionOption-input'?: PropertyValueSpecification;
   };
@@ -276,6 +288,7 @@ describe('with Action without actionStatus-output', () => {
     renderResult = renderHook(() =>
       useSchemaOrgAction<SimpleAction, Partial<SimpleAction>, ActionWithActionStatus<Partial<SimpleAction>>>(
         {
+          '@type': 'VoteAction',
           actionOption: 'upvote',
           'actionOption-input': { valueRequired: true }
         },
@@ -295,6 +308,7 @@ describe('with Action without actionStatus-output', () => {
 
     test('should not set "actionStatus" from response', () =>
       expect(renderResult.result.current[0]).toEqual({
+        '@type': 'VoteAction',
         actionOption: 'upvote',
         actionStatus: 'CompletedActionStatus'
       }));

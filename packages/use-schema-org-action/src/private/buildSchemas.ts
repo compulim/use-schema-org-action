@@ -47,8 +47,12 @@ function buildSchemasCore(action: object): [BaseSchema | undefined, BaseSchema |
   }
 
   return [
-    inputSchema.size ? object(mapToObject(inputSchema)) : undefined,
-    outputSchema.size ? object(mapToObject(outputSchema)) : undefined
+    inputSchema.size
+      ? object({ '@context': optional(string()), '@type': optional(string()), ...mapToObject(inputSchema) })
+      : undefined,
+    outputSchema.size
+      ? object({ '@context': optional(string()), '@type': optional(string()), ...mapToObject(outputSchema) })
+      : undefined
   ];
 }
 
