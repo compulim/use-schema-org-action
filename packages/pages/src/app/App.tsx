@@ -11,8 +11,8 @@ const App = () => {
   const [performed, setPerformed] = useState<object | undefined>(undefined);
 
   const handler = useCallback(
-    (action: Partial<Action>, values: Map<string, unknown>): Promise<Partial<Action>> => {
-      setPerformed({ action, values: Object.fromEntries(values.entries()) });
+    (action: Partial<Action>, values: ReadonlyMap<string, unknown>): Promise<Partial<Action>> => {
+      setPerformed({ action, values: Object.freeze(Object.fromEntries(values.entries())) });
 
       return new Promise(resolve => setTimeout(() => resolve({}), 1000));
     },
