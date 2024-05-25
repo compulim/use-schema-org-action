@@ -3,9 +3,8 @@
     "declaration": true,
     "emitDeclarationOnly": true,
     "esModuleInterop": true,
-    "jsx": "react-jsx",
-    "noEmit": false,
-    "target": "ES2015"
+    "jsx": "react",
+    "noEmit": false
   },
   "exclude": ["**/*.spec.*", "**/*.test.*", "__tests__/**/*"],
   "extends": "@tsconfig/strictest/tsconfig.json"

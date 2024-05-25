@@ -6,14 +6,31 @@
       "babel-jest",
       {
         "presets": [
-          ["@babel/preset-react", { "runtime": "automatic" }],
-          ["@babel/preset-typescript", { "allowDeclareFields": true }],
-          ["@babel/preset-env", { "modules": "commonjs", "targets": { "node": "18" } }]
+          [
+            "@babel/preset-react",
+            {
+              "runtime": "classic"
+            }
+          ],
+          [
+            "@babel/preset-typescript",
+            {
+              "allowDeclareFields": true
+            }
+          ],
+          [
+            "@babel/preset-env",
+            {
+              "modules": "commonjs",
+              "targets": {
+                "node": "18"
+              }
+            }
+          ]
         ],
         "sourceMaps": true
       }
     ]
   },
-  "transformIgnorePatterns": ["/node_modules/(?!(p-defer)/)", "\\.pnp\\.[^\\/]+$"],
   "watchPathIgnorePatterns": ["\\.tmp\\."]
 }

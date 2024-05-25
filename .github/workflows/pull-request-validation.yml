@@ -7,7 +7,14 @@ on:
 
 jobs:
   call-workflow:
+    strategy:
+      matrix:
+        node-version: lts/*
+        switch: [current, react-16, react-17, react-18]
     uses: compulim/workflows/.github/workflows/pull-request-validation.yml@main
     with:
+      github-pages: false
+      node-version: ${{ matrix.node-version }}
       package-name: use-schema-org-action
       skip-integration-test: false
+      switch: ${{ matrix.switch }}
