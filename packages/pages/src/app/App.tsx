@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useSchemaOrgAction, type PropertyValueSpecification } from 'use-schema-org-action';
 
 type Action = {
