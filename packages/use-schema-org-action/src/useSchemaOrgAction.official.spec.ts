@@ -1,11 +1,19 @@
 /** @jest-environment jsdom */
 
-import { renderHook } from '@testing-library/react';
-
 import { act } from 'react-dom/test-utils';
+
 import { type ActionStatusType } from './ActionStatusType';
 import { type PropertyValueSpecification } from './PropertyValueSpecificationSchema';
 import useSchemaOrgAction from './useSchemaOrgAction';
+
+const renderHook: <T, P>(
+  render: (props: P) => T,
+  options?: { initialProps: P }
+) => { rerender: (props: P) => void; result: { current: T }; unmount: () => void } =
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  require('@testing-library/react').renderHook ||
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  require('@testing-library/react-hooks').renderHook;
 
 test('Spec: Text search deep link with -input', async () => {
   type SearchAction = {

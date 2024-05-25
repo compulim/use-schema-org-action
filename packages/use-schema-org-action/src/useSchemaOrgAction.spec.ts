@@ -1,11 +1,41 @@
 /** @jest-environment jsdom */
 
-import { act, renderHook } from '@testing-library/react';
-import createDeferred from 'p-defer';
+import 'core-js/features/promise/with-resolvers';
+import { act } from 'react-dom/test-utils';
 
 import { type ActionWithActionStatus } from './ActionWithActionStatus';
 import { type PropertyValueSpecification } from './PropertyValueSpecificationSchema';
 import useSchemaOrgAction from './useSchemaOrgAction';
+
+interface PromiseWithResolvers<T> {
+  promise: Promise<T>;
+  resolve: (value: T | PromiseLike<T>) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  reject: (reason?: any) => void;
+}
+
+declare global {
+  interface PromiseConstructor {
+    /**
+     * Creates a new Promise and returns it in an object, along with its resolve and reject functions.
+     * @returns An object with the properties `promise`, `resolve`, and `reject`.
+     *
+     * ```ts
+     * const { promise, resolve, reject } = Promise.withResolvers<T>();
+     * ```
+     */
+    withResolvers<T>(): PromiseWithResolvers<T>;
+  }
+}
+
+const renderHook: <T, P>(
+  render: (props: P) => T,
+  options?: { initialProps: P }
+) => { rerender: (props: P) => void; result: { current: T }; unmount: () => void } =
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  require('@testing-library/react').renderHook ||
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  require('@testing-library/react-hooks').renderHook;
 
 type VoteAction = {
   '@type': 'VoteAction';
@@ -72,18 +102,18 @@ describe('with VoteAction', () => {
     test('canPerform should be true', () => expect(renderResult.result.current[3]).toBe(true));
 
     describe('when perform', () => {
-      let deferred: ReturnType<typeof createDeferred<Partial<ActionWithActionStatus<VoteAction>>>>;
+      let deferred: PromiseWithResolvers<Partial<ActionWithActionStatus<VoteAction>>>;
       let performPromise: Promise<void>;
 
       beforeEach(() => {
-        deferred = createDeferred();
+        deferred = Promise.withResolvers();
         handler.mockImplementation(() => deferred.promise);
 
         act(() => {
           performPromise = renderResult.result.current[2]?.() || Promise.resolve();
           performPromise.catch(() => {});
 
-          renderResult.rerender();
+          renderResult.rerender({});
         });
       });
 
@@ -224,7 +254,7 @@ describe('with VoteAction', () => {
         performPromise = renderResult.result.current[2]();
         performPromise.catch(() => {});
 
-        renderResult.rerender();
+        renderResult.rerender({});
       })
     );
 
@@ -328,14 +358,14 @@ describe('"performAction" function', () => {
   });
 
   test('should be memoized if handler is not changed', () => {
-    renderResult.rerender();
+    renderResult.rerender({});
 
     expect(firstPerform).toBe(renderResult.result.current[2]);
   });
 
   test('should not be memoized if handler is changed', () => {
     handler = () => Promise.resolve({});
-    renderResult.rerender();
+    renderResult.rerender({});
 
     expect(firstPerform).not.toBe(renderResult.result.current[2]);
   });
