@@ -4,15 +4,33 @@
     "\\.cjsx?$": [
       "babel-jest",
       {
-        "presets": [["@babel/preset-react", { "runtime": "automatic" }]]
+        "presets": [
+          [
+            "@babel/preset-react",
+            {
+              "runtime": "classic"
+            }
+          ]
+        ]
       }
     ],
     "\\.mjsx?$": [
       "babel-jest",
       {
         "presets": [
-          ["@babel/preset-react", { "runtime": "automatic" }],
-          ["@babel/preset-env", { "modules": "commonjs", "targets": "defaults" }]
+          [
+            "@babel/preset-react",
+            {
+              "runtime": "classic"
+            }
+          ],
+          [
+            "@babel/preset-env",
+            {
+              "modules": "commonjs",
+              "targets": "defaults"
+            }
+          ]
         ]
       }
     ]

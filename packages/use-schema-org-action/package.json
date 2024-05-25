@@ -30,14 +30,15 @@
     "bump:babel": "npm run bump:babel:commonjs && npm run bump:babel:esmodules",
     "bump:babel:commonjs": "cat babel.commonjs.config.json | jq --arg CORE_JS_VERSION `[ -f node_modules/@babel/runtime-corejs3/package.json ] && cat node_modules/@babel/runtime-corejs3/package.json | jq -r .version || cat ../../node_modules/@babel/runtime-corejs3/package.json | jq -r .version` '(.plugins[] | select(.[0] == \"@babel/plugin-transform-runtime\"))[1].version = $CORE_JS_VERSION' | prettier --parser json > babel.commonjs.config.json.tmp && mv babel.commonjs.config.json.tmp babel.commonjs.config.json",
     "bump:babel:esmodules": "cat babel.esmodules.config.json | jq --arg CORE_JS_VERSION `[ -f node_modules/@babel/runtime-corejs3/package.json ] && cat node_modules/@babel/runtime-corejs3/package.json | jq -r .version || cat ../../node_modules/@babel/runtime-corejs3/package.json | jq -r .version` '(.plugins[] | select(.[0] == \"@babel/plugin-transform-runtime\"))[1].version = $CORE_JS_VERSION' | prettier --parser json > babel.esmodules.config.json.tmp && mv babel.esmodules.config.json.tmp babel.esmodules.config.json",
-    "bump:dev": "PACKAGES_TO_BUMP=$(cat package.json | jq -r '.localPeerDependencies // {} as $L | .devDependencies // {} | to_entries | map(select(.key as $K | $L | has($K) | not)) | map(.key + \"@latest\") | join(\" \")') && [ ! -z \"$PACKAGES_TO_BUMP\" ] && npm install $PACKAGES_TO_BUMP || true",
-    "bump:prod": "PACKAGES_TO_BUMP=$(cat package.json | jq -r '.localPeerDependencies // {} as $L | .dependencies // {} | to_entries | map(select(.key as $K | $L | has($K) | not)) | map(.key + \"@latest\") | join(\" \")') && [ ! -z \"$PACKAGES_TO_BUMP\" ] && npm install $PACKAGES_TO_BUMP || true",
+    "bump:dev": "PACKAGES_TO_BUMP=$(cat package.json | jq -r '(.localPeerDependencies // {}) as $L | (.devDependencies // {}) | to_entries | map(select(.key as $K | $L | has($K) | not)) | map(.key + \"@latest\") | join(\" \")') && [ ! -z \"$PACKAGES_TO_BUMP\" ] && npm install $PACKAGES_TO_BUMP || true",
+    "bump:prod": "PACKAGES_TO_BUMP=$(cat package.json | jq -r '(.localPeerDependencies // {}) as $L | (.dependencies // {}) | to_entries | map(select(.key as $K | $L | has($K) | not)) | map(.key + \"@latest\") | join(\" \")') && [ ! -z \"$PACKAGES_TO_BUMP\" ] && npm install $PACKAGES_TO_BUMP || true",
     "postscaffold": "npm run bump:babel",
     "precommit": "npm run precommit:eslint && npm run precommit:typescript:production && npm run precommit:typescript:test",
     "precommit:eslint": "eslint ./src/",
     "precommit:typescript:production": "tsc --noEmit --project ./src/tsconfig.precommit.production.json",
     "precommit:typescript:test": "tsc --noEmit --project ./src/tsconfig.precommit.test.json",
     "prepack": "cp ../../CHANGELOG.md . && cp ../../LICENSE . && cp ../../README.md .",
+    "switch": "cat package.json | jq --arg SWITCH_NAME $SWITCH_NAME -r '(.[\"switch:\" + $SWITCH_NAME] // {}) as $TEMPLATE | .devDependencies += ($TEMPLATE.devDependencies // {}) | .dependencies += ($TEMPLATE.dependencies // {})' | tee ./package.json.tmp && mv ./package.json.tmp ./package.json",
     "test": "jest"
   },
   "repository": {
@@ -58,6 +59,34 @@
     "url": "https://github.com/compulim/use-schema-org-action/issues"
   },
   "homepage": "https://github.com/compulim/use-schema-org-action#readme",
+  "switch:react-16": {
+    "devDependencies": {
+      "@testing-library/react": "^12",
+      "@testing-library/react-hooks": "latest",
+      "@types/react": "^16",
+      "react": "16.9.0",
+      "react-dom": "16.9.0",
+      "react-test-renderer": "16.9.0"
+    }
+  },
+  "switch:react-17": {
+    "devDependencies": {
+      "@testing-library/react": "^12",
+      "@testing-library/react-hooks": "latest",
+      "@types/react": "^17",
+      "react": "17.0.0",
+      "react-dom": "17.0.0",
+      "react-test-renderer": "17.0.0"
+    }
+  },
+  "switch:react-18": {
+    "devDependencies": {
+      "@types/react": "^18",
+      "react": "18.0.0",
+      "react-dom": "18.0.0",
+      "react-test-renderer": "18.0.0"
+    }
+  },
   "devDependencies": {
     "@babel/cli": "^7.23.4",
     "@babel/core": "^7.23.6",
@@ -73,10 +102,10 @@
     "@types/lodash": "^4.14.202",
     "@types/node": "^20.10.4",
     "@types/react": "^18.2.45",
+    "core-js": "^3.37.1",
     "esbuild": "^0.19.9",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
-    "p-defer": "^4.0.0",
     "prettier": "^3.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
