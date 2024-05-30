@@ -80,28 +80,28 @@
     }
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.23.6",
-    "@babel/preset-react": "^7.23.3",
-    "@babel/preset-typescript": "^7.23.3",
-    "@fluentui/react": "^8.113.1",
-    "@testing-library/react": "^14.2.1",
-    "@tsconfig/recommended": "^1.0.3",
-    "@tsconfig/strictest": "^2.0.2",
-    "@types/jest": "^29.5.11",
-    "@types/lodash": "^4.14.202",
-    "@types/node": "^20.10.4",
-    "@types/react": "^18.2.45",
+    "@babel/preset-env": "^7.24.6",
+    "@babel/preset-react": "^7.24.6",
+    "@babel/preset-typescript": "^7.24.6",
+    "@fluentui/react": "^8.118.6",
+    "@testing-library/react": "^15.0.7",
+    "@tsconfig/recommended": "^1.0.6",
+    "@tsconfig/strictest": "^2.0.5",
+    "@types/jest": "^29.5.12",
+    "@types/lodash": "^4.17.4",
+    "@types/node": "^20.12.13",
+    "@types/react": "^18.3.3",
     "core-js": "^3.37.1",
-    "esbuild": "^0.19.9",
+    "esbuild": "^0.21.4",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
-    "prettier": "^3.1.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-test-renderer": "^18.2.0",
-    "react-wrap-with": "^0.0.4",
+    "prettier": "^3.2.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-test-renderer": "^18.3.1",
+    "react-wrap-with": "^0.1.0",
     "tsup": "^8.0.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.4.5"
   },
   "peerDependencies": {
     "react": ">=16.9.0"
@@ -109,7 +109,7 @@
   "dependencies": {
     "lodash": "^4.17.21",
     "prop-types": "^15.8.1",
-    "use-state-with-ref": "^0.0.1",
-    "valibot": "^0.27.1"
+    "use-state-with-ref": "^0.1.0",
+    "valibot": "^0.30.0"
   }
 }
