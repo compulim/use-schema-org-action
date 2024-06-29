@@ -1,7 +1,7 @@
 import merge from 'lodash/merge';
 import { useCallback, useEffect, useMemo, useRef, type Dispatch, type SetStateAction } from 'react';
 import { useStateWithRef } from 'use-state-with-ref';
-import { parse, safeParse, type Output } from 'valibot';
+import { parse, safeParse, type InferOutput } from 'valibot';
 
 import { type ActionWithActionStatus } from './ActionWithActionStatus';
 import buildSchemas from './private/buildSchemas';
@@ -42,7 +42,7 @@ export default function useSchemaOrgAction<
 
     setAction({ ...actionRef.current, actionStatus: 'ActiveActionStatus' });
 
-    let response: Output<typeof outputSchema>;
+    let response: InferOutput<typeof outputSchema>;
 
     try {
       const request = Object.freeze(parse(inputSchema, nextAction));
