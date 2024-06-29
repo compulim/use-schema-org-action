@@ -302,11 +302,7 @@ describe('with Action without actionStatus-output', () => {
     'actionOption-input'?: PropertyValueSpecification;
   };
 
-  type UseSchemaOrgAction = typeof useSchemaOrgAction<
-    SimpleAction,
-    Partial<SimpleAction>,
-    ActionWithActionStatus<Partial<SimpleAction>>
-  >;
+  type UseSchemaOrgAction = typeof useSchemaOrgAction<SimpleAction, ActionWithActionStatus<Partial<SimpleAction>>>;
 
   type RawHandler = Parameters<UseSchemaOrgAction>[1];
   type Handler = jest.Mock<ReturnType<RawHandler>, Parameters<RawHandler>>;
@@ -316,7 +312,7 @@ describe('with Action without actionStatus-output', () => {
 
   beforeEach(() => {
     renderResult = renderHook(() =>
-      useSchemaOrgAction<SimpleAction, Partial<SimpleAction>, ActionWithActionStatus<Partial<SimpleAction>>>(
+      useSchemaOrgAction<SimpleAction, ActionWithActionStatus<Partial<SimpleAction>>>(
         {
           '@type': 'VoteAction',
           actionOption: 'upvote',

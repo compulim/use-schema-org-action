@@ -4,6 +4,7 @@ import { act } from 'react-dom/test-utils';
 
 import { type ActionStatusType } from './ActionStatusType';
 import { type PropertyValueSpecification } from './PropertyValueSpecificationSchema';
+import type { SchemaOrgObject } from './SchemaOrgObject';
 import useSchemaOrgAction from './useSchemaOrgAction';
 
 const renderHook: <T, P>(
@@ -42,7 +43,7 @@ test('Spec: Text search deep link with -input', async () => {
 
   const handler = jest.fn<
     Promise<Readonly<Partial<SearchAction>>>,
-    [Readonly<Partial<SearchAction>>, ReadonlyMap<string, unknown>]
+    [Readonly<Partial<SchemaOrgObject>>, ReadonlyMap<string, unknown>]
   >();
 
   // WHEN: Render the hook.
@@ -115,7 +116,7 @@ test('Spec: Product purchase API call with -output', async () => {
 
   const handler = jest.fn<
     Promise<Readonly<Partial<BuyAction>>>,
-    [Readonly<Partial<BuyAction>>, ReadonlyMap<string, unknown>]
+    [Readonly<Partial<SchemaOrgObject>>, ReadonlyMap<string, unknown>]
   >(() =>
     Promise.resolve({
       '@type': 'BuyAction',
@@ -213,7 +214,7 @@ test('Spec: Movie review site API with -input and -output', async () => {
 
   const handler = jest.fn<
     Promise<Readonly<Partial<ReviewAction>>>,
-    [Readonly<Partial<ReviewAction>>, ReadonlyMap<string, unknown>]
+    [Readonly<Partial<SchemaOrgObject>>, ReadonlyMap<string, unknown>]
   >(() =>
     Promise.resolve({
       '@context': 'https://schema.org',

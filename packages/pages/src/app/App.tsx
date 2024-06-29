@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { useSchemaOrgAction, type PropertyValueSpecification } from 'use-schema-org-action';
+import { useSchemaOrgAction, type PropertyValueSpecification, type SchemaOrgObject } from 'use-schema-org-action';
 
 type Action = {
   actionObject?: 'downvote' | 'upvote';
@@ -11,7 +11,7 @@ const App = () => {
   const [performed, setPerformed] = useState<object | undefined>(undefined);
 
   const handler = useCallback(
-    (action: Partial<Action>, values: ReadonlyMap<string, unknown>): Promise<Partial<Action>> => {
+    (action: Partial<SchemaOrgObject>, values: ReadonlyMap<string, unknown>): Promise<Partial<Action>> => {
       setPerformed({ action, values: Object.freeze(Object.fromEntries(values.entries())) });
 
       return new Promise(resolve => setTimeout(() => resolve({}), 1000));
