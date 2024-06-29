@@ -1,4 +1,4 @@
-import { boolean, object, optional, string, type Output } from 'valibot';
+import { boolean, object, optional, string, type InferOutput } from 'valibot';
 
 const PropertyValueSpecificationSchema = object({
   valueName: optional(string()),
@@ -7,4 +7,4 @@ const PropertyValueSpecificationSchema = object({
 
 export default PropertyValueSpecificationSchema;
 
-export type PropertyValueSpecification = Output<typeof PropertyValueSpecificationSchema>;
+export type PropertyValueSpecification = InferOutput<typeof PropertyValueSpecificationSchema>;
