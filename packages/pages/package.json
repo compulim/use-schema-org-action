@@ -45,20 +45,20 @@
     "use-schema-org-action": "^0.0.0-0"
   },
   "devDependencies": {
-    "@fluentui/react": "^8.118.6",
+    "@fluentui/react": "^8.119.0",
     "@tsconfig/strictest": "^2.0.5",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "esbuild": "^0.21.4",
+    "esbuild": "^0.21.5",
     "react-wrap-with": "^0.1.0",
-    "type-fest": "^4.18.3",
-    "typescript": "^5.4.5"
+    "type-fest": "^4.20.1",
+    "typescript": "^5.5.2"
   },
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "use-schema-org-action": "^0.0.0-0",
     "use-state-with-ref": "^0.1.0",
-    "valibot": "^0.30.0"
+    "valibot": "^0.35.0"
   }
 }
