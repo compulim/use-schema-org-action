@@ -8,14 +8,21 @@ import {
   parse,
   string,
   union,
-  type BaseSchema,
-  type ObjectSchema
+  type ObjectSchema,
+  type OptionalSchema,
+  type StringSchema
 } from 'valibot';
 
 import PropertyValueSpecificationSchema from '../PropertyValueSpecificationSchema';
 import isPlainObject from './isPlainObject';
 
-type ObjectSchemaOf<T> = ObjectSchema<Record<string, BaseSchema>, undefined, T>;
+export type SchemaOrgSchema = ObjectSchema<
+  {
+    '@context': OptionalSchema<StringSchema<undefined>, never>;
+    '@type': OptionalSchema<StringSchema<undefined>, never>;
+  },
+  undefined
+>;
 
 const propertyValue = () => union([bigint(), boolean(), date(), number(), string()]);
 
@@ -23,9 +30,15 @@ function mapToObject<T>(map: Map<string, T>): { [k: string]: T } {
   return Object.fromEntries(map.entries());
 }
 
-function buildSchemasCore(action: object): [BaseSchema | undefined, BaseSchema | undefined] {
-  const inputSchema: Map<string, BaseSchema> = new Map();
-  const outputSchema: Map<string, BaseSchema> = new Map();
+function buildSchemasCore(action: object): [SchemaOrgSchema | undefined, SchemaOrgSchema | undefined] {
+  const inputSchema: Map<
+    string,
+    ReturnType<typeof propertyValue> | OptionalSchema<ReturnType<typeof propertyValue>, undefined> | SchemaOrgSchema
+  > = new Map();
+  const outputSchema: Map<
+    string,
+    ReturnType<typeof propertyValue> | OptionalSchema<ReturnType<typeof propertyValue>, undefined> | SchemaOrgSchema
+  > = new Map();
 
   for (const [key, value] of Object.entries(action)) {
     if (key.endsWith('-input')) {
@@ -56,13 +69,11 @@ function buildSchemasCore(action: object): [BaseSchema | undefined, BaseSchema |
   ];
 }
 
-export default function buildSchemas<TInput extends object, TOutput extends object>(
-  action: object
-): readonly [ObjectSchemaOf<TInput>, ObjectSchemaOf<TOutput>] {
+export default function buildSchemas<
+  TInputSchema extends SchemaOrgSchema = SchemaOrgSchema,
+  TOutputSchema extends SchemaOrgSchema = SchemaOrgSchema
+>(action: object): readonly [TInputSchema, TOutputSchema] {
   const [inputSchema, outputSchema] = buildSchemasCore(action);
 
-  return Object.freeze([
-    (inputSchema || object({})) as ObjectSchemaOf<TInput>,
-    (outputSchema || object({})) as ObjectSchemaOf<TOutput>
-  ]);
+  return Object.freeze([(inputSchema || object({})) as TInputSchema, (outputSchema || object({})) as TOutputSchema]);
 }

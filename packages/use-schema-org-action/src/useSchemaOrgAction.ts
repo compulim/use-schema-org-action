@@ -4,19 +4,18 @@ import { useStateWithRef } from 'use-state-with-ref';
 import { parse, safeParse, type InferOutput } from 'valibot';
 
 import { type ActionWithActionStatus } from './ActionWithActionStatus';
-import buildSchemas from './private/buildSchemas';
+import buildSchemas, { type SchemaOrgSchema } from './private/buildSchemas';
 import getNamedVariables from './private/getNamedVariables';
 import omitInputOutputDeep from './private/omitInputOutputDeep';
 
 type Action = object;
 
-export default function useSchemaOrgAction<
-  T extends Action,
-  TRequest extends Partial<T> = Partial<T>,
-  TResponse extends Partial<T> = Partial<T>
->(
+export default function useSchemaOrgAction<T extends Action, TResponse extends Partial<T> = Partial<T>>(
   initialAction: T,
-  handler: (request: Readonly<TRequest>, variables: ReadonlyMap<string, unknown>) => Promise<Readonly<TResponse>>
+  handler: (
+    request: Readonly<InferOutput<SchemaOrgSchema>>,
+    variables: ReadonlyMap<string, unknown>
+  ) => Promise<Readonly<TResponse>>
 ): readonly [
   ActionWithActionStatus<T>,
   Dispatch<SetStateAction<ActionWithActionStatus<T>>>,
@@ -25,10 +24,7 @@ export default function useSchemaOrgAction<
 ] {
   const abortController = useMemo(() => new AbortController(), []);
   const initialActionRef = useRef({ actionStatus: 'PotentialActionStatus', ...initialAction });
-  const [inputSchema, outputSchema] = useMemo(
-    () => buildSchemas<TRequest, TResponse>(initialActionRef.current),
-    [initialActionRef]
-  );
+  const [inputSchema, outputSchema] = useMemo(() => buildSchemas(initialActionRef.current), [initialActionRef]);
 
   const [action, setAction, actionRef] = useStateWithRef<ActionWithActionStatus<T>>(
     omitInputOutputDeep(initialActionRef.current) as ActionWithActionStatus<T>
