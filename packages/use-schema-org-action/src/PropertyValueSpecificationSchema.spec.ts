@@ -49,3 +49,10 @@ describe('parse from empty object', () => {
   test('should not have valueName', () => expect(actual).not.toHaveProperty('valueName'));
   test('should not have valueRequired', () => expect(actual).not.toHaveProperty('valueRequired'));
 });
+
+describe('parse from wrong object', () => {
+  test('should throw', () =>
+    expect(() => {
+      parse(PropertyValueSpecificationSchema(), { '@type': 'Something else' });
+    }).toThrow('Must be "PropertyValueSpecificationSchema"'));
+});
