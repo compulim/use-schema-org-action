@@ -3,10 +3,10 @@ import { useCallback, useEffect, useMemo, useRef, type Dispatch, type SetStateAc
 import { useStateWithRef } from 'use-state-with-ref';
 import { parse, safeParse, type InferOutput } from 'valibot';
 
-import { type ActionWithActionStatus } from './ActionWithActionStatus';
-import buildSchemas, { type SchemaOrgSchema } from './private/buildSchemas';
-import getNamedVariables from './private/getNamedVariables';
-import omitInputOutputDeep from './private/omitInputOutputDeep';
+import { type ActionWithActionStatus } from './ActionWithActionStatus.ts';
+import buildSchemas, { type SchemaOrgSchema } from './private/buildSchemas.ts';
+import getNamedVariables from './private/getNamedVariables.ts';
+import omitInputOutputDeep from './private/omitInputOutputDeep.ts';
 
 type Action = object;
 

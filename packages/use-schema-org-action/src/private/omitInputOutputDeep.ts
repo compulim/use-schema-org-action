@@ -1,6 +1,6 @@
 import { type ReadonlyDeep } from 'type-fest';
 
-import isPlainObject from './isPlainObject';
+import isPlainObject from './isPlainObject.ts';
 
 export default function omitInputOutputDeep<T extends Record<string, unknown>>(
   object: T

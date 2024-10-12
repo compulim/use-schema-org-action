@@ -13,10 +13,10 @@ import {
   type StringSchema
 } from 'valibot';
 
-import PropertyValueSpecificationSchema from '../PropertyValueSpecificationSchema';
-import isPlainObject from './isPlainObject';
+import PropertyValueSpecificationSchema from '../PropertyValueSpecificationSchema.ts';
+import isPlainObject from './isPlainObject.ts';
 
-export type SchemaOrgSchema = ObjectSchema<
+type SchemaOrgSchema = ObjectSchema<
   {
     '@context': OptionalSchema<StringSchema<undefined>, never>;
     '@type': OptionalSchema<StringSchema<undefined>, never>;
@@ -77,3 +77,5 @@ export default function buildSchemas<
 
   return Object.freeze([(inputSchema || object({})) as TInputSchema, (outputSchema || object({})) as TOutputSchema]);
 }
+
+export type { SchemaOrgSchema };
