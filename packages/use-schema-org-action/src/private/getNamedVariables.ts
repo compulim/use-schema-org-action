@@ -1,8 +1,8 @@
 import { type ReadonlyDeep } from 'type-fest';
 import { parse } from 'valibot';
 
-import PropertyValueSpecificationSchema from '../PropertyValueSpecificationSchema';
-import isPlainObject from './isPlainObject';
+import PropertyValueSpecificationSchema from '../PropertyValueSpecificationSchema.ts';
+import isPlainObject from './isPlainObject.ts';
 
 export default function getNamedVariables(
   object1: ReadonlyDeep<Record<string, unknown>>,
