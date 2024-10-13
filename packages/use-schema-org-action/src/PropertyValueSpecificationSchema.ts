@@ -24,8 +24,10 @@ const PropertyValueSpecificationStringSchema = pipe(
         })
     );
 
-    if (specMap.has('name')) {
-      spec.valueName = specMap.get('name');
+    const name = specMap.get('name');
+
+    if (name) {
+      spec.valueName = name;
     }
 
     if (specMap.has('required')) {
