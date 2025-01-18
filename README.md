@@ -64,12 +64,12 @@ function VoteButton() {
 > For complete API reference, please refer to TypeScript definition files.
 
 ```ts
-function useSchemaOrgAction<Action, Request, Response>(
-  initialAction: Action,
-  handler: (request: Request, variables: Map<string, unknown>) => Promise<Response>
+function useSchemaOrgAction<T>(
+  initialAction: T,
+  handler: (variables: ReadonlyMap<string, unknown>, init: { signal: AbortSignal }) => Promise<ReadonlyMap<string, unknown>>
 ): [
-  Action & { actionStatus: ActionStatusType },
-  Dispatch<SetStateAction<Action>>
+  ReadonlyMap<string, unknown>,
+  Dispatch<SetStateAction<ReadonlyMap<string, unknown>>>
   () => Promise<void>,
   boolean
 ];
