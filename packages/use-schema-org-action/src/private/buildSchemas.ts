@@ -1,19 +1,6 @@
-import {
-  bigint,
-  boolean,
-  date,
-  number,
-  object,
-  optional,
-  parse,
-  string,
-  union,
-  type ObjectSchema,
-  type OptionalSchema,
-  type StringSchema
-} from 'valibot';
+import { object, optional, parse, string, type ObjectSchema, type OptionalSchema, type StringSchema } from 'valibot';
 
-import PropertyValueSpecificationSchema from '../PropertyValueSpecificationSchema.ts';
+import PropertyValueSpecificationSchema, { toValibotSchema } from '../PropertyValueSpecificationSchema.ts';
 import isPlainObject from './isPlainObject.ts';
 
 type SchemaOrgSchema = ObjectSchema<
@@ -24,33 +11,25 @@ type SchemaOrgSchema = ObjectSchema<
   undefined
 >;
 
-const propertyValue = () => union([bigint(), boolean(), date(), number(), string()]);
-
 function mapToObject<T>(map: Map<string, T>): { [k: string]: T } {
   return Object.fromEntries(map.entries());
 }
 
 function buildSchemasCore(action: object): [SchemaOrgSchema | undefined, SchemaOrgSchema | undefined] {
-  const inputSchema: Map<
-    string,
-    ReturnType<typeof propertyValue> | OptionalSchema<ReturnType<typeof propertyValue>, undefined> | SchemaOrgSchema
-  > = new Map();
-  const outputSchema: Map<
-    string,
-    ReturnType<typeof propertyValue> | OptionalSchema<ReturnType<typeof propertyValue>, undefined> | SchemaOrgSchema
-  > = new Map();
+  const inputSchema: Map<string, ReturnType<typeof toValibotSchema>> = new Map();
+  const outputSchema: Map<string, ReturnType<typeof toValibotSchema>> = new Map();
 
   for (const [key, value] of Object.entries(action)) {
     if (key.endsWith('-input')) {
       const spec = parse(PropertyValueSpecificationSchema(), value);
       const rawKey = key.substring(0, key.length - 6);
 
-      inputSchema.set(rawKey, spec.valueRequired ? propertyValue() : optional(propertyValue()));
+      inputSchema.set(rawKey, toValibotSchema(spec));
     } else if (key.endsWith('-output')) {
       const spec = parse(PropertyValueSpecificationSchema(), value);
       const rawKey = key.substring(0, key.length - 7);
 
-      outputSchema.set(rawKey, spec.valueRequired ? propertyValue() : optional(propertyValue()));
+      outputSchema.set(rawKey, toValibotSchema(spec));
     } else if (isPlainObject(value)) {
       const [subInputSchema, subOutputSchema] = buildSchemasCore(value);
 

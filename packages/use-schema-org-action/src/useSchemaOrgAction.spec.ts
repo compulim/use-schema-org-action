@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import 'core-js/features/promise/with-resolvers';
-import { act } from 'react-dom/test-utils';
+import { act } from 'react';
 
 import { type ActionWithActionStatus } from './ActionWithActionStatus';
 import { type PropertyValueSpecification } from './PropertyValueSpecificationSchema';

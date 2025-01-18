@@ -1,6 +1,6 @@
 /** @jest-environment jsdom */
 
-import { act } from 'react-dom/test-utils';
+import { act } from 'react';
 
 import { type ActionStatusType } from './ActionStatusType';
 import { type PropertyValueSpecification } from './PropertyValueSpecificationSchema';

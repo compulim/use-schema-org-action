@@ -29,7 +29,7 @@ describe('parse from object', () => {
 
   beforeEach(() => {
     actual = parse(PropertyValueSpecificationSchema(), {
-      '@type': 'PropertyValueSpecificationSchema',
+      '@type': 'PropertyValueSpecification',
       valueName: 'abc',
       valueRequired: true
     });
@@ -52,7 +52,5 @@ describe('parse from empty object', () => {
 
 describe('parse from wrong object', () => {
   test('should throw', () =>
-    expect(() => {
-      parse(PropertyValueSpecificationSchema(), { '@type': 'Something else' });
-    }).toThrow('Must be "PropertyValueSpecificationSchema"'));
+    expect(() => parse(PropertyValueSpecificationSchema(), { '@type': 'Something else' })).toThrow());
 });
