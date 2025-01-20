@@ -25,6 +25,8 @@ type ReviewAction = {
   };
   result?: {
     '@type'?: 'Review';
+    creativeWorkStatus?: string;
+    'creativeWorkStatus-output'?: PropertyValueSpecification;
     url?: string;
     'url-output'?: PropertyValueSpecification;
     reviewBody?: string;
@@ -38,6 +40,10 @@ type ReviewAction = {
 
 // SETUP: The action from the spec with modifications.
 let reviewAction: ReviewAction;
+
+function sortEntries<T>(entries: Iterable<[string, T]>): [string, T][] {
+  return Array.from(entries).sort((x, y) => (x[0] > y[0] ? 1 : x[0] < y[0] ? -1 : 0));
+}
 
 beforeEach(() => {
   reviewAction = {
@@ -56,6 +62,8 @@ beforeEach(() => {
     },
     result: {
       '@type': 'Review',
+      creativeWorkStatus: 'Draft',
+      'creativeWorkStatus-output': { valueName: 'status', valueRequired: true },
       'url-output': { valueMinLength: 10, valueName: 'url', valueRequired: true },
       'reviewBody-input': { valueName: 'review', valueRequired: true },
       reviewRating: {
@@ -162,7 +170,7 @@ describe('when rendered initially', () => {
           ));
 
         test('with input', () =>
-          expect(Array.from(handler.mock.calls[0]?.[0].entries() || [])).toEqual([
+          expect(sortEntries(handler.mock.calls[0]?.[0].entries() || [])).toEqual([
             ['rating', 5],
             ['review', 'Great movie.'],
             ['url', 'https://example.com/input']
@@ -208,6 +216,42 @@ describe('when rendered initially', () => {
               },
               result: {
                 ...reviewAction.result,
+                reviewBody: 'Great movie.',
+                reviewRating: {
+                  ...reviewAction.result?.reviewRating,
+                  ratingValue: 5
+                },
+                url: 'https://example.com/output'
+              }
+            });
+          });
+        });
+
+        describe('when handler() is resolved with valid output overwriting some default value', () => {
+          beforeEach(() =>
+            act(() => {
+              handlerResolvers.resolve(
+                new Map([
+                  ['status', 'Published'],
+                  ['url', 'https://example.com/output']
+                ])
+              );
+
+              return submitPromise;
+            })
+          );
+
+          test('should merge output into action and mark as completed', () => {
+            expect(renderResult.result.current[2]).toHaveProperty('action', {
+              ...reviewAction,
+              actionStatus: 'CompletedActionStatus',
+              object: {
+                ...reviewAction.object,
+                url: 'https://example.com/input'
+              },
+              result: {
+                ...reviewAction.result,
+                creativeWorkStatus: 'Published',
                 reviewBody: 'Great movie.',
                 reviewRating: {
                   ...reviewAction.result?.reviewRating,
@@ -310,6 +354,54 @@ describe('when rendered initially', () => {
     });
 
     test('isInputValid should be false', () => expect(renderResult.result.current[2].isInputValid).toBe(false));
+  });
+
+  describe('when updating action', () => {
+    let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult>;
+
+    beforeEach(() => {
+      renderResult = renderHook(() =>
+        useSchemaOrgAction(
+          { ...reviewAction, object: { ...reviewAction.object, url: 'https://example.com/input-2' } },
+          handler
+        )
+      );
+    });
+
+    test('should have action updated', () =>
+      expect(renderResult.result.current[2].action).toEqual({
+        ...reviewAction,
+        actionStatus: 'PotentialActionStatus',
+        object: {
+          ...reviewAction.object,
+          url: 'https://example.com/input-2'
+        }
+      }));
+
+    describe('when sumbit() is called', () => {
+      beforeEach(async () => {
+        await act(() => {
+          renderResult.result.current[1](
+            new Map<string, boolean | Date | number | string | undefined>([
+              ['rating', 5],
+              ['review', 'Great movie.']
+            ])
+          );
+        });
+
+        await act(() => {
+          renderResult.result.current[2].submit();
+        });
+      });
+
+      test('should call handler with updated action', () => {
+        expect(sortEntries(handler.mock.calls[0]?.[0]?.entries() || [])).toEqual([
+          ['rating', 5],
+          ['review', 'Great movie.'],
+          ['url', 'https://example.com/input-2']
+        ]);
+      });
+    });
   });
 });
 

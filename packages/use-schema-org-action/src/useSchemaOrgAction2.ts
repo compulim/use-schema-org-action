@@ -25,7 +25,6 @@ export default function useSchemaOrgAction<T extends Action = Action>(
   const handlerRef = useRefFrom(handler);
   const [input, setInput] = useState<VariableMap>(() => extractVariablesFromAction(initialAction, 'input'));
   const [output, setOutput] = useState<VariableMap>(() => extractVariablesFromAction(initialAction, 'output'));
-  const initialActionRef = useRefFrom(initialAction);
   const [actionStatus, setActionStatus] = useState<ActionStatusType>(() => {
     if ('actionStatus' in initialAction) {
       const result = safeParse(actionStatusSchema, initialAction.actionStatus);
@@ -38,9 +37,9 @@ export default function useSchemaOrgAction<T extends Action = Action>(
     return 'PotentialActionStatus';
   });
 
-  const { isValid, value } = useMemo<{ isValid: boolean; value: ActionWithActionStatus<T> }>(() => {
+  const { isValid, value: mergedAction } = useMemo<{ isValid: boolean; value: ActionWithActionStatus<T> }>(() => {
     const { isValid: isInputValid, value: actionWithInput } = mergeVariablesIntoAction<ActionWithActionStatus<T>>(
-      { ...initialActionRef.current, actionStatus },
+      { ...initialAction, actionStatus },
       input,
       'input'
     );
@@ -49,10 +48,11 @@ export default function useSchemaOrgAction<T extends Action = Action>(
       isValid: isInputValid,
       value: mergeVariablesIntoAction<ActionWithActionStatus<T>>(actionWithInput, output, 'output').value
     };
-  }, [actionStatus, initialActionRef, input, output]);
+  }, [actionStatus, initialAction, input, output]);
 
   const inputRef = useRefFrom(input);
   const isValidRef = useRefFrom(isValid);
+  const mergedActionRef = useRefFrom(mergedAction);
 
   const submit = useCallback<() => Promise<void>>(async () => {
     if (!isValidRef.current) {
@@ -63,9 +63,11 @@ export default function useSchemaOrgAction<T extends Action = Action>(
 
     setActionStatus('ActiveActionStatus');
 
-    const output = await handlerRef.current(inputRef.current, { signal: abortController.signal });
+    const input = extractVariablesFromAction(mergedActionRef.current, 'input');
 
-    if (!mergeVariablesIntoAction(initialActionRef.current, output, 'output').isValid) {
+    const output = await handlerRef.current(input, { signal: abortController.signal });
+
+    if (!mergeVariablesIntoAction(mergedActionRef.current, output, 'output').isValid) {
       return Promise.reject(Error('Output is invalid.'));
     }
 
@@ -73,16 +75,16 @@ export default function useSchemaOrgAction<T extends Action = Action>(
       setActionStatus('CompletedActionStatus');
       setOutput(output);
     }
-  }, [abortController, handlerRef, initialActionRef, inputRef, isValidRef, setActionStatus, setOutput]);
+  }, [abortController, handlerRef, inputRef, isValidRef, mergedActionRef, setActionStatus, setOutput]);
 
   const options = useMemo(
     () =>
       Object.freeze({
-        action: value,
+        action: mergedAction,
         isInputValid: isValid,
         submit
       }),
-    [isValid, submit, value]
+    [isValid, submit, mergedAction]
   );
 
   useEffect(() => () => abortController.abort(), [abortController]);

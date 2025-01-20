@@ -25,7 +25,9 @@ function* mergeVariablesIntoActionInternal(
 
       const { valueName } = propertyValueSpecification;
 
-      const variableValue = typeof valueName === 'string' ? variables.get(valueName) : undefined;
+      const variableValue =
+        (typeof valueName === 'string' && variables.get(valueName)) ||
+        actionEntries.find(entry => entry[0] === variableKey)?.[1];
 
       if (typeof variableValue !== 'undefined') {
         yield [variableKey, variableValue];

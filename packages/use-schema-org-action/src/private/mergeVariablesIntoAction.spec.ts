@@ -24,7 +24,7 @@ type ReviewAction = {
     reviewBody?: string;
     'reviewBody-input'?: PropertyValueSpecification;
     reviewRating?: {
-      ratingValue?: string;
+      ratingValue?: number;
       'ratingValue-input'?: PropertyValueSpecification;
     };
   };
@@ -198,4 +198,60 @@ describe('when merged with PropertyValueSpecification without "valueName" proper
       }
     });
   });
+});
+
+describe('when merging partially filled action with partial input', () => {
+  let isValid: boolean;
+  let reviewAction: ReviewAction;
+  let value: ReviewAction;
+
+  beforeEach(() => {
+    reviewAction = {
+      '@context': 'https://schema.org',
+      '@type': 'ReviewAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: 'https://api.example.com/review',
+        encodingType: 'application/ld+json',
+        contentType: 'application/ld+json'
+      },
+      object: {
+        '@type': 'Movie',
+        url: 'https://example.com/input',
+        'url-input': { valueName: 'url', valueRequired: true }
+      },
+      result: {
+        '@type': 'Review',
+        'url-output': { valueName: 'url', valueRequired: true },
+        'reviewBody-input': { valueName: 'review', valueRequired: true },
+        reviewRating: {
+          ratingValue: 3,
+          'ratingValue-input': { valueName: 'rating', valueRequired: true }
+        }
+      }
+    };
+
+    ({ isValid, value } = mergeVariablesIntoAction(
+      reviewAction,
+      new Map<string, boolean | Date | number | string | undefined>([
+        ['rating', 5],
+        ['review', 'Great movie.']
+      ]),
+      'input'
+    ));
+  });
+
+  test('should return "isValid" of true', () => expect(isValid).toBe(true));
+  test('should return action with preference over input values', () =>
+    expect(value).toEqual({
+      ...reviewAction,
+      result: {
+        ...reviewAction.result,
+        reviewBody: 'Great movie.',
+        reviewRating: {
+          ...reviewAction.result?.reviewRating,
+          ratingValue: 5
+        }
+      }
+    }));
 });
