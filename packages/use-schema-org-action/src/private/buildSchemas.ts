@@ -11,13 +11,17 @@ type SchemaOrgSchema = ObjectSchema<
   undefined
 >;
 
+type InputOutputPropertySchema = ReturnType<typeof toValibotSchema>;
+
 function mapToObject<T>(map: Map<string, T>): { [k: string]: T } {
   return Object.fromEntries(map.entries());
 }
 
-function buildSchemasCore(action: object): [SchemaOrgSchema | undefined, SchemaOrgSchema | undefined] {
-  const inputSchema: Map<string, ReturnType<typeof toValibotSchema>> = new Map();
-  const outputSchema: Map<string, ReturnType<typeof toValibotSchema>> = new Map();
+function buildSchemasCore(
+  action: object
+): [InputOutputPropertySchema | SchemaOrgSchema | undefined, InputOutputPropertySchema | SchemaOrgSchema | undefined] {
+  const inputSchema: Map<string, InputOutputPropertySchema | SchemaOrgSchema> = new Map();
+  const outputSchema: Map<string, InputOutputPropertySchema | SchemaOrgSchema> = new Map();
 
   for (const [key, value] of Object.entries(action)) {
     if (key.endsWith('-input')) {
