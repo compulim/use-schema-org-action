@@ -121,8 +121,10 @@ const propertyValueSpecificationStringSchema = pipe(
   })
 );
 
-const PropertyValueSpecificationSchema = () =>
-  union([propertyValueSpecificationObjectSchema, propertyValueSpecificationStringSchema]);
+const propertyValueSpecificationSchema = union([
+  propertyValueSpecificationObjectSchema,
+  propertyValueSpecificationStringSchema
+]);
 
 type MySchema<T> =
   | BaseSchema<T | undefined, T | undefined, BaseIssue<unknown>>
@@ -263,7 +265,7 @@ const htmlStringNumber = pipe(
   transform<string, number>(input => parseInt(input, 10))
 );
 
-export default PropertyValueSpecificationSchema;
+export default propertyValueSpecificationSchema;
 
 export type PropertyValueSpecification = InferOutput<typeof propertyValueSpecificationObjectSchema> | string;
 

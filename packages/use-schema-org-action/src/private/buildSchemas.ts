@@ -1,6 +1,6 @@
 import { object, optional, parse, string, type ObjectSchema, type OptionalSchema, type StringSchema } from 'valibot';
 
-import PropertyValueSpecificationSchema, { toValibotSchema } from '../PropertyValueSpecificationSchema.ts';
+import propertyValueSpecificationSchema, { toValibotSchema } from '../PropertyValueSpecificationSchema.ts';
 import isPlainObject from './isPlainObject.ts';
 
 type SchemaOrgSchema = ObjectSchema<
@@ -25,12 +25,12 @@ function buildSchemasCore(
 
   for (const [key, value] of Object.entries(action)) {
     if (key.endsWith('-input')) {
-      const spec = parse(PropertyValueSpecificationSchema(), value);
+      const spec = parse(propertyValueSpecificationSchema, value);
       const rawKey = key.substring(0, key.length - 6);
 
       inputSchema.set(rawKey, toValibotSchema(spec));
     } else if (key.endsWith('-output')) {
-      const spec = parse(PropertyValueSpecificationSchema(), value);
+      const spec = parse(propertyValueSpecificationSchema, value);
       const rawKey = key.substring(0, key.length - 7);
 
       outputSchema.set(rawKey, toValibotSchema(spec));

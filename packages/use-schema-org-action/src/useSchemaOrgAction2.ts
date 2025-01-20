@@ -5,7 +5,7 @@ import { actionStatusSchema, ActionStatusType } from './ActionStatusType.ts';
 import { type ActionWithActionStatus } from './ActionWithActionStatus.ts';
 import extractVariablesFromAction from './private/extractVariablesFromAction.ts';
 import mergeVariablesIntoAction from './private/mergeVariablesIntoAction.ts';
-import type { VariableMap } from './VariableMap.ts';
+import { type VariableMap } from './VariableMap.ts';
 
 type Action = {};
 

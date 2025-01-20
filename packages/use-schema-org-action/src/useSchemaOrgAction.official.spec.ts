@@ -4,7 +4,7 @@ import { act } from 'react';
 
 import { type ActionStatusType } from './ActionStatusType';
 import { type PropertyValueSpecification } from './PropertyValueSpecificationSchema';
-import type { SchemaOrgObject } from './SchemaOrgObject';
+import { type SchemaOrgObject } from './SchemaOrgObject';
 import useSchemaOrgAction from './useSchemaOrgAction';
 
 const renderHook: <T, P>(

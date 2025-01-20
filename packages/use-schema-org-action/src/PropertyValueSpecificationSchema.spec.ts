@@ -1,12 +1,12 @@
 import { parse } from 'valibot';
 
-import PropertyValueSpecificationSchema, { type PropertyValueSpecification } from './PropertyValueSpecificationSchema';
+import propertyValueSpecificationSchema, { type PropertyValueSpecification } from './PropertyValueSpecificationSchema';
 
 describe('parse from string "name=abc required"', () => {
   let actual: PropertyValueSpecification;
 
   beforeEach(() => {
-    actual = parse(PropertyValueSpecificationSchema(), 'name=abc required');
+    actual = parse(propertyValueSpecificationSchema, 'name=abc required');
   });
 
   test('should have valueName of "abc"', () => expect(actual).toHaveProperty('valueName', 'abc'));
@@ -17,7 +17,7 @@ describe('parse from empty string', () => {
   let actual: PropertyValueSpecification;
 
   beforeEach(() => {
-    actual = parse(PropertyValueSpecificationSchema(), '');
+    actual = parse(propertyValueSpecificationSchema, '');
   });
 
   test('should not have valueName', () => expect(actual).not.toHaveProperty('valueName'));
@@ -28,7 +28,7 @@ describe('parse from object', () => {
   let actual: PropertyValueSpecification;
 
   beforeEach(() => {
-    actual = parse(PropertyValueSpecificationSchema(), {
+    actual = parse(propertyValueSpecificationSchema, {
       '@type': 'PropertyValueSpecification',
       valueName: 'abc',
       valueRequired: true
@@ -43,7 +43,7 @@ describe('parse from empty object', () => {
   let actual: PropertyValueSpecification;
 
   beforeEach(() => {
-    actual = parse(PropertyValueSpecificationSchema(), {});
+    actual = parse(propertyValueSpecificationSchema, {});
   });
 
   test('should not have valueName', () => expect(actual).not.toHaveProperty('valueName'));
@@ -52,5 +52,5 @@ describe('parse from empty object', () => {
 
 describe('parse from wrong object', () => {
   test('should throw', () =>
-    expect(() => parse(PropertyValueSpecificationSchema(), { '@type': 'Something else' })).toThrow());
+    expect(() => parse(propertyValueSpecificationSchema, { '@type': 'Something else' })).toThrow());
 });

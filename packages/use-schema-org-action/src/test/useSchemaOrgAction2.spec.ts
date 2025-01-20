@@ -5,7 +5,7 @@ import { act } from '@testing-library/react';
 import { type ActionStatusType } from '../ActionStatusType';
 import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
 import useSchemaOrgAction from '../useSchemaOrgAction2';
-import type { VariableMap } from '../VariableMap';
+import { type VariableMap } from '../VariableMap';
 import renderHook, { type RenderHookResult } from './renderHook';
 
 type ReviewAction = {

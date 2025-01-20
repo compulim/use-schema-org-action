@@ -1,6 +1,6 @@
 import { generatorWithLastValue } from 'iter-fest';
 import { parse, safeParse } from 'valibot';
-import PropertyValueSpecificationSchema, { toValibotSchema } from '../PropertyValueSpecificationSchema';
+import propertyValueSpecificationSchema, { toValibotSchema } from '../PropertyValueSpecificationSchema';
 import isPlainObject from './isPlainObject';
 
 function* mergeVariablesIntoActionInternal(
@@ -21,7 +21,7 @@ function* mergeVariablesIntoActionInternal(
     if (typeof variableKey === 'string') {
       yield [key, value];
 
-      const propertyValueSpecification = parse(PropertyValueSpecificationSchema(), value);
+      const propertyValueSpecification = parse(propertyValueSpecificationSchema, value);
 
       const { valueName } = propertyValueSpecification;
 

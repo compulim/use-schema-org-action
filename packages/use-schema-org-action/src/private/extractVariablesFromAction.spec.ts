@@ -1,5 +1,5 @@
-import type { ActionStatusType } from '../ActionStatusType';
-import type { PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
+import { type ActionStatusType } from '../ActionStatusType';
+import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
 import extractVariablesFromAction from './extractVariablesFromAction';
 
 type ReviewAction = {

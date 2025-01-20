@@ -1,5 +1,5 @@
 import { boolean, date, number, parse, string, undefined_, union, type InferOutput } from 'valibot';
-import PropertyValueSpecificationSchema from '../PropertyValueSpecificationSchema';
+import propertyValueSpecificationSchema from '../PropertyValueSpecificationSchema';
 import isPlainObject from './isPlainObject';
 
 const supportedValueType = union([boolean(), date(), number(), string(), undefined_()]);
@@ -19,7 +19,7 @@ function* extractVariablesFromActionInternal(
           : undefined;
 
     if (typeof variableKey === 'string') {
-      const propertyValueSpecification = parse(PropertyValueSpecificationSchema(), value);
+      const propertyValueSpecification = parse(propertyValueSpecificationSchema, value);
       const { valueName } = propertyValueSpecification;
 
       if (valueName) {

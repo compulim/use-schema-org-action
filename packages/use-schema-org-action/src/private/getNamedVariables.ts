@@ -1,7 +1,7 @@
 import { type ReadonlyDeep } from 'type-fest';
 import { parse } from 'valibot';
 
-import PropertyValueSpecificationSchema from '../PropertyValueSpecificationSchema.ts';
+import propertyValueSpecificationSchema from '../PropertyValueSpecificationSchema.ts';
 import isPlainObject from './isPlainObject.ts';
 
 export default function getNamedVariables(
@@ -12,7 +12,7 @@ export default function getNamedVariables(
 
   for (const [key, value] of Object.entries(object1)) {
     if (key.endsWith('-input')) {
-      const { valueName } = parse(PropertyValueSpecificationSchema(), value);
+      const { valueName } = parse(propertyValueSpecificationSchema, value);
 
       if (valueName) {
         map.set(valueName, object2?.[key.substring(0, key.length - 6)]);
