@@ -4,7 +4,7 @@ import propertyValueSpecificationSchema, {
   type PropertyValueSpecification
 } from './PropertyValueSpecificationSchema.ts';
 import { type SchemaOrgObject } from './SchemaOrgObject.ts';
-import useSchemaOrgAction from './useSchemaOrgAction.ts';
+import useSchemaOrgAction from './useSchemaOrgAction2.ts';
 
 export {
   propertyValueSpecificationSchema,

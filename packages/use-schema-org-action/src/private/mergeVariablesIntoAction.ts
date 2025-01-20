@@ -9,8 +9,14 @@ function* mergeVariablesIntoActionInternal(
   mode: 'input' | 'output'
 ): Generator<readonly [string, unknown], boolean, void> {
   let isValid = true;
+  const mergedVariableKeys = new Set<string>();
 
   for (const [key, value] of actionEntries) {
+    if (mergedVariableKeys.has(key)) {
+      // If the key/value has already emitted via output, don't emit again, otherwise, it would overwrite the value.
+      continue;
+    }
+
     let variableKey =
       mode === 'input' && key.endsWith('-input')
         ? key.slice(0, -6)
@@ -31,6 +37,8 @@ function* mergeVariablesIntoActionInternal(
 
       if (typeof variableValue !== 'undefined') {
         yield [variableKey, variableValue];
+
+        mergedVariableKeys.add(variableKey);
       }
 
       const { success } = safeParse(toValibotSchema(propertyValueSpecification), variableValue);
@@ -58,6 +66,10 @@ export default function mergeVariablesIntoAction<TAction extends {}>(
 ): { isValid: boolean; value: TAction } {
   const nextActionEntries = mergeVariablesIntoActionInternal(Object.entries(action), variables, mode);
   const generator = generatorWithLastValue(nextActionEntries);
+
+  // for (const [k, v] of generator) {
+  //   console.log(`${k}: ${JSON.stringify(v, null, 2)}`);
+  // }
 
   const value = Object.fromEntries(generator) as TAction;
 

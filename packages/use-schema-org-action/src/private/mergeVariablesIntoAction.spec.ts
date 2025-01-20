@@ -255,3 +255,47 @@ describe('when merging partially filled action with partial input', () => {
       }
     }));
 });
+
+describe('when merging output twice', () => {
+  let reviewAction: ReviewAction;
+
+  beforeEach(() => {
+    reviewAction = {
+      '@context': 'https://schema.org',
+      '@type': 'ReviewAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: 'https://api.example.com/review',
+        encodingType: 'application/ld+json',
+        contentType: 'application/ld+json'
+      },
+      object: {
+        '@type': 'Movie',
+        'url-input': { valueName: 'url', valueRequired: true }
+      },
+      result: {
+        '@type': 'Review',
+        'url-output': { valueName: 'url', valueRequired: true },
+        'reviewBody-input': { valueName: 'review', valueRequired: true },
+        reviewRating: {
+          'ratingValue-input': { valueName: 'rating', valueRequired: true }
+        }
+      }
+    };
+
+    reviewAction = mergeVariablesIntoAction(
+      reviewAction,
+      new Map([['url', 'https://example.com/output-1']]),
+      'output'
+    ).value;
+
+    reviewAction = mergeVariablesIntoAction(
+      reviewAction,
+      new Map([['url', 'https://example.com/output-2']]),
+      'output'
+    ).value;
+  });
+
+  test('should use latest output', () =>
+    expect(reviewAction).toHaveProperty('result.url', 'https://example.com/output-2'));
+});

@@ -91,14 +91,15 @@ describe('when rendered initially', () => {
     renderResult = renderHook(() => useSchemaOrgAction(reviewAction, handler));
   });
 
-  test('should return action with actionStatus of "potentialActionStatus"', () =>
-    expect(renderResult.result.current[2]).toHaveProperty('action', {
+  test('should return action with actionStatus of "PotentialActionStatus"', () =>
+    expect(renderResult.result.current[0]).toEqual({
       actionStatus: 'PotentialActionStatus',
       ...reviewAction
     }));
 
   test('should extract existing input including invalid input', () =>
-    expect(renderResult.result.current[0]).toEqual(
+    expect(renderResult.result.current[2]).toHaveProperty(
+      'input',
       new Map<string, boolean | Date | number | string | undefined>([
         ['rating', -1],
         ['url', 'https://example.com/input']
@@ -107,21 +108,30 @@ describe('when rendered initially', () => {
 
   test('isInputValid should be false', () => expect(renderResult.result.current[2].isInputValid).toBe(false));
 
-  describe('when input is set to a valid value', () => {
+  describe('when inputs are set to valid values', () => {
     beforeEach(() =>
       act(() =>
-        renderResult.result.current[1](
-          new Map<string, boolean | Date | number | string | undefined>([
-            ['rating', 5],
-            ['review', 'Great movie.'],
-            ['url', 'https://example.com/input']
-          ])
-        )
+        renderResult.result.current[1](action => ({
+          ...action,
+          object: {
+            ...action.object,
+            url: 'https://example.com/input'
+          },
+          result: {
+            ...action.result,
+            reviewBody: 'Great movie.',
+            reviewRating: {
+              ...action.result?.reviewRating,
+              ratingValue: 5
+            }
+          }
+        }))
       )
     );
 
     test('input should contain value', () =>
-      expect(renderResult.result.current[0]).toEqual(
+      expect(renderResult.result.current[2]).toHaveProperty(
+        'input',
         new Map<string, boolean | Date | number | string | undefined>([
           ['rating', 5],
           ['review', 'Great movie.'],
@@ -130,7 +140,7 @@ describe('when rendered initially', () => {
       ));
 
     test('action should contain value', () =>
-      expect(renderResult.result.current[2]).toHaveProperty('action', {
+      expect(renderResult.result.current[0]).toEqual({
         ...reviewAction,
         actionStatus: 'PotentialActionStatus',
         object: {
@@ -179,7 +189,7 @@ describe('when rendered initially', () => {
         test('with unaborted signal', () => expect(handler.mock.calls[0]?.[1].signal).toHaveProperty('aborted', false));
 
         test('with input merged into action with "actionStatus" property of "ActiveActionStatus"', () => {
-          expect(renderResult.result.current[2]).toHaveProperty('action', {
+          expect(renderResult.result.current[0]).toEqual({
             ...reviewAction,
             actionStatus: 'ActiveActionStatus',
             object: {
@@ -207,7 +217,7 @@ describe('when rendered initially', () => {
           );
 
           test('should merge output into action and mark as completed', () => {
-            expect(renderResult.result.current[2]).toHaveProperty('action', {
+            expect(renderResult.result.current[0]).toEqual({
               ...reviewAction,
               actionStatus: 'CompletedActionStatus',
               object: {
@@ -242,7 +252,7 @@ describe('when rendered initially', () => {
           );
 
           test('should merge output into action and mark as completed', () => {
-            expect(renderResult.result.current[2]).toHaveProperty('action', {
+            expect(renderResult.result.current[0]).toEqual({
               ...reviewAction,
               actionStatus: 'CompletedActionStatus',
               object: {
@@ -280,7 +290,7 @@ describe('when rendered initially', () => {
           );
 
           test('should not merge output into action', () =>
-            expect(renderResult.result.current[2]).toHaveProperty('action', {
+            expect(renderResult.result.current[0]).toEqual({
               ...reviewAction,
               actionStatus: 'ActiveActionStatus',
               object: {
@@ -297,6 +307,17 @@ describe('when rendered initially', () => {
               }
             }));
         });
+
+        describe('when handler() is rejected after unmount', () => {
+          beforeEach(() =>
+            act(() => {
+              renderResult.unmount();
+              handlerResolvers.resolve(new Map([['url', 'too-short']]));
+            })
+          );
+
+          test('should throw', () => expect(submitPromise).rejects.toThrow());
+        });
       });
     });
 
@@ -306,25 +327,33 @@ describe('when rendered initially', () => {
   describe('when input is set to an invalid value', () => {
     beforeEach(() =>
       act(() =>
-        renderResult.result.current[1](
-          new Map<string, boolean | Date | number | string | undefined>([
-            ['rating', -1],
-            ['review', 'Great movie.'],
-            ['url', 'https://example.com/input']
-          ])
-        )
+        renderResult.result.current[1](action => ({
+          ...action,
+          object: {
+            ...action.object,
+            url: 'https://example.com/input'
+          },
+          result: {
+            ...action.result,
+            reviewBody: 'Great movie.',
+            reviewRating: {
+              ...action.result?.reviewRating,
+              ratingValue: -1
+            }
+          }
+        }))
       )
     );
 
     test('input should contain value', () =>
-      expect(Array.from(renderResult.result.current[0].entries?.() || [])).toEqual([
+      expect(sortEntries(renderResult.result.current[2].input.entries?.() || [])).toEqual([
         ['rating', -1],
         ['review', 'Great movie.'],
         ['url', 'https://example.com/input']
       ]));
 
     test('action should contain invalid value', () => {
-      expect(renderResult.result.current[2]).toHaveProperty('action', {
+      expect(renderResult.result.current[0]).toEqual({
         ...reviewAction,
         actionStatus: 'PotentialActionStatus',
         object: {
@@ -353,7 +382,8 @@ describe('when rendered initially', () => {
       await expect(submitPromise).rejects.toThrow();
     });
 
-    test('isInputValid should be false', () => expect(renderResult.result.current[2].isInputValid).toBe(false));
+    test('isInputValid should be false', () =>
+      expect(renderResult.result.current[2]).toHaveProperty('isInputValid', false));
   });
 
   describe('when updating action', () => {
@@ -361,7 +391,7 @@ describe('when rendered initially', () => {
 
     beforeEach(() => {
       renderResult = renderHook(() =>
-        useSchemaOrgAction(
+        useSchemaOrgAction<ReviewAction>(
           { ...reviewAction, object: { ...reviewAction.object, url: 'https://example.com/input-2' } },
           handler
         )
@@ -369,7 +399,7 @@ describe('when rendered initially', () => {
     });
 
     test('should have action updated', () =>
-      expect(renderResult.result.current[2].action).toEqual({
+      expect(renderResult.result.current[0]).toEqual({
         ...reviewAction,
         actionStatus: 'PotentialActionStatus',
         object: {
@@ -381,12 +411,17 @@ describe('when rendered initially', () => {
     describe('when sumbit() is called', () => {
       beforeEach(async () => {
         await act(() => {
-          renderResult.result.current[1](
-            new Map<string, boolean | Date | number | string | undefined>([
-              ['rating', 5],
-              ['review', 'Great movie.']
-            ])
-          );
+          renderResult.result.current[1](reviewAction => ({
+            ...reviewAction,
+            result: {
+              ...reviewAction.result,
+              reviewBody: 'Great movie.',
+              reviewRating: {
+                ...reviewAction.result?.reviewRating,
+                ratingValue: 5
+              }
+            }
+          }));
         });
 
         await act(() => {
@@ -410,21 +445,23 @@ describe('when rendered with initialAction containing valid "actionStatus" prope
 
   beforeEach(() => {
     renderResult = renderHook(() =>
-      useSchemaOrgAction({ ...reviewAction, actionStatus: 'CompletedActionStatus' }, jest.fn())
+      useSchemaOrgAction<ReviewAction>({ ...reviewAction, actionStatus: 'CompletedActionStatus' }, jest.fn())
     );
   });
 
   test('should use the initial value', () =>
-    expect(renderResult.result.current[2].action).toEqual({ ...reviewAction, actionStatus: 'CompletedActionStatus' }));
+    expect(renderResult.result.current[0]).toEqual({ ...reviewAction, actionStatus: 'CompletedActionStatus' }));
 });
 
 describe('when rendered with initialAction containing invalid "actionStatus" property', () => {
   let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult>;
 
   beforeEach(() => {
-    renderResult = renderHook(() => useSchemaOrgAction({ ...reviewAction, actionStatus: '123' }, jest.fn()));
+    renderResult = renderHook(() =>
+      useSchemaOrgAction<ReviewAction>({ ...reviewAction, actionStatus: '123' as any }, jest.fn())
+    );
   });
 
   test('should replace with "PotentialActionStatus"', () =>
-    expect(renderResult.result.current[2].action).toEqual({ ...reviewAction, actionStatus: 'PotentialActionStatus' }));
+    expect(renderResult.result.current[0]).toEqual({ ...reviewAction, actionStatus: 'PotentialActionStatus' }));
 });

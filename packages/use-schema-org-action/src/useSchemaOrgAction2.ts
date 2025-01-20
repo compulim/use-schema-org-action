@@ -1,93 +1,88 @@
 import { useCallback, useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
 import { useRefFrom } from 'use-ref-from';
-import { safeParse } from 'valibot';
-import { actionStatusSchema, ActionStatusType } from './ActionStatusType.ts';
+import { fallback, parse } from 'valibot';
+import { actionStatusSchema } from './ActionStatusType.ts';
 import { type ActionWithActionStatus } from './ActionWithActionStatus.ts';
 import extractVariablesFromAction from './private/extractVariablesFromAction.ts';
 import mergeVariablesIntoAction from './private/mergeVariablesIntoAction.ts';
 import { type VariableMap } from './VariableMap.ts';
 
-type Action = {};
-
-export default function useSchemaOrgAction<T extends Action = Action>(
+export default function useSchemaOrgAction<T extends {} = {}>(
   initialAction: T,
   handler: (input: VariableMap, init: Readonly<{ signal: AbortSignal }>) => Promise<VariableMap>
 ): readonly [
-  Partial<VariableMap>,
-  Dispatch<SetStateAction<VariableMap>>,
+  ActionWithActionStatus<T>,
+  Dispatch<SetStateAction<ActionWithActionStatus<T>>>,
   Readonly<{
-    action: ActionWithActionStatus<T>;
+    input: VariableMap;
     isInputValid: boolean;
     submit: () => Promise<void>;
   }>
 ] {
+  const [action, setAction] = useState<ActionWithActionStatus<T>>(() => ({
+    ...initialAction,
+    actionStatus: parse(
+      fallback(actionStatusSchema, 'PotentialActionStatus'),
+      'actionStatus' in initialAction && initialAction.actionStatus
+    )
+  }));
   const abortController = useMemo(() => new AbortController(), []);
+  const actionRef = useRefFrom(action);
   const handlerRef = useRefFrom(handler);
-  const [input, setInput] = useState<VariableMap>(() => extractVariablesFromAction(initialAction, 'input'));
-  const [output, setOutput] = useState<VariableMap>(() => extractVariablesFromAction(initialAction, 'output'));
-  const [actionStatus, setActionStatus] = useState<ActionStatusType>(() => {
-    if ('actionStatus' in initialAction) {
-      const result = safeParse(actionStatusSchema, initialAction.actionStatus);
 
-      if (result.success) {
-        return result.output;
-      }
-    }
+  const isInputValid = useMemo<boolean>(() => mergeVariablesIntoAction(action, new Map(), 'input').isValid, [action]);
 
-    return 'PotentialActionStatus';
-  });
-
-  const { isValid, value: mergedAction } = useMemo<{ isValid: boolean; value: ActionWithActionStatus<T> }>(() => {
-    const { isValid: isInputValid, value: actionWithInput } = mergeVariablesIntoAction<ActionWithActionStatus<T>>(
-      { ...initialAction, actionStatus },
-      input,
-      'input'
-    );
-
-    return {
-      isValid: isInputValid,
-      value: mergeVariablesIntoAction<ActionWithActionStatus<T>>(actionWithInput, output, 'output').value
-    };
-  }, [actionStatus, initialAction, input, output]);
-
-  const inputRef = useRefFrom(input);
-  const isValidRef = useRefFrom(isValid);
-  const mergedActionRef = useRefFrom(mergedAction);
+  const isInputValidRef = useRefFrom(isInputValid);
 
   const submit = useCallback<() => Promise<void>>(async () => {
-    if (!isValidRef.current) {
-      setActionStatus('FailedActionStatus');
+    if (!isInputValidRef.current) {
+      setAction(action => ({ ...action, actionStatus: 'FailedActionStatus' }));
 
       return Promise.reject(Error('Input is invalid, cannot submit.'));
     }
 
-    setActionStatus('ActiveActionStatus');
+    setAction(action => ({ ...action, actionStatus: 'ActiveActionStatus' }));
 
-    const input = extractVariablesFromAction(mergedActionRef.current, 'input');
+    const input = extractVariablesFromAction(actionRef.current, 'input');
 
     const output = await handlerRef.current(input, { signal: abortController.signal });
 
-    if (!mergeVariablesIntoAction(mergedActionRef.current, output, 'output').isValid) {
-      return Promise.reject(Error('Output is invalid.'));
+    const { isValid } = mergeVariablesIntoAction(
+      { ...action, actionStatus: 'CompletedActionStatus' as const },
+      output,
+      'output'
+    );
+
+    if (!isValid) {
+      return Promise.reject(new Error('Output is invalid.'));
     }
 
-    if (!abortController.signal.aborted) {
-      setActionStatus('CompletedActionStatus');
-      setOutput(output);
+    if (abortController.signal.aborted) {
+      return;
     }
-  }, [abortController, handlerRef, inputRef, isValidRef, mergedActionRef, setActionStatus, setOutput]);
+
+    setAction(action => {
+      const value = mergeVariablesIntoAction(
+        { ...action, actionStatus: 'CompletedActionStatus' as const },
+        output,
+        'output'
+      ).value;
+
+      return value;
+    });
+  }, [abortController, actionRef, handlerRef, isInputValidRef, setAction]);
 
   const options = useMemo(
     () =>
       Object.freeze({
-        action: mergedAction,
-        isInputValid: isValid,
+        input: extractVariablesFromAction(action, 'input'),
+        isInputValid,
         submit
       }),
-    [isValid, submit, mergedAction]
+    [action, isInputValid, submit]
   );
 
   useEffect(() => () => abortController.abort(), [abortController]);
 
-  return useMemo(() => Object.freeze([input, setInput, options] as const), [input, options, setInput]);
+  return useMemo(() => Object.freeze([action, setAction, options] as const), [action, options, setAction]);
 }
