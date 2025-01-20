@@ -1,6 +1,6 @@
 /** @jest-environment ./src/test/jsdomEnvironmentWithWritableStream.js */
 
-import { act, waitFor } from '@testing-library/react';
+import { act } from '@testing-library/react';
 
 import { type ActionStatusType } from '../ActionStatusType';
 import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
