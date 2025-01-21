@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
 import { useRefFrom } from 'use-ref-from';
-import { fallback, parse } from 'valibot';
+import { fallback, parse, safeParse } from 'valibot';
 import { actionStatusSchema } from './ActionStatusType.ts';
 import { type ActionWithActionStatus } from './ActionWithActionStatus.ts';
 import extractVariablesFromAction from './private/extractVariablesFromAction.ts';
@@ -47,11 +47,15 @@ export default function useSchemaOrgAction<T extends {} = {}>(
 
     const output = await handlerRef.current(input, { signal: abortController.signal });
 
-    const { isValid } = mergeVariablesIntoAction(
+    const outputValidationResult = mergeVariablesIntoAction(
       { ...action, actionStatus: 'CompletedActionStatus' as const },
       output,
       'output'
     );
+
+    const isValid =
+      outputValidationResult.isValid &&
+      safeParse(actionStatusSchema, outputValidationResult.value.actionStatus).success;
 
     if (!isValid) {
       return Promise.reject(new Error('Output is invalid.'));

@@ -12,6 +12,7 @@ type ReviewAction = {
   '@context'?: 'https://schema.org';
   '@type'?: 'ReviewAction';
   actionStatus?: ActionStatusType;
+  'actionStatus-output'?: PropertyValueSpecification;
   target?: {
     '@type'?: 'EntryPoint';
     urlTemplate?: string;
@@ -464,4 +465,122 @@ describe('when rendered with initialAction containing invalid "actionStatus" pro
 
   test('should replace with "PotentialActionStatus"', () =>
     expect(renderResult.result.current[0]).toEqual({ ...reviewAction, actionStatus: 'PotentialActionStatus' }));
+});
+
+describe('when call submit() with an action where "actionStatus-output" is set', () => {
+  let handler: jest.Mock<Promise<VariableMap>, [VariableMap, Readonly<{ signal: AbortSignal }>]>;
+  let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void>;
+
+  beforeEach(async () => {
+    handler = jest.fn((_input, _option) =>
+      Promise.resolve(
+        new Map<string, boolean | Date | number | string | undefined>([
+          ['status', 'FailedActionStatus'],
+          ['url', 'https://example.com/output']
+        ])
+      )
+    );
+
+    renderResult = renderHook(() =>
+      useSchemaOrgAction<ReviewAction>(
+        {
+          '@context': 'https://schema.org',
+          '@type': 'ReviewAction',
+          'actionStatus-output': {
+            '@type': 'PropertyValueSpecification',
+            valueName: 'status'
+          },
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: 'https://api.example.com/review',
+            encodingType: 'application/ld+json',
+            contentType: 'application/ld+json'
+          },
+          object: {
+            '@type': 'Movie',
+            url: 'https://example.com/input',
+            'url-input': 'name=url required'
+          },
+          result: {
+            '@type': 'Review',
+            creativeWorkStatus: 'Draft',
+            'creativeWorkStatus-output': { valueName: 'status', valueRequired: true },
+            'url-output': { valueMinLength: 10, valueName: 'url', valueRequired: true },
+            reviewBody: 'Great movie.',
+            'reviewBody-input': { valueName: 'review', valueRequired: true },
+            reviewRating: {
+              ratingValue: 5,
+              'ratingValue-input': { minValue: 0, maxValue: 5, valueName: 'rating', valueRequired: true }
+            }
+          }
+        } satisfies ReviewAction,
+        handler
+      )
+    );
+
+    await act(() => renderResult.result.current[2].submit());
+  });
+
+  test('should override "actionStatus" property', () =>
+    expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'FailedActionStatus'));
+});
+
+describe('when call submit() with an action where "actionStatus-output" is set to an invalid value', () => {
+  let handler: jest.Mock<Promise<VariableMap>, [VariableMap, Readonly<{ signal: AbortSignal }>]>;
+  let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void>;
+  let submitPromise: Promise<void>;
+
+  beforeEach(async () => {
+    handler = jest.fn((_input, _option) =>
+      Promise.resolve(
+        new Map<string, boolean | Date | number | string | undefined>([
+          ['status', 'invalid-value'],
+          ['url', 'https://example.com/output']
+        ])
+      )
+    );
+
+    renderResult = renderHook(() =>
+      useSchemaOrgAction<ReviewAction>(
+        {
+          '@context': 'https://schema.org',
+          '@type': 'ReviewAction',
+          'actionStatus-output': {
+            '@type': 'PropertyValueSpecification',
+            valueName: 'status'
+          },
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: 'https://api.example.com/review',
+            encodingType: 'application/ld+json',
+            contentType: 'application/ld+json'
+          },
+          object: {
+            '@type': 'Movie',
+            url: 'https://example.com/input',
+            'url-input': 'name=url required'
+          },
+          result: {
+            '@type': 'Review',
+            creativeWorkStatus: 'Draft',
+            'creativeWorkStatus-output': { valueName: 'status', valueRequired: true },
+            'url-output': { valueMinLength: 10, valueName: 'url', valueRequired: true },
+            reviewBody: 'Great movie.',
+            'reviewBody-input': { valueName: 'review', valueRequired: true },
+            reviewRating: {
+              ratingValue: 5,
+              'ratingValue-input': { minValue: 0, maxValue: 5, valueName: 'rating', valueRequired: true }
+            }
+          }
+        } satisfies ReviewAction,
+        handler
+      )
+    );
+
+    act(() => {
+      submitPromise = renderResult.result.current[2].submit();
+    });
+  });
+
+  test('should throw', () => expect(submitPromise).rejects.toThrow());
 });
