@@ -39,6 +39,7 @@ describe.each([
   let searchAction: SearchAction;
 
   beforeEach(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     handler = jest.fn(async (action, _) => action as any);
 
     // SETUP: The action from the spec.

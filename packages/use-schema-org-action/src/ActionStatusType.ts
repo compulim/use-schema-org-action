@@ -1,12 +1,12 @@
 import { picklist, type InferOutput } from 'valibot';
 
-const actionStatusSchema = picklist([
+const actionStatusTypeSchema = picklist([
   'ActiveActionStatus',
   'CompletedActionStatus',
   'FailedActionStatus',
   'PotentialActionStatus'
 ]);
 
-type ActionStatusType = InferOutput<typeof actionStatusSchema>;
+type ActionStatusType = InferOutput<typeof actionStatusTypeSchema>;
 
-export { actionStatusSchema, type ActionStatusType };
+export { actionStatusTypeSchema, type ActionStatusType };

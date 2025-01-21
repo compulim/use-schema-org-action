@@ -1,6 +1,6 @@
 import { boolean, date, number, parse, string, undefined_, union, type InferOutput } from 'valibot';
-import propertyValueSpecificationSchema from '../PropertyValueSpecificationSchema';
-import isPlainObject from './isPlainObject';
+import propertyValueSpecificationSchema from '../PropertyValueSpecificationSchema.ts';
+import isPlainObject from './isPlainObject.ts';
 
 const supportedValueType = union([boolean(), date(), number(), string(), undefined_()]);
 
@@ -35,7 +35,7 @@ function* extractVariablesFromActionInternal(
   }
 }
 
-export default function extractVariablesFromAction<TAction extends {}>(
+export default function extractVariablesFromAction<TAction extends object>(
   action: TAction,
   mode: 'input' | 'output'
 ): ReadonlyMap<string, SupportedValueType> {

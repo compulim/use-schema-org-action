@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
 import { useRefFrom } from 'use-ref-from';
 import { fallback, parse, safeParse } from 'valibot';
-import { actionStatusSchema } from './ActionStatusType.ts';
+import { actionStatusTypeSchema } from './ActionStatusType.ts';
 import { type ActionWithActionStatus } from './ActionWithActionStatus.ts';
 import extractVariablesFromAction from './private/extractVariablesFromAction.ts';
 import mergeVariablesIntoAction from './private/mergeVariablesIntoAction.ts';
 import { type VariableMap } from './VariableMap.ts';
 
-export default function useSchemaOrgAction<T extends {} = {}>(
+export default function useSchemaOrgAction<T extends object = object>(
   initialAction: T,
   handler: (input: VariableMap, init: Readonly<{ signal: AbortSignal }>) => Promise<VariableMap>
 ): readonly [
@@ -22,7 +22,7 @@ export default function useSchemaOrgAction<T extends {} = {}>(
   const [action, setAction] = useState<ActionWithActionStatus<T>>(() => ({
     ...initialAction,
     actionStatus: parse(
-      fallback(actionStatusSchema, 'PotentialActionStatus'),
+      fallback(actionStatusTypeSchema, 'PotentialActionStatus'),
       'actionStatus' in initialAction && initialAction.actionStatus
     )
   }));
@@ -55,7 +55,7 @@ export default function useSchemaOrgAction<T extends {} = {}>(
 
     const isValid =
       outputValidationResult.isValid &&
-      safeParse(actionStatusSchema, outputValidationResult.value.actionStatus).success;
+      safeParse(actionStatusTypeSchema, outputValidationResult.value.actionStatus).success;
 
     if (!isValid) {
       return Promise.reject(new Error('Output is invalid.'));

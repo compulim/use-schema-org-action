@@ -128,10 +128,13 @@ const propertyValueSpecificationSchema = union([
 
 type MySchema<T> =
   | BaseSchema<T | undefined, T | undefined, BaseIssue<unknown>>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   | SchemaWithPipe<[BaseSchema<T | undefined, T | undefined, any>, PipeItem<any, T, any>]>
   | ArraySchema<
       | BaseSchema<T | undefined, T | undefined, BaseIssue<unknown>>
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       | SchemaWithPipe<[BaseSchema<T | undefined, T | undefined, any>, PipeItem<any, T, any>]>,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       any
     >;
 

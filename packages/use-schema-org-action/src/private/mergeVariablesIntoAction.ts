@@ -1,7 +1,7 @@
 import { generatorWithLastValue } from 'iter-fest';
 import { parse, safeParse } from 'valibot';
-import propertyValueSpecificationSchema, { toValibotSchema } from '../PropertyValueSpecificationSchema';
-import isPlainObject from './isPlainObject';
+import propertyValueSpecificationSchema, { toValibotSchema } from '../PropertyValueSpecificationSchema.ts';
+import isPlainObject from './isPlainObject.ts';
 
 function* mergeVariablesIntoActionInternal(
   actionEntries: readonly (readonly [string, unknown])[],
@@ -17,7 +17,7 @@ function* mergeVariablesIntoActionInternal(
       continue;
     }
 
-    let variableKey =
+    const variableKey =
       mode === 'input' && key.endsWith('-input')
         ? key.slice(0, -6)
         : mode === 'output' && key.endsWith('-output')
@@ -59,7 +59,7 @@ function* mergeVariablesIntoActionInternal(
   return isValid;
 }
 
-export default function mergeVariablesIntoAction<TAction extends {}>(
+export default function mergeVariablesIntoAction<TAction extends object>(
   action: TAction,
   variables: ReadonlyMap<string, boolean | Date | number | string | undefined>,
   mode: 'input' | 'output'

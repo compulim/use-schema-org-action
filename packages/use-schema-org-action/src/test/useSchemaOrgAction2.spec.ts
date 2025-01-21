@@ -459,6 +459,8 @@ describe('when rendered with initialAction containing invalid "actionStatus" pro
 
   beforeEach(() => {
     renderResult = renderHook(() =>
+      // Explicitly set an invalid value.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       useSchemaOrgAction<ReviewAction>({ ...reviewAction, actionStatus: '123' as any }, jest.fn())
     );
   });
