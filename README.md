@@ -135,6 +135,8 @@ When a different `handler` function is passed, the `submit` function will be inv
 ## Roadmap
 
 - Expose `valibot` error during constraint validation via [`Error.cause`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/cause) property
+- Validate but not extract properties where it has constraint but not named
+- Pass action without `*-input/output` to `handler`
 
 ## Contributions
 
