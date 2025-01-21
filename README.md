@@ -1,21 +1,20 @@
 # `use-schema-org-action`
 
-React hook for handling logics of [Schema.org actions](https://schema.org/docs/actions.html).
+React hook for handling logics and constraint validations of [Schema.org actions](https://schema.org/docs/actions.html).
 
 ## Background
 
-Schema.org actions is a way to [describe the capability to perform an action and how that capability can be exercised](https://schema.org/docs/actions.html). Performing the action contains multiple steps:
+Schema.org actions is a way to [describe the capability to perform an action and how that capability can be exercised](https://schema.org/docs/actions.html). Performing the action requires multiple steps:
 
-1. Picks properties from the action and creates a request object
-1. Validates the request against input constraints
-1. Extracts named properties from the action and creates a list of variables for variable expansion (as described in [RFC 6570 URI Template](https://www.rfc-editor.org/rfc/rfc6570))
-1. Marks the action as active
-1. Performs the action
-1. Marks the action as completed or failed
-1. Validates the response against output constraints
-1. Merges the response back into the action
+1. Validates the action against input [constraints](https://schema.org/docs/actions.html#part-4)
+1. Extracts named input properties from the action and forms a list of variables to support [RFC 6570 URI Template](https://www.rfc-editor.org/rfc/rfc6570) variable expansion
+1. Marks the action as [active](https://schema.org/docs/actions.html#part-1)
+1. Performs the action asynchronously
+1. Validates the action result against output [constraints](https://schema.org/docs/actions.html#part-4)
+1. Marks the action as [completed or failed](https://schema.org/docs/actions.html#part-1)
+1. If successful, merges the output variables back into the action via named output properties
 
-This package wraps all these steps as a React hook.
+This package wraps all these steps as a React hook, including HTML-compatible constraint validation.
 
 ## Demo
 
@@ -28,14 +27,19 @@ The `useSchemaOrgAction` hook is designed to be similar to [React `useState` hoo
 To install this package, run `npm install use-schema-org-action` or visit our [package on NPM](https://npmjs.com/package/use-schema-org-action).
 
 ```ts
-import { useSchemaOrgAction } from 'use-schema-org-action';
+import { useSchemaOrgAction, type PropertyValueSpecification } from 'use-schema-org-action';
 
+// This function will submit the vote action asynchronously.
 function submitVote(
+  // Input variables is a Map by extracting named input properties. It is validated against input constraints.
+  // It can be used in RFC 6570 URI Template for variable expansion.
   input: Map<string, unknown>,
   { signal }: { signal: AbortSignal }
 ): Promise<Map<string, unknown>> {
-  // Variables is a Map created from action properties which has a named input constraint and can be used in RFC 6570 URI Template for variable expansion.
   console.log(input.get('action')); // 'upvote';
+
+  // Return a Map of output variables, will be validated against output constraints before merging into the action.
+  return new Map();
 }
 
 function VoteButton() {
@@ -43,14 +47,15 @@ function VoteButton() {
     {
       actionOption: 'upvote',
       'actionOption-input': {
-        valueName: 'action'
-      }
+        valueName: 'action',
+        valueRequired: true
+      } satisfies PropertyValueSpecification
     },
     submitVote
   );
 
   // Action include "actionStatus" property.
-  console.log(action); // { actionOption: 'upvote', 'actionOption-input': { valueName: 'action' }, actionStatus: 'PotentialActionStatus' };
+  console.log(action); // { actionOption: 'upvote', 'actionOption-input': { valueName: 'action' }, actionStatus: 'PotentialActionStatus' }
 
   // Similar to `useState`, to modify the action.
   useEffect(() => setAction({ actionOption: 'downvote' }), [setAction]);
@@ -93,9 +98,9 @@ Initially, `actionStatus` is set to `"PotentialActionStatus"`. When `performActi
 In special circumstances:
 
 - If `actionStatus` is passed in `initialAction`, its value will be used, instead of the default `"PotentialActionStatus"`
-   - If `actionStatus` is passed incorrectly, the default value `"PotentialActionStatus"` will be used
+  - If `actionStatus` is passed incorrectly, the default value `"PotentialActionStatus"` will be used
 - If `actionStatus-output` is set in `initialAction` with `valueName`, after `performAction()` is resolved, `actionStatus` from the output will be used, replacing `"CompletedActionStatus"`
-   - If `actionStatus` is returned with an invalid value, error will be thrown
+  - If `actionStatus` is returned with an invalid value, error will be thrown
 
 ### Request/response are based on input/output constraints
 
@@ -126,6 +131,10 @@ If the handler did not respond with `actionStatus` or output constraints is not 
 The `handler` function (passed as second argument) should be memoized via `useCallback`.
 
 When a different `handler` function is passed, the `submit` function will be invalidated.
+
+## Roadmap
+
+- Expose `valibot` error during constraint validation via [`Error.cause`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/cause) property
 
 ## Contributions
 
