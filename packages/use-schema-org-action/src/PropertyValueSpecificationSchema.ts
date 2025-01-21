@@ -180,7 +180,7 @@ function toValibotSchema(propertyValueSpecification: PropertyValueSpecification)
     }
   }
 
-  // TODO: Dedupe with maxValue.
+  // TODO: Dedupe the code with maxValue.
   if (propertyValueSpecification.minValue instanceof Date) {
     dateSchema = pipe(dateSchema, minValue(propertyValueSpecification.minValue));
   } else if (typeof propertyValueSpecification.minValue === 'number') {
