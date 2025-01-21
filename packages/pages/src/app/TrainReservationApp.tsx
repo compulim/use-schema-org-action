@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useCallback, useMemo, useState, type FormEventHandler } from 'react';
+import React, { Fragment, memo, useCallback, useMemo, type FormEventHandler } from 'react';
 import { useSchemaOrgAction, type PropertyValueSpecification } from 'use-schema-org-action';
 
 type Ticket = {
@@ -9,6 +9,7 @@ type Ticket = {
 };
 
 type TrainReservation = {
+  '@id': string;
   '@type': 'TrainReservation';
   bookingTime?: Date | undefined;
   modifiedTime?: Date | undefined;
@@ -28,7 +29,6 @@ type PlanAction = {
 };
 
 type Seat = {
-  '@id': string;
   '@type': 'Seat';
   seatingType: string;
   seatNumber: string;
@@ -57,30 +57,71 @@ type TrainTrip = {
   'trainNumber-input'?: PropertyValueSpecification | undefined;
 };
 
-const availableSeats: [Seat, Seat, Seat] = [
+const baseReservation: TrainReservation = {
+  '@id': '8/21/B',
+  '@type': 'TrainReservation',
+  priceCurrency: 'JPY',
+  'reservationId-output': {
+    '@type': 'PropertyValueSpecification',
+    valueName: 'id',
+    valueRequired: true
+  },
+  reservationStatus: 'ReservationPending',
+  'reservationStatus-output': {
+    '@type': 'PropertyValueSpecification',
+    valueName: 'status',
+    valueRequired: true
+  },
+  reservedTicket: {
+    '@type': 'Ticket',
+    'dateIssued-output': {
+      valueName: 'issued',
+      valueRequired: true
+    },
+    seat: {
+      '@type': 'Seat',
+      seatingType: 'Reserved seat',
+      seatNumber: '21',
+      seatRow: 'B',
+      seatSection: 'Car 8'
+    }
+  },
+  totalPrice: 6590
+} satisfies TrainReservation;
+
+const availableReservations: [TrainReservation, TrainReservation, TrainReservation] = [
   {
-    '@id': '8/21/B',
-    '@type': 'Seat',
-    seatingType: 'Reserved Seat',
-    seatNumber: '21',
-    seatRow: 'B',
-    seatSection: 'Car 8'
+    ...baseReservation
   },
   {
+    ...baseReservation,
     '@id': '11/8/A',
-    '@type': 'Seat',
-    seatingType: 'Green Car',
-    seatNumber: '8',
-    seatRow: 'A',
-    seatSection: 'Car 11'
+    totalPrice: 8_860,
+    reservedTicket: {
+      ...baseReservation.reservedTicket,
+      seat: {
+        '@type': 'Seat',
+        seatingType: 'Green',
+        seatNumber: '8',
+        seatRow: 'A',
+        seatSection: 'Car 11'
+      }
+    }
   },
   {
+    ...baseReservation,
     '@id': '12/2/A',
-    '@type': 'Seat',
-    seatingType: 'GranClass',
-    seatNumber: '2',
-    seatRow: 'A',
-    seatSection: 'Car 12'
+    totalPrice: 12_010,
+    reservedTicket: {
+      ...baseReservation.reservedTicket,
+      seat: {
+        '@type': 'Seat',
+        seatingType: 'GranClass',
+        seatNumber: '2',
+        seatRow: 'A',
+        seatSection: 'Car 12'
+      }
+    }
   }
 ];
 
@@ -132,39 +173,16 @@ const availableTrainTrips: [TrainTrip, TrainTrip, TrainTrip] = [
 const initialPlanAction: PlanAction = {
   '@type': 'PlanAction',
   object: availableTrainTrips[0],
-  result: {
-    '@type': 'TrainReservation',
-    priceCurrency: 'JPY',
-    'reservationId-output': {
-      '@type': 'PropertyValueSpecification',
-      valueName: 'id',
-      valueRequired: true
-    },
-    reservationStatus: 'ReservationPending',
-    'reservationStatus-output': {
-      '@type': 'PropertyValueSpecification',
-      valueName: 'status',
-      valueRequired: true
-    },
-    reservedTicket: {
-      '@type': 'Ticket',
-      'dateIssued-output': {
-        valueName: 'issued',
-        valueRequired: true
-      },
-      seat: availableSeats[0]
-    },
-    totalPrice: 6590
-  } satisfies TrainReservation
+  result: availableReservations[0]
 };
 
-const App3 = () => {
-  const [planAction, setPlanAction] = useState(initialPlanAction);
-  const [input, setInput, { action, isInputValid, submit }] = useSchemaOrgAction(planAction, async input => {
+const TrainReservationApp = () => {
+  const [action, setAction, { isInputValid, submit }] = useSchemaOrgAction<PlanAction>(initialPlanAction, async () => {
     await new Promise(resolve => setTimeout(resolve, 1_000));
 
-    return new Map([
+    return new Map<string, boolean | Date | number | string>([
       ['id', Math.random().toString(36).substring(2, 8).toUpperCase()],
+      ['issued', new Date()],
       ['status', 'ReservationConfirmed']
     ]);
   });
@@ -172,11 +190,11 @@ const App3 = () => {
   const currencyFormat = useMemo(
     () =>
       new Intl.NumberFormat([], {
-        currency: action.result.priceCurrency,
+        currency: action.result?.priceCurrency,
         currencyDisplay: 'symbol',
         style: 'currency'
       }),
-    [action.result.priceCurrency]
+    [action.result?.priceCurrency]
   );
 
   const handleSubmit = useCallback<FormEventHandler<HTMLFormElement>>(
@@ -192,35 +210,39 @@ const App3 = () => {
     event => {
       const { currentTarget } = event;
 
-      setPlanAction(planAction => ({
-        ...planAction,
-        result: {
+      setAction(planAction => {
+        const trainReservation: TrainReservation = {
           ...planAction.result,
-          reservedTicket: {
-            ...planAction.result.reservedTicket,
-            seat:
-              availableSeats.find(seat => seat['@id'] === currentTarget.value) || planAction.result.reservedTicket.seat
-          }
-        }
-      }));
+          ...(availableReservations.find(reservation => reservation['@id'] === currentTarget.value) ||
+            planAction.result)
+        };
+
+        trainReservation.reservedTicket.dateIssued = planAction.result.reservedTicket.dateIssued;
+
+        return {
+          ...planAction,
+          result: trainReservation
+        };
+      });
     },
-    [setPlanAction]
+    [setAction]
   );
 
   const handleTrainChange = useCallback<FormEventHandler<HTMLSelectElement>>(
     event => {
       const { currentTarget } = event;
 
-      setPlanAction(planAction => ({
+      setAction(planAction => ({
         ...planAction,
         object: availableTrainTrips.find(trip => trip['@id'] === currentTarget.value) || planAction.object
       }));
     },
-    [setPlanAction]
+    [setAction]
   );
 
   return (
     <section>
+      <h2>Train reservation</h2>
       <form onSubmit={handleSubmit}>
         <dl>
           <dt>Train</dt>
@@ -228,7 +250,7 @@ const App3 = () => {
             <select
               disabled={action.actionStatus === 'ActiveActionStatus'}
               onChange={handleTrainChange}
-              value={planAction.object['@id']}
+              value={action.object['@id']}
             >
               {availableTrainTrips.map(trainTrip => (
                 <option value={trainTrip['@id']}>
@@ -254,12 +276,13 @@ const App3 = () => {
             <select
               disabled={action.actionStatus === 'ActiveActionStatus'}
               onChange={handleSeatChange}
-              value={planAction.result.reservedTicket.seat['@id']}
+              value={action.result['@id']}
             >
-              {availableSeats.map(seat => (
-                <option value={seat['@id']}>
-                  ({seat.seatingType}) {seat.seatSection} {seat.seatNumber}
-                  {seat.seatRow}
+              {availableReservations.map(reservation => (
+                <option value={reservation['@id']}>
+                  ({reservation.reservedTicket.seat.seatingType}) {reservation.reservedTicket.seat.seatSection}{' '}
+                  {reservation.reservedTicket.seat.seatNumber}
+                  {reservation.reservedTicket.seat.seatRow}
                 </option>
               ))}
             </select>
@@ -272,6 +295,12 @@ const App3 = () => {
             <Fragment>
               <dt>Reservation ID</dt>
               <dd>{action.result.reservationId}</dd>
+            </Fragment>
+          )}
+          {action.result.reservedTicket.dateIssued && (
+            <Fragment>
+              <dt>Issued date</dt>
+              <dd>{action.result.reservedTicket.dateIssued.toLocaleString()}</dd>
             </Fragment>
           )}
         </dl>
@@ -287,4 +316,4 @@ const App3 = () => {
   );
 };
 
-export default memo(App3);
+export default memo(TrainReservationApp);

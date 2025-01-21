@@ -1,3 +1,4 @@
+import './index.css';
 import React from 'react';
 // This is needed for testing React 16 and 17.
 // eslint-disable-next-line react/no-deprecated
