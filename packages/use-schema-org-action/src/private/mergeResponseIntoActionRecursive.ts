@@ -1,7 +1,7 @@
 import { type PartialDeep } from 'type-fest';
 import isPlainObject from './isPlainObject';
 
-export default function mergeResponseIntoAction<
+export default function mergeResponseIntoActionRecursive<
   T extends object,
   TResponse extends object = PartialDeep<T>,
   TOutput extends object = T
@@ -32,7 +32,7 @@ export default function mergeResponseIntoAction<
           ? response[key]
           : undefined;
 
-      outputEntries.push([key, mergeResponseIntoAction(value, subResponse)]);
+      outputEntries.push([key, mergeResponseIntoActionRecursive(value, subResponse)]);
     }
   }
 

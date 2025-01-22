@@ -6,8 +6,8 @@ import { actionStatusTypeSchema, type ActionStatusType } from './ActionStatusTyp
 import { type ActionWithActionStatus } from './ActionWithActionStatus.ts';
 import buildSchemaFromConstraintsRecursive from './private/buildSchemaFromConstraintsRecursive.ts';
 import extractRequestFromActionRecursive from './private/extractRequestFromActionRecursive.ts';
-import extractVariablesFromAction from './private/extractVariablesFromAction.ts';
-import mergeResponseIntoAction from './private/mergeResponseIntoAction.ts';
+import extractVariablesFromActionRecursive from './private/extractVariablesFromActionRecursive.ts';
+import mergeResponseIntoActionRecursive from './private/mergeResponseIntoActionRecursive.ts';
 import validateConstraints from './private/validateConstraints.ts';
 import { type VariableMap } from './VariableMap.ts';
 
@@ -52,7 +52,7 @@ export default function useSchemaOrgAction<T extends object = object>(
 
     setAction(action => ({ ...action, actionStatus: 'ActiveActionStatus' }));
 
-    const input = extractVariablesFromAction(actionRef.current, 'input');
+    const input = extractVariablesFromActionRecursive(actionRef.current, 'input');
     const request = extractRequestFromActionRecursive(actionRef.current);
 
     const response = await handlerRef.current(input, request, { signal: abortController.signal });
@@ -78,13 +78,13 @@ export default function useSchemaOrgAction<T extends object = object>(
       return;
     }
 
-    setAction(action => mergeResponseIntoAction({ ...action, actionStatus: 'CompletedActionStatus' }, response));
+    setAction(action => mergeResponseIntoActionRecursive({ ...action, actionStatus: 'CompletedActionStatus' }, response));
   }, [abortController, actionRef, handlerRef, inputValidityRef, setAction]);
 
   const options = useMemo(
     () =>
       Object.freeze({
-        input: extractVariablesFromAction(action, 'input'),
+        input: extractVariablesFromActionRecursive(action, 'input'),
         inputValidity,
         submit
       }),

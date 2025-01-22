@@ -1,7 +1,7 @@
 import { type PartialDeep } from 'type-fest';
 import { type ActionStatusType } from '../ActionStatusType';
 import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
-import mergeResponseIntoAction from './mergeResponseIntoAction';
+import mergeResponseIntoActionRecursive from './mergeResponseIntoActionRecursive';
 
 test('should merge with official ReviewAction sample', () => {
   type ReviewAction = {
@@ -67,7 +67,7 @@ test('should merge with official ReviewAction sample', () => {
     }
   };
 
-  const mergedResult = mergeResponseIntoAction(reviewAction, response);
+  const mergedResult = mergeResponseIntoActionRecursive(reviewAction, response);
 
   // [NOT-IN-SPEC]
   expect(mergedResult).toEqual({
@@ -130,7 +130,7 @@ test('should only merge properties with output constraints', () => {
     reviewBody: 'yada, yada, yada'
   };
 
-  expect(mergeResponseIntoAction(review, response)).toEqual({
+  expect(mergeResponseIntoActionRecursive(review, response)).toEqual({
     '@type': 'Review',
     url: 'http://example.com/reviews/abc',
     'url-output': 'required',
@@ -161,7 +161,7 @@ test('should overwrite existing properties 1', () => {
     reviewBody: 'Great movie.'
   };
 
-  expect(mergeResponseIntoAction(review, response)).toEqual({
+  expect(mergeResponseIntoActionRecursive(review, response)).toEqual({
     ...review,
     reviewBody: 'Great movie.'
   });
@@ -185,7 +185,7 @@ test('should overwrite existing properties 2', () => {
     reviewBody: 'Great movie.'
   };
 
-  expect(mergeResponseIntoAction(review, response)).toEqual({
+  expect(mergeResponseIntoActionRecursive(review, response)).toEqual({
     ...review,
     reviewBody: 'Great movie.'
   });

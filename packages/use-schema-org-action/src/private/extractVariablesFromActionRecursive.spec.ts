@@ -1,6 +1,6 @@
 import { type ActionStatusType } from '../ActionStatusType';
 import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
-import extractVariablesFromAction from './extractVariablesFromAction';
+import extractVariablesFromActionRecursive from './extractVariablesFromActionRecursive';
 
 type ReviewAction = {
   '@context'?: 'https://schema.org';
@@ -33,7 +33,7 @@ type ReviewAction = {
 test('should extract valid input values', () => {
   expect(
     Array.from(
-      extractVariablesFromAction(
+      extractVariablesFromActionRecursive(
         {
           '@context': 'https://schema.org',
           '@type': 'ReviewAction',
@@ -72,7 +72,7 @@ test('should extract valid input values', () => {
 test('should extract invalid input values', () => {
   expect(
     Array.from(
-      extractVariablesFromAction(
+      extractVariablesFromActionRecursive(
         {
           '@context': 'https://schema.org',
           '@type': 'ReviewAction',
@@ -105,7 +105,7 @@ test('should extract invalid input values', () => {
 test('should extract output values', () => {
   expect(
     Array.from(
-      extractVariablesFromAction(
+      extractVariablesFromActionRecursive(
         {
           '@context': 'https://schema.org',
           '@type': 'ReviewAction',
@@ -139,7 +139,7 @@ test('should extract output values', () => {
 test('should not extract property without a name', () => {
   expect(
     Array.from(
-      extractVariablesFromAction(
+      extractVariablesFromActionRecursive(
         {
           '@context': 'https://schema.org',
           '@type': 'ReviewAction',

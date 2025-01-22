@@ -6,7 +6,7 @@ const supportedValueType = union([boolean(), date(), number(), string(), undefin
 
 type SupportedValueType = InferOutput<typeof supportedValueType>;
 
-function* extractVariablesFromActionInternal(
+function* extractVariablesFromActionRecursiveInternal(
   actionEntries: readonly (readonly [string, unknown])[],
   mode: 'input' | 'output'
 ): Iterable<[string, SupportedValueType]> {
@@ -30,14 +30,14 @@ function* extractVariablesFromActionInternal(
         }
       }
     } else if (isPlainObject(value)) {
-      yield* extractVariablesFromActionInternal(Object.entries(value), mode);
+      yield* extractVariablesFromActionRecursiveInternal(Object.entries(value), mode);
     }
   }
 }
 
-export default function extractVariablesFromAction<TAction extends object>(
+export default function extractVariablesFromActionRecursive<TAction extends object>(
   action: TAction,
   mode: 'input' | 'output'
 ): ReadonlyMap<string, SupportedValueType> {
-  return Object.freeze(new Map(extractVariablesFromActionInternal(Object.entries(action), mode)));
+  return Object.freeze(new Map(extractVariablesFromActionRecursiveInternal(Object.entries(action), mode)));
 }
