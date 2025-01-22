@@ -61,7 +61,7 @@ export default function useSchemaOrgAction<T extends object = object>(
     const outputSchema = buildSchemaFromConstraintsRecursive(action, 'output');
 
     try {
-      parse(outputSchema || object({}), response);
+      parse(outputSchema, response);
       parse(object({ actionStatus: optional(actionStatusTypeSchema) }), response);
     } catch (cause) {
       if (!abortController.signal.aborted) {
