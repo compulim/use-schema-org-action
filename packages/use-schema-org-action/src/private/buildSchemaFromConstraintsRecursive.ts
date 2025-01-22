@@ -2,7 +2,7 @@ import { object, type ErrorMessage, type ObjectEntries, type ObjectIssue, type O
 import { toValibotSchema } from '../PropertyValueSpecificationSchema';
 import isPlainObject from './isPlainObject';
 
-export default function buildSchemaFromConstraintsRecursive<T extends object>(
+function buildSchemaFromConstraintsRecursiveInternal<T extends object>(
   action: T,
   mode: 'input' | 'output'
 ): ObjectSchema<ObjectEntries, ErrorMessage<ObjectIssue> | undefined> | undefined {
@@ -17,7 +17,7 @@ export default function buildSchemaFromConstraintsRecursive<T extends object>(
       empty = false;
       objectEntriesSchema[key.slice(0, -7)] = toValibotSchema(value);
     } else if (isPlainObject(value)) {
-      const schema = buildSchemaFromConstraintsRecursive(value, mode);
+      const schema = buildSchemaFromConstraintsRecursiveInternal(value, mode);
 
       if (schema) {
         empty = false;
@@ -27,4 +27,11 @@ export default function buildSchemaFromConstraintsRecursive<T extends object>(
   }
 
   return empty ? undefined : object(objectEntriesSchema);
+}
+
+export default function buildSchemaFromConstraintsRecursive<T extends object>(
+  action: T,
+  mode: 'input' | 'output'
+): ObjectSchema<ObjectEntries, ErrorMessage<ObjectIssue> | undefined> {
+  return buildSchemaFromConstraintsRecursiveInternal(action, mode) || object({});
 }

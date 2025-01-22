@@ -8,7 +8,7 @@ import buildSchemaFromConstraintsRecursive from './private/buildSchemaFromConstr
 import extractRequestIntoActionRecursive from './private/extractRequestIntoActionRecursive.ts';
 import extractVariablesFromAction from './private/extractVariablesFromAction.ts';
 import mergeResponseIntoAction from './private/mergeResponseIntoAction.ts';
-import mergeVariablesIntoAction from './private/mergeVariablesIntoAction.ts';
+import validateConstraints from './private/validateConstraints.ts';
 import { type VariableMap } from './VariableMap.ts';
 
 type ActionHandler<T extends object> = (
@@ -40,7 +40,7 @@ export default function useSchemaOrgAction<T extends object = object>(
   const actionRef = useRefFrom(action);
   const handlerRef = useRefFrom(handler);
 
-  const isInputValid = useMemo<boolean>(() => mergeVariablesIntoAction(action, new Map(), 'input').isValid, [action]);
+  const isInputValid = useMemo<boolean>(() => validateConstraints(action, 'input').valid, [action]);
 
   const isInputValidRef = useRefFrom(isInputValid);
 
