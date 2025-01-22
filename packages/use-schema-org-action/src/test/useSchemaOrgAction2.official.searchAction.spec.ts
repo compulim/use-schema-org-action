@@ -96,9 +96,7 @@ describe('Spec: Text search deep link with -input', () => {
 
         // [NOT-IN-SPEC]
         test('should build request without constraints', () =>
-          expect(handler.mock.lastCall?.[1]).toEqual({
-            query: 'the search'
-          }));
+          expect(handler.mock.lastCall?.[1]).toEqual({ query: 'the search' }));
       });
     });
   });
