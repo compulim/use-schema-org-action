@@ -1,4 +1,4 @@
-/** @jest-environment ./src/test/jsdomEnvironmentWithWritableStream.js */
+/** @jest-environment ./src/test/JSDOMEnvironmentWithWritableStream.js */
 
 import { act } from 'react';
 
