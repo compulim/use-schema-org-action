@@ -1,7 +1,6 @@
 /** @jest-environment ./src/test/jsdomEnvironmentWithWritableStream.js */
 
 import { act } from '@testing-library/react';
-
 import { type PartialDeep } from 'type-fest';
 import { type ActionStatusType } from '../ActionStatusType';
 import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
