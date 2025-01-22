@@ -1,5 +1,5 @@
 import { safeParse } from 'valibot';
-import buildSchemaFromConstraintsRecursive from './buildSchemaFromConstraintsRecursive';
+import buildSchemaFromConstraintsRecursive from './buildSchemaFromConstraintsRecursive.ts';
 
 export default function validateConstraints<T extends object>(
   action: T,

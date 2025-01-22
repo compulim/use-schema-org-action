@@ -1,5 +1,5 @@
 import { type PartialDeep } from 'type-fest';
-import isPlainObject from './isPlainObject';
+import isPlainObject from './isPlainObject.ts';
 
 function extractRequestFromActionRecursiveInternal<T extends Record<string, unknown>>(
   action: T

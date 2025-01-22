@@ -1,4 +1,4 @@
-import { type VariableMap } from './VariableMap';
+import { type VariableMap } from './VariableMap.ts';
 
 export default function variableMapToNullableStringRecord(variables: VariableMap): Record<string, null | string> {
   const stringEntries = variables

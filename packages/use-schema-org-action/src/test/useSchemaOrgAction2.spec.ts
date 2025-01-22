@@ -526,6 +526,8 @@ describe('when call submit() with an action where "actionStatus" is set to an in
       Promise.resolve({
         actionStatus: 'invalid-value',
         result: { url: 'https://example.com/output' }
+        // Explicitly set to an invalid value.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any)
     );
 

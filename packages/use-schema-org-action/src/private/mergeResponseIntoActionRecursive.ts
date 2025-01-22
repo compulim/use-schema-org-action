@@ -1,5 +1,5 @@
 import { type PartialDeep } from 'type-fest';
-import isPlainObject from './isPlainObject';
+import isPlainObject from './isPlainObject.ts';
 
 export default function mergeResponseIntoActionRecursive<
   T extends object,

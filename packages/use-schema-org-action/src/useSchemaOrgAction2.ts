@@ -78,7 +78,9 @@ export default function useSchemaOrgAction<T extends object = object>(
       return;
     }
 
-    setAction(action => mergeResponseIntoActionRecursive({ ...action, actionStatus: 'CompletedActionStatus' }, response));
+    setAction(action =>
+      mergeResponseIntoActionRecursive({ ...action, actionStatus: 'CompletedActionStatus' }, response)
+    );
   }, [abortController, actionRef, handlerRef, inputValidityRef, setAction]);
 
   const options = useMemo(

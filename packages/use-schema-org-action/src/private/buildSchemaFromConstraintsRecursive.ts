@@ -1,6 +1,6 @@
 import { object, type ErrorMessage, type ObjectEntries, type ObjectIssue, type ObjectSchema } from 'valibot';
-import { toValibotSchema } from '../PropertyValueSpecificationSchema';
-import isPlainObject from './isPlainObject';
+import { toValibotSchema } from '../PropertyValueSpecificationSchema.ts';
+import isPlainObject from './isPlainObject.ts';
 
 function buildSchemaFromConstraintsRecursiveInternal<T extends object>(
   action: T,
