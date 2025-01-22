@@ -1,7 +1,7 @@
 import { type PartialDeep } from 'type-fest';
 import { type ActionStatusType } from '../ActionStatusType';
 import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
-import extractRequestIntoActionRecursive from './extractRequestIntoActionRecursive';
+import extractRequestFromActionRecursive from './extractRequestFromActionRecursive';
 
 describe('With "ReviewAction"', () => {
   type ReviewAction = {
@@ -76,11 +76,11 @@ describe('With "ReviewAction"', () => {
     };
   });
 
-  describe('when extractRequestIntoActionRecursive() is called', () => {
+  describe('when extractRequestFromActionRecursive() is called', () => {
     let request: PartialDeep<ReviewAction> | undefined;
 
     beforeEach(() => {
-      request = extractRequestIntoActionRecursive(reviewAction);
+      request = extractRequestFromActionRecursive(reviewAction);
     });
 
     test('should not return empty object', () =>

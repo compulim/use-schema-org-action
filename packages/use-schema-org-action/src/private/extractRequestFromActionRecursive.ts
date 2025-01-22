@@ -1,7 +1,7 @@
 import { type PartialDeep } from 'type-fest';
 import isPlainObject from './isPlainObject';
 
-function extractRequestIntoActionRecursiveInternal<T extends Record<string, unknown>>(
+function extractRequestFromActionRecursiveInternal<T extends Record<string, unknown>>(
   action: T
 ): PartialDeep<T> | undefined {
   let isEmpty = true;
@@ -14,7 +14,7 @@ function extractRequestIntoActionRecursiveInternal<T extends Record<string, unkn
       inputEntries.set(valueKey, action[valueKey]);
       isEmpty = false;
     } else if (!key.endsWith('-output') && isPlainObject(value)) {
-      const subValue = extractRequestIntoActionRecursiveInternal(value);
+      const subValue = extractRequestFromActionRecursiveInternal(value);
 
       if (typeof subValue !== 'undefined') {
         inputEntries.set(key, subValue);
@@ -26,8 +26,8 @@ function extractRequestIntoActionRecursiveInternal<T extends Record<string, unkn
   return isEmpty ? undefined : (Object.fromEntries(inputEntries) as PartialDeep<T>);
 }
 
-export default function extractRequestIntoActionRecursive<T extends Record<string, unknown>>(
+export default function extractRequestFromActionRecursive<T extends Record<string, unknown>>(
   action: T
 ): PartialDeep<T> {
-  return extractRequestIntoActionRecursiveInternal(action) || ({} as PartialDeep<T>);
+  return extractRequestFromActionRecursiveInternal(action) || ({} as PartialDeep<T>);
 }

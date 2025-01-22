@@ -5,7 +5,7 @@ import { fallback, object, optional, parse } from 'valibot';
 import { actionStatusTypeSchema, type ActionStatusType } from './ActionStatusType.ts';
 import { type ActionWithActionStatus } from './ActionWithActionStatus.ts';
 import buildSchemaFromConstraintsRecursive from './private/buildSchemaFromConstraintsRecursive.ts';
-import extractRequestIntoActionRecursive from './private/extractRequestIntoActionRecursive.ts';
+import extractRequestFromActionRecursive from './private/extractRequestFromActionRecursive.ts';
 import extractVariablesFromAction from './private/extractVariablesFromAction.ts';
 import mergeResponseIntoAction from './private/mergeResponseIntoAction.ts';
 import validateConstraints from './private/validateConstraints.ts';
@@ -53,7 +53,7 @@ export default function useSchemaOrgAction<T extends object = object>(
     setAction(action => ({ ...action, actionStatus: 'ActiveActionStatus' }));
 
     const input = extractVariablesFromAction(actionRef.current, 'input');
-    const request = extractRequestIntoActionRecursive(actionRef.current);
+    const request = extractRequestFromActionRecursive(actionRef.current);
 
     const response = await handlerRef.current(input, request, { signal: abortController.signal });
 
