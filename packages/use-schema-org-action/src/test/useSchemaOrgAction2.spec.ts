@@ -2,11 +2,13 @@
 
 import { act } from '@testing-library/react';
 
+import { type PartialDeep } from 'type-fest';
 import { type ActionStatusType } from '../ActionStatusType';
 import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
-import useSchemaOrgAction from '../useSchemaOrgAction2';
-import { type VariableMap } from '../VariableMap';
+import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction2';
+import { type MockOf } from './MockOf';
 import renderHook, { type RenderHookResult } from './renderHook';
+import sortEntries from './sortEntries';
 
 type ReviewAction = {
   '@context'?: 'https://schema.org';
@@ -26,8 +28,6 @@ type ReviewAction = {
   };
   result?: {
     '@type'?: 'Review';
-    creativeWorkStatus?: string;
-    'creativeWorkStatus-output'?: PropertyValueSpecification;
     url?: string;
     'url-output'?: PropertyValueSpecification;
     reviewBody?: string;
@@ -41,10 +41,6 @@ type ReviewAction = {
 
 // SETUP: The action from the spec with modifications.
 let reviewAction: ReviewAction;
-
-function sortEntries<T>(entries: Iterable<[string, T]>): [string, T][] {
-  return Array.from(entries).sort((x, y) => (x[0] > y[0] ? 1 : x[0] < y[0] ? -1 : 0));
-}
 
 beforeEach(() => {
   reviewAction = {
@@ -63,8 +59,6 @@ beforeEach(() => {
     },
     result: {
       '@type': 'Review',
-      creativeWorkStatus: 'Draft',
-      'creativeWorkStatus-output': { valueName: 'status', valueRequired: true },
       'url-output': { valueMinLength: 10, valueName: 'url', valueRequired: true },
       'reviewBody-input': { valueName: 'review', valueRequired: true },
       reviewRating: {
@@ -78,16 +72,14 @@ beforeEach(() => {
 type UseSchemaOrgActionForReviewActionResult = ReturnType<typeof useSchemaOrgAction<ReviewAction>>;
 
 describe('when rendered initially', () => {
-  let handler: jest.Mock<Promise<VariableMap>, [VariableMap, Readonly<{ signal: AbortSignal }>]>;
-  let handlerResolvers: PromiseWithResolvers<VariableMap>;
+  let handler: MockOf<ActionHandler<ReviewAction>>;
+  let handlerResolvers: PromiseWithResolvers<PartialDeep<ReviewAction>>;
   let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void>;
 
   beforeEach(() => {
     handlerResolvers = Promise.withResolvers();
 
-    handler = jest.fn<Promise<VariableMap>, [VariableMap, Readonly<{ signal: AbortSignal }>]>(
-      () => handlerResolvers.promise
-    );
+    handler = jest.fn((_input, _request, {}) => handlerResolvers.promise);
 
     renderResult = renderHook(() => useSchemaOrgAction(reviewAction, handler));
   });
@@ -175,6 +167,7 @@ describe('when rendered initially', () => {
           expect(handler).toHaveBeenNthCalledWith(
             1,
             expect.any(Map),
+            expect.any(Object),
             expect.objectContaining({
               signal: expect.any(AbortSignal)
             })
@@ -187,9 +180,23 @@ describe('when rendered initially', () => {
             ['url', 'https://example.com/input']
           ]));
 
-        test('with unaborted signal', () => expect(handler.mock.calls[0]?.[1].signal).toHaveProperty('aborted', false));
+        test('with request only marked by input constraints', () =>
+          // [NOT-IN-SPEC]
+          expect(handler.mock.calls[0]?.[1]).toEqual({
+            object: {
+              url: 'https://example.com/input'
+            },
+            result: {
+              reviewBody: 'Great movie.',
+              reviewRating: {
+                ratingValue: 5
+              }
+            }
+          }));
 
-        test('with input merged into action with "actionStatus" property of "ActiveActionStatus"', () => {
+        test('with unaborted signal', () => expect(handler.mock.calls[0]?.[2].signal).toHaveProperty('aborted', false));
+
+        test('with "actionStatus" property of "ActiveActionStatus"', () => {
           expect(renderResult.result.current[0]).toEqual({
             ...reviewAction,
             actionStatus: 'ActiveActionStatus',
@@ -211,7 +218,9 @@ describe('when rendered initially', () => {
         describe('when handler() is resolved with valid output', () => {
           beforeEach(() =>
             act(() => {
-              handlerResolvers.resolve(new Map([['url', 'https://example.com/output']]));
+              handlerResolvers.resolve({
+                result: { url: 'https://example.com/output' }
+              });
 
               return submitPromise;
             })
@@ -227,42 +236,6 @@ describe('when rendered initially', () => {
               },
               result: {
                 ...reviewAction.result,
-                reviewBody: 'Great movie.',
-                reviewRating: {
-                  ...reviewAction.result?.reviewRating,
-                  ratingValue: 5
-                },
-                url: 'https://example.com/output'
-              }
-            });
-          });
-        });
-
-        describe('when handler() is resolved with valid output overwriting some default value', () => {
-          beforeEach(() =>
-            act(() => {
-              handlerResolvers.resolve(
-                new Map([
-                  ['status', 'Published'],
-                  ['url', 'https://example.com/output']
-                ])
-              );
-
-              return submitPromise;
-            })
-          );
-
-          test('should merge output into action and mark as completed', () => {
-            expect(renderResult.result.current[0]).toEqual({
-              ...reviewAction,
-              actionStatus: 'CompletedActionStatus',
-              object: {
-                ...reviewAction.object,
-                url: 'https://example.com/input'
-              },
-              result: {
-                ...reviewAction.result,
-                creativeWorkStatus: 'Published',
                 reviewBody: 'Great movie.',
                 reviewRating: {
                   ...reviewAction.result?.reviewRating,
@@ -275,7 +248,7 @@ describe('when rendered initially', () => {
         });
 
         describe('when handler() is resolved with invalid output', () => {
-          beforeEach(() => act(() => handlerResolvers.resolve(new Map([['url', 'too-short']]))));
+          beforeEach(() => act(() => handlerResolvers.resolve({ result: { url: 'too-short' } })));
 
           test('should throw', () => expect(submitPromise).rejects.toThrow());
         });
@@ -284,7 +257,7 @@ describe('when rendered initially', () => {
           beforeEach(() =>
             act(() => {
               renderResult.unmount();
-              handlerResolvers.resolve(new Map([['url', 'https://example.com/output']]));
+              handlerResolvers.resolve({ result: { url: 'https://example.com/output' } });
 
               return submitPromise;
             })
@@ -313,7 +286,7 @@ describe('when rendered initially', () => {
           beforeEach(() =>
             act(() => {
               renderResult.unmount();
-              handlerResolvers.resolve(new Map([['url', 'too-short']]));
+              handlerResolvers.resolve({ result: { url: 'too-short' } });
             })
           );
 
@@ -346,7 +319,7 @@ describe('when rendered initially', () => {
       )
     );
 
-    test('input should contain value', () =>
+    test('input should contain invalid value', () =>
       expect(sortEntries(renderResult.result.current[2].input.entries?.() || [])).toEqual([
         ['rating', -1],
         ['review', 'Great movie.'],
@@ -380,7 +353,7 @@ describe('when rendered initially', () => {
         submitPromise.catch(() => {});
       });
 
-      await expect(submitPromise).rejects.toThrow();
+      await expect(submitPromise).rejects.toThrow('Input is invalid, cannot submit.');
     });
 
     test('isInputValid should be false', () =>
@@ -409,7 +382,7 @@ describe('when rendered initially', () => {
         }
       }));
 
-    describe('when sumbit() is called', () => {
+    describe('when submit() is called', () => {
       beforeEach(async () => {
         await act(() => {
           renderResult.result.current[1](reviewAction => ({
@@ -430,12 +403,27 @@ describe('when rendered initially', () => {
         });
       });
 
-      test('should call handler with updated action', () => {
+      test('should call handler with updated input variables', () => {
         expect(sortEntries(handler.mock.calls[0]?.[0]?.entries() || [])).toEqual([
           ['rating', 5],
           ['review', 'Great movie.'],
           ['url', 'https://example.com/input-2']
         ]);
+      });
+
+      test('should call handler with updated request', () => {
+        // [NOT-IN-SPEC]
+        expect(handler.mock.calls[0]?.[1]).toEqual({
+          object: {
+            url: 'https://example.com/input-2'
+          },
+          result: {
+            reviewBody: 'Great movie.',
+            reviewRating: {
+              ratingValue: 5
+            }
+          }
+        });
       });
     });
   });
@@ -470,17 +458,15 @@ describe('when rendered with initialAction containing invalid "actionStatus" pro
 });
 
 describe('when call submit() with an action where "actionStatus-output" is set', () => {
-  let handler: jest.Mock<Promise<VariableMap>, [VariableMap, Readonly<{ signal: AbortSignal }>]>;
+  let handler: MockOf<ActionHandler<ReviewAction>>;
   let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void>;
 
   beforeEach(async () => {
-    handler = jest.fn((_input, _option) =>
-      Promise.resolve(
-        new Map<string, boolean | Date | number | string | undefined>([
-          ['status', 'FailedActionStatus'],
-          ['url', 'https://example.com/output']
-        ])
-      )
+    handler = jest.fn((_input, _request, _option) =>
+      Promise.resolve({
+        actionStatus: 'FailedActionStatus',
+        result: { url: 'https://example.com/output' }
+      })
     );
 
     renderResult = renderHook(() =>
@@ -505,8 +491,6 @@ describe('when call submit() with an action where "actionStatus-output" is set',
           },
           result: {
             '@type': 'Review',
-            creativeWorkStatus: 'Draft',
-            'creativeWorkStatus-output': { valueName: 'status', valueRequired: true },
             'url-output': { valueMinLength: 10, valueName: 'url', valueRequired: true },
             reviewBody: 'Great movie.',
             'reviewBody-input': { valueName: 'review', valueRequired: true },
@@ -527,19 +511,17 @@ describe('when call submit() with an action where "actionStatus-output" is set',
     expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'FailedActionStatus'));
 });
 
-describe('when call submit() with an action where "actionStatus-output" is set to an invalid value', () => {
-  let handler: jest.Mock<Promise<VariableMap>, [VariableMap, Readonly<{ signal: AbortSignal }>]>;
+describe('when call submit() with an action where "actionStatus" is set to an invalid value', () => {
+  let handler: MockOf<ActionHandler<ReviewAction>>;
   let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void>;
   let submitPromise: Promise<void>;
 
   beforeEach(async () => {
-    handler = jest.fn((_input, _option) =>
-      Promise.resolve(
-        new Map<string, boolean | Date | number | string | undefined>([
-          ['status', 'invalid-value'],
-          ['url', 'https://example.com/output']
-        ])
-      )
+    handler = jest.fn((_input, _request, _option) =>
+      Promise.resolve({
+        actionStatus: 'invalid-value',
+        result: { url: 'https://example.com/output' }
+      } as any)
     );
 
     renderResult = renderHook(() =>
@@ -564,8 +546,6 @@ describe('when call submit() with an action where "actionStatus-output" is set t
           },
           result: {
             '@type': 'Review',
-            creativeWorkStatus: 'Draft',
-            'creativeWorkStatus-output': { valueName: 'status', valueRequired: true },
             'url-output': { valueMinLength: 10, valueName: 'url', valueRequired: true },
             reviewBody: 'Great movie.',
             'reviewBody-input': { valueName: 'review', valueRequired: true },

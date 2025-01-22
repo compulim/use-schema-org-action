@@ -1,15 +1,25 @@
 import { useCallback, useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
+import { type PartialDeep } from 'type-fest';
 import { useRefFrom } from 'use-ref-from';
-import { fallback, parse, safeParse } from 'valibot';
-import { actionStatusTypeSchema } from './ActionStatusType.ts';
+import { fallback, object, optional, parse } from 'valibot';
+import { actionStatusTypeSchema, type ActionStatusType } from './ActionStatusType.ts';
 import { type ActionWithActionStatus } from './ActionWithActionStatus.ts';
+import buildSchemaFromConstraintsRecursive from './private/buildSchemaFromConstraintsRecursive.ts';
+import extractRequestIntoActionRecursive from './private/extractRequestIntoActionRecursive.ts';
 import extractVariablesFromAction from './private/extractVariablesFromAction.ts';
+import mergeResponseIntoAction from './private/mergeResponseIntoAction.ts';
 import mergeVariablesIntoAction from './private/mergeVariablesIntoAction.ts';
 import { type VariableMap } from './VariableMap.ts';
 
+type ActionHandler<T extends object> = (
+  input: VariableMap,
+  request: PartialDeep<T & { actionStatus: ActionStatusType }>,
+  init: Readonly<{ signal: AbortSignal }>
+) => Promise<PartialDeep<T & { actionStatus: ActionStatusType }>>;
+
 export default function useSchemaOrgAction<T extends object = object>(
   initialAction: T,
-  handler: (input: VariableMap, init: Readonly<{ signal: AbortSignal }>) => Promise<VariableMap>
+  handler: ActionHandler<T>
 ): readonly [
   ActionWithActionStatus<T>,
   Dispatch<SetStateAction<ActionWithActionStatus<T>>>,
@@ -44,36 +54,28 @@ export default function useSchemaOrgAction<T extends object = object>(
     setAction(action => ({ ...action, actionStatus: 'ActiveActionStatus' }));
 
     const input = extractVariablesFromAction(actionRef.current, 'input');
+    const request = extractRequestIntoActionRecursive(actionRef.current);
 
-    const output = await handlerRef.current(input, { signal: abortController.signal });
+    const response = await handlerRef.current(input, request, { signal: abortController.signal });
 
-    const outputValidationResult = mergeVariablesIntoAction(
-      { ...action, actionStatus: 'CompletedActionStatus' as const },
-      output,
-      'output'
-    );
+    const outputSchema = buildSchemaFromConstraintsRecursive(action, 'output');
 
-    const isValid =
-      outputValidationResult.isValid &&
-      safeParse(actionStatusTypeSchema, outputValidationResult.value.actionStatus).success;
+    try {
+      parse(outputSchema || object({}), response);
+      parse(object({ actionStatus: optional(actionStatusTypeSchema) }), response);
+    } catch (cause) {
+      const error = new Error('Output is invalid.');
 
-    if (!isValid) {
-      return Promise.reject(new Error('Output is invalid.'));
+      error.cause = cause;
+
+      throw error;
     }
 
     if (abortController.signal.aborted) {
       return;
     }
 
-    setAction(action => {
-      const value = mergeVariablesIntoAction(
-        { ...action, actionStatus: 'CompletedActionStatus' as const },
-        output,
-        'output'
-      ).value;
-
-      return value;
-    });
+    setAction(action => mergeResponseIntoAction({ ...action, actionStatus: 'CompletedActionStatus' }, response));
   }, [abortController, actionRef, handlerRef, isInputValidRef, setAction]);
 
   const options = useMemo(
@@ -90,3 +92,5 @@ export default function useSchemaOrgAction<T extends object = object>(
 
   return useMemo(() => Object.freeze([action, setAction, options] as const), [action, options, setAction]);
 }
+
+export { type ActionHandler };

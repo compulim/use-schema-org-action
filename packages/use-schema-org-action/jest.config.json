@@ -32,5 +32,6 @@
       }
     ]
   },
+  "transformIgnorePatterns": ["/node_modules/(?!(url-template)/)", "\\.pnp\\.[^\\/]+$"],
   "watchPathIgnorePatterns": ["\\.tmp\\."]
 }
