@@ -64,6 +64,10 @@ export default function useSchemaOrgAction<T extends object = object>(
       parse(outputSchema || object({}), response);
       parse(object({ actionStatus: optional(actionStatusTypeSchema) }), response);
     } catch (cause) {
+      if (!abortController.signal.aborted) {
+        setAction(action => ({ ...action, actionStatus: 'FailedActionStatus' }));
+      }
+
       const error = new Error('Output is invalid.');
 
       error.cause = cause;

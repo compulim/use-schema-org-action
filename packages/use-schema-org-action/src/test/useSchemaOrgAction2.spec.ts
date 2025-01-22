@@ -251,6 +251,9 @@ describe('when rendered initially', () => {
           beforeEach(() => act(() => handlerResolvers.resolve({ result: { url: 'too-short' } })));
 
           test('should throw', () => expect(submitPromise).rejects.toThrow());
+
+          test('should have "actionStatus" set to "FailedActionStatus"', () =>
+            expect(renderResult.result.current[0].actionStatus).toBe('FailedActionStatus'));
         });
 
         describe('when handler() is resolved after unmount', () => {
@@ -291,6 +294,9 @@ describe('when rendered initially', () => {
           );
 
           test('should throw', () => expect(submitPromise).rejects.toThrow());
+
+          test('should keep "actionStatus" with "ActiveActionStatus"', () =>
+            expect(renderResult.result.current[0].actionStatus).toBe('ActiveActionStatus'));
         });
       });
     });
@@ -559,10 +565,15 @@ describe('when call submit() with an action where "actionStatus" is set to an in
       )
     );
 
-    act(() => {
+    await act(() => {
       submitPromise = renderResult.result.current[2].submit();
+
+      return submitPromise.catch(() => {});
     });
   });
 
   test('should throw', () => expect(submitPromise).rejects.toThrow());
+
+  test('should have "actionStatus" set to "FailedActionStatus"', () =>
+    expect(renderResult.result.current[0].actionStatus).toBe('FailedActionStatus'));
 });
