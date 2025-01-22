@@ -77,7 +77,7 @@ function useSchemaOrgAction<T>(
   Dispatch<SetStateAction<T>>
   Readonly<{
     input: ReadonlyMap<string, unknown>;
-    isInputValid: boolean;
+    inputValidity: ValidityState;
     submit: () => Promise<void>;
   }>
 ];
