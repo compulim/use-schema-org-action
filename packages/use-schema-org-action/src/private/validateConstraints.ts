@@ -4,10 +4,24 @@ import buildSchemaFromConstraintsRecursive from './buildSchemaFromConstraintsRec
 export default function validateConstraints<T extends object>(
   action: T,
   mode: 'input' | 'output'
-): Readonly<{ valid: boolean }> {
+): Readonly<ValidityState> {
   const schema = buildSchemaFromConstraintsRecursive(action, mode);
 
   // TODO: Should implement ValidityState with multiple issues.
   //       https://developer.mozilla.org/en-US/docs/Web/API/ValidityState
-  return Object.freeze({ valid: safeParse(schema, action).success });
+  const { success } = safeParse(schema, action);
+
+  return Object.freeze({
+    badInput: false,
+    customError: !success,
+    patternMismatch: false,
+    rangeOverflow: false,
+    rangeUnderflow: false,
+    stepMismatch: false,
+    tooLong: false,
+    tooShort: false,
+    typeMismatch: false,
+    valid: success,
+    valueMissing: false
+  } satisfies ValidityState);
 }

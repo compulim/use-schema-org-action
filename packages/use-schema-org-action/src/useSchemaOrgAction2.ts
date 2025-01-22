@@ -25,7 +25,7 @@ export default function useSchemaOrgAction<T extends object = object>(
   Dispatch<SetStateAction<ActionWithActionStatus<T>>>,
   Readonly<{
     input: VariableMap;
-    isInputValid: boolean;
+    inputValidity: ValidityState;
     submit: () => Promise<void>;
   }>
 ] {
@@ -40,12 +40,11 @@ export default function useSchemaOrgAction<T extends object = object>(
   const actionRef = useRefFrom(action);
   const handlerRef = useRefFrom(handler);
 
-  const isInputValid = useMemo<boolean>(() => validateConstraints(action, 'input').valid, [action]);
-
-  const isInputValidRef = useRefFrom(isInputValid);
+  const inputValidity = useMemo(() => validateConstraints(action, 'input'), [action]);
+  const inputValidityRef = useRefFrom(inputValidity);
 
   const submit = useCallback<() => Promise<void>>(async () => {
-    if (!isInputValidRef.current) {
+    if (!inputValidityRef.current.valid) {
       setAction(action => ({ ...action, actionStatus: 'FailedActionStatus' }));
 
       return Promise.reject(Error('Input is invalid, cannot submit.'));
@@ -80,16 +79,16 @@ export default function useSchemaOrgAction<T extends object = object>(
     }
 
     setAction(action => mergeResponseIntoAction({ ...action, actionStatus: 'CompletedActionStatus' }, response));
-  }, [abortController, actionRef, handlerRef, isInputValidRef, setAction]);
+  }, [abortController, actionRef, handlerRef, inputValidityRef, setAction]);
 
   const options = useMemo(
     () =>
       Object.freeze({
         input: extractVariablesFromAction(action, 'input'),
-        isInputValid,
+        inputValidity,
         submit
       }),
-    [action, isInputValid, submit]
+    [action, inputValidity, submit]
   );
 
   useEffect(() => () => abortController.abort(), [abortController]);

@@ -177,7 +177,7 @@ const initialPlanAction: PlanAction = {
 };
 
 const TrainReservationApp = () => {
-  const [action, setAction, { isInputValid, submit }] = useSchemaOrgAction<PlanAction>(initialPlanAction, async () => {
+  const [action, setAction, { inputValidity, submit }] = useSchemaOrgAction<PlanAction>(initialPlanAction, async () => {
     await new Promise(resolve => setTimeout(resolve, 1_000));
 
     return new Map<string, boolean | Date | number | string>([
@@ -201,9 +201,9 @@ const TrainReservationApp = () => {
     event => {
       event.preventDefault();
 
-      isInputValid && submit();
+      inputValidity.valid && submit();
     },
-    [isInputValid, submit]
+    [inputValidity, submit]
   );
 
   const handleSeatChange = useCallback<FormEventHandler<HTMLSelectElement>>(

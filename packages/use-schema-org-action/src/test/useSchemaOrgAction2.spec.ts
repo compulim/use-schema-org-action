@@ -38,10 +38,10 @@ type ReviewAction = {
   };
 };
 
-// SETUP: The action from the spec with modifications.
 let reviewAction: ReviewAction;
 
 beforeEach(() => {
+  // [MODIFIED-FROM-SPEC]
   reviewAction = {
     '@context': 'https://schema.org',
     '@type': 'ReviewAction',
@@ -58,7 +58,7 @@ beforeEach(() => {
     },
     result: {
       '@type': 'Review',
-      'url-output': { valueMinLength: 10, valueName: 'url', valueRequired: true },
+      'url-output': { valueMinLength: 10, valueRequired: true },
       'reviewBody-input': { valueName: 'review', valueRequired: true },
       reviewRating: {
         ratingValue: -1,
@@ -78,7 +78,7 @@ describe('when rendered initially', () => {
   beforeEach(() => {
     handlerResolvers = Promise.withResolvers();
 
-    handler = jest.fn((_input, _request, {}) => handlerResolvers.promise);
+    handler = jest.fn().mockReturnValueOnce(handlerResolvers.promise);
 
     renderResult = renderHook(() => useSchemaOrgAction(reviewAction, handler));
   });
@@ -98,7 +98,8 @@ describe('when rendered initially', () => {
       ])
     ));
 
-  test('isInputValid should be false', () => expect(renderResult.result.current[2].isInputValid).toBe(false));
+  test('"inputValidity.valid" should be false', () =>
+    expect(renderResult.result.current[2]).toHaveProperty('inputValidity.valid', false));
 
   describe('when inputs are set to valid values', () => {
     beforeEach(() =>
@@ -217,9 +218,7 @@ describe('when rendered initially', () => {
         describe('when handler() is resolved with valid output', () => {
           beforeEach(() =>
             act(() => {
-              handlerResolvers.resolve({
-                result: { url: 'https://example.com/output' }
-              });
+              handlerResolvers.resolve({ result: { url: 'https://example.com/output' } });
 
               return submitPromise;
             })
@@ -300,7 +299,8 @@ describe('when rendered initially', () => {
       });
     });
 
-    test('isInputValid should be true', () => expect(renderResult.result.current[2].isInputValid).toBe(true));
+    test('"inputValidity.valid" should be true', () =>
+      expect(renderResult.result.current[2]).toHaveProperty('inputValidity.valid', true));
   });
 
   describe('when input is set to an invalid value', () => {
@@ -361,8 +361,8 @@ describe('when rendered initially', () => {
       await expect(submitPromise).rejects.toThrow('Input is invalid, cannot submit.');
     });
 
-    test('isInputValid should be false', () =>
-      expect(renderResult.result.current[2]).toHaveProperty('isInputValid', false));
+    test('"inputValidity.valid" should be false', () =>
+      expect(renderResult.result.current[2]).toHaveProperty('inputValidity.valid', false));
   });
 
   describe('when updating action', () => {

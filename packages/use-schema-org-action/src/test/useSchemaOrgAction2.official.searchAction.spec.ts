@@ -56,8 +56,8 @@ describe('Spec: Text search deep link with -input', () => {
         actionStatus: 'PotentialActionStatus'
       }));
 
-    test('should return "isInputValid" of false', () =>
-      expect(renderResult.result.current[2].isInputValid).toBe(false));
+    test('should return "inputValidity.valid" of false', () =>
+      expect(renderResult.result.current[2]).toHaveProperty('inputValidity.valid', false));
 
     describe('when setting the input value', () => {
       beforeEach(() => act(() => renderResult.result.current[1](action => ({ ...action, query: 'the search' }))));
@@ -69,8 +69,8 @@ describe('Spec: Text search deep link with -input', () => {
           query: 'the search'
         }));
 
-      test('should return "isInputValid" of true', () =>
-        expect(renderResult.result.current[2].isInputValid).toBe(true));
+      test('should return "inputValidity.valid" of true', () =>
+        expect(renderResult.result.current[2]).toHaveProperty('inputValidity.valid', true));
 
       describe('when submit() is called', () => {
         beforeEach(() => act(() => renderResult.result.current[2].submit()));

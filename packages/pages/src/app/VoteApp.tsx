@@ -21,7 +21,7 @@ const VoteApp = () => {
     [setPerformed]
   );
 
-  const [action, setAction, { isInputValid, submit }] = useSchemaOrgAction<Action>(
+  const [action, setAction, { inputValidity, submit }] = useSchemaOrgAction<Action>(
     {
       'actionObject-input': {
         valueName: 'action',
@@ -52,7 +52,7 @@ const VoteApp = () => {
         <input checked={action.actionObject === 'downvote'} onClick={handleDownvoteClick} type="radio" />
         Downvote
       </label>
-      <button disabled={!isInputValid || action.actionStatus === 'ActiveActionStatus'} onClick={submit} type="button">
+      <button disabled={!inputValidity.valid || action.actionStatus === 'ActiveActionStatus'} onClick={submit} type="button">
         Perform
       </button>
       <h3>Current action</h3>

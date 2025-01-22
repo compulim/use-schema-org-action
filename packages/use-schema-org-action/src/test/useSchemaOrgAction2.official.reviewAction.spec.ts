@@ -1,7 +1,6 @@
 /** @jest-environment ./src/test/jsdomEnvironmentWithWritableStream.js */
 
 import { act } from 'react';
-
 import { type ActionStatusType } from '../ActionStatusType';
 import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
 import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction2';
@@ -156,102 +155,6 @@ describe('Spec: Movie review site API with -input and -output', () => {
             }
           }));
       });
-
-      // // THEN: [NOT-IN-SPEC] Action should not have constraints.
-      // expect(renderResult.result.current[0]).toEqual({
-      //   '@context': 'https://schema.org',
-      //   '@type': 'ReviewAction',
-      //   target: {
-      //     '@type': 'EntryPoint',
-      //     urlTemplate: 'https://api.example.com/review',
-      //     encodingType: 'application/ld+json',
-      //     contentType: 'application/ld+json'
-      //   },
-      //   object: {
-      //     '@type': 'Movie',
-      //     'url-input': 'required'
-      //   },
-      //   result: {
-      //     '@type': 'Review',
-      //     'url-output': 'name=url required',
-      //     'reviewBody-input': 'required',
-      //     reviewRating: {
-      //       'ratingValue-input': 'required'
-      //     }
-      //   },
-      //   actionStatus: 'PotentialActionStatus'
-      // });
-
-      // // WHEN: Setting action with required inputs.
-      // act(() =>
-      //   renderResult.result.current[1](
-      //     action =>
-      //       ({
-      //         ...action,
-      //         object: { ...action.object, url: 'http://example.com/movies/123' },
-      //         result: {
-      //           ...action.result,
-      //           reviewBody: 'yada, yada, yada',
-      //           reviewRating: {
-      //             ...action.result?.reviewRating,
-      //             ratingValue: '4'
-      //           }
-      //         }
-      //       }) satisfies ReviewAction
-      //   )
-      // );
-
-      // // THEN: "isValid" become true.
-      // expect(renderResult.result.current[2].isInputValid).toBe(true);
-
-      // // WHEN: performAction() is called.
-      // await act(() => renderResult.result.current[2].submit());
-
-      // expect(handler).toHaveBeenCalledTimes(1);
-      // expect(handler.mock.lastCall?.[0]).toEqual({
-      //   '@context': 'https://schema.org',
-      //   '@type': 'ReviewAction',
-      //   object: {
-      //     '@type': 'Movie',
-      //     // The spec wrongly say this is @id instead of url.
-      //     url: 'http://example.com/movies/123'
-      //   },
-      //   result: {
-      //     '@type': 'Review',
-      //     reviewBody: 'yada, yada, yada',
-      //     reviewRating: {
-      //       ratingValue: '4'
-      //     }
-      //   }
-      // });
-
-      // // THEN: [NOT-IN-SPEC] Should merge output into action.
-      // expect(renderResult.result.current[0]).toEqual({
-      //   '@context': 'https://schema.org',
-      //   '@type': 'ReviewAction',
-      //   target: {
-      //     '@type': 'EntryPoint',
-      //     urlTemplate: 'https://api.example.com/review',
-      //     encodingType: 'application/ld+json',
-      //     contentType: 'application/ld+json'
-      //   },
-      //   object: {
-      //     '@type': 'Movie',
-      //     url: 'http://example.com/movies/123',
-      //     'url-input': 'required'
-      //   },
-      //   result: {
-      //     '@type': 'Review',
-      //     reviewBody: 'yada, yada, yada',
-      //     'reviewBody-input': 'required',
-      //     reviewRating: {
-      //       ratingValue: '4',
-      //       'ratingValue-input': 'required'
-      //     },
-      //     url: 'http://example.com/reviews/abc'
-      //   },
-      //   actionStatus: 'CompletedActionStatus'
-      // });
     });
   });
 });
