@@ -143,23 +143,16 @@ describe('when rendered initially', () => {
         test('with correct type of arguments', () =>
           expect(handler).toHaveBeenNthCalledWith(
             1,
-            expect.any(Map),
             expect.any(Object),
+            expect.any(Map),
             expect.objectContaining({
               signal: expect.any(AbortSignal)
             })
           ));
 
-        test('with input', () =>
-          expect(sortEntries(handler.mock.calls[0]?.[0].entries() || [])).toEqual([
-            ['rating', 5],
-            ['review', 'Great movie.'],
-            ['url', 'https://example.com/input']
-          ]));
-
         test('with request only marked by input constraints', () =>
           // [NOT-IN-SPEC]
-          expect(handler.mock.calls[0]?.[1]).toEqual({
+          expect(handler.mock.calls[0]?.[0]).toEqual({
             object: {
               url: 'https://example.com/input'
             },
@@ -170,6 +163,13 @@ describe('when rendered initially', () => {
               }
             }
           }));
+
+        test('with input variables', () =>
+          expect(sortEntries(handler.mock.calls[0]?.[1].entries() || [])).toEqual([
+            ['rating', 5],
+            ['review', 'Great movie.'],
+            ['url', 'https://example.com/input']
+          ]));
 
         test('with unaborted signal', () => expect(handler.mock.calls[0]?.[2].signal).toHaveProperty('aborted', false));
 
@@ -364,23 +364,23 @@ describe('when rendered initially', () => {
         });
       });
 
-      test('should call handler with updated input variables', () => {
-        expect(sortEntries(handler.mock.calls[0]?.[0]?.entries() || [])).toEqual([
-          ['rating', 5],
-          ['review', 'Great movie.'],
-          ['url', 'https://example.com/input-2']
-        ]);
-      });
-
       test('should call handler with updated request', () => {
         // [NOT-IN-SPEC]
-        expect(handler.mock.calls[0]?.[1]).toEqual({
+        expect(handler.mock.calls[0]?.[0]).toEqual({
           object: { url: 'https://example.com/input-2' },
           result: {
             reviewBody: 'Great movie.',
             reviewRating: { ratingValue: 5 }
           }
         });
+      });
+
+      test('should call handler with updated input variables', () => {
+        expect(sortEntries(handler.mock.calls[0]?.[1]?.entries() || [])).toEqual([
+          ['rating', 5],
+          ['review', 'Great movie.'],
+          ['url', 'https://example.com/input-2']
+        ]);
       });
     });
   });
@@ -537,4 +537,69 @@ describe('when call submit() with an action where "actionStatus" is set to an in
 
   test('should have "actionStatus" set to "FailedActionStatus"', () =>
     expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'FailedActionStatus'));
+});
+
+describe('when called with initialActionState', () => {
+  let handler: MockOf<ActionHandler>;
+  let handlerResolvers: PromiseWithResolvers<PartialDeep<ReviewAction>>;
+  let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void>;
+
+  beforeEach(() => {
+    handlerResolvers = Promise.withResolvers();
+
+    handler = jest.fn().mockReturnValueOnce(handlerResolvers.promise);
+
+    renderResult = renderHook(() =>
+      useSchemaOrgAction(reviewAction, handler, {
+        object: { url: 'https://example.com/input' },
+        result: {
+          reviewBody: 'Great movie.',
+          reviewRating: { ratingValue: 5 }
+        }
+      })
+    );
+  });
+
+  test('input should be valid', () =>
+    expect(renderResult.result.current[2].inputValidity).toHaveProperty('valid', true));
+
+  test('actionState should contain initialActionState', () =>
+    expect(renderResult.result.current[0]).toEqual({
+      actionStatus: 'PotentialActionStatus',
+      object: { url: 'https://example.com/input' },
+      result: {
+        reviewBody: 'Great movie.',
+        reviewRating: { ratingValue: 5 }
+      }
+    }));
+});
+
+test('initialActionState.actionStatus should be preferred over initialAction.actionStatus', () => {
+  let handler: MockOf<ActionHandler>;
+  let handlerResolvers: PromiseWithResolvers<PartialDeep<ReviewAction>>;
+  let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void>;
+
+  handlerResolvers = Promise.withResolvers();
+
+  handler = jest.fn().mockReturnValueOnce(handlerResolvers.promise);
+
+  renderResult = renderHook(() =>
+    useSchemaOrgAction(
+      {
+        ...reviewAction,
+        actionStatus: 'ActiveActionStatus'
+      },
+      handler,
+      {
+        actionStatus: 'CompletedActionStatus',
+        object: { url: 'https://example.com/input' },
+        result: {
+          reviewBody: 'Great movie.',
+          reviewRating: { ratingValue: 5 }
+        }
+      }
+    )
+  );
+
+  expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'CompletedActionStatus');
 });

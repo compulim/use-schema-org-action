@@ -73,26 +73,26 @@ describe('Spec: Text search deep link with -input', () => {
 
         test('should have called handler() once', () => expect(handler).toHaveBeenCalledTimes(1));
 
+        // [NOT-IN-SPEC]
+        test('should build request without constraints', () =>
+          expect(handler.mock.lastCall?.[0]).toEqual({ query: 'the search' }));
+
         // [FROM-SPEC]
-        test('should construct the variables', () =>
-          expect(Array.from(handler.mock.lastCall?.[0].entries() || [])).toEqual([['q', 'the search']]));
+        test('should construct the input variables', () =>
+          expect(Array.from(handler.mock.lastCall?.[1].entries() || [])).toEqual([['q', 'the search']]));
 
         // [FROM-SPEC]
         test('should expand URL template', () => {
           const template = parseTemplate(webSite.potentialAction.target);
 
-          const variables = handler.mock.lastCall?.[0];
+          const inputVariables = handler.mock.lastCall?.[1];
 
-          const url = template.expand(variableMapToNullableStringRecord(variables || new Map()));
+          const url = template.expand(variableMapToNullableStringRecord(inputVariables || new Map()));
 
           // Spec is http://example.com/search?q=the+search
           // Actual is http://example.com/search?q=the%20search
           expect(url).toBe('http://example.com/search?q=the%20search');
         });
-
-        // [NOT-IN-SPEC]
-        test('should build request without constraints', () =>
-          expect(handler.mock.lastCall?.[1]).toEqual({ query: 'the search' }));
       });
     });
   });

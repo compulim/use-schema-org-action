@@ -45,13 +45,15 @@ function submitVote(
 function VoteButton() {
   const [action, setAction, { isInputValid, submit }] = useSchemaOrgAction(
     {
-      actionOption: 'upvote',
       'actionOption-input': {
         valueName: 'action',
         valueRequired: true
       } satisfies PropertyValueSpecification
     },
-    submitVote
+    submitVote,
+    {
+      actionOption: 'upvote'
+    }
   );
 
   // Action include "actionStatus" property.
@@ -69,15 +71,24 @@ function VoteButton() {
 > For complete API reference, please refer to TypeScript definition files.
 
 ```js
-function useSchemaOrgAction<T>(
+type ActionState = Record<string, any>;
+
+function useSchemaOrgAction<T extends object>(
   initialAction: T,
-  handler: (variables: ReadonlyMap<string, unknown>, init: { signal: AbortSignal }) => Promise<ReadonlyMap<string, unknown>>
+  handler: (
+    request: ActionState,
+    inputVariables: ReadonlyMap<string, unknown>,
+    init: Readonly<{ signal: AbortSignal }>
+  ) => Promise<ActionState>,
+  initialActionState: ActionState
 ): [
-  T,
-  Dispatch<SetStateAction<T>>
+  ActionState,
+  Dispatch<SetStateAction<ActionState>>
   Readonly<{
-    input: ReadonlyMap<string, unknown>;
+    inputSchema: ObjectSchema<ObjectEntries, ErrorMessage<ObjectIssue> | undefined>,
+    inputVariables: ReadonlyMap<string, unknown>;
     inputValidity: ValidityState;
+    outputSchema: ObjectSchema<ObjectEntries, ErrorMessage<ObjectIssue> | undefined>,
     submit: () => Promise<void>;
   }>
 ];

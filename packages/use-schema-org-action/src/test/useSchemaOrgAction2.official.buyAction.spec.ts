@@ -96,8 +96,10 @@ describe('Spec: Product purchase API call with -output', () => {
 
       test('should have called handler() once', () => expect(handler).toHaveBeenCalledTimes(1));
 
-      test('should have called with empty input', () =>
-        expect(sortEntries(handler.mock.calls[0]?.[0].entries() || [])).toEqual([]));
+      test('should have called with empty request', () => expect(handler.mock.calls[0]?.[0]).toEqual({}));
+
+      test('should have called with empty input variables', () =>
+        expect(sortEntries(handler.mock.calls[0]?.[1].entries() || [])).toEqual([]));
 
       // [FROM-SPEC]
       test('should have called with URL', () =>

@@ -19,14 +19,15 @@ import validateConstraints from './private/validateConstraints.ts';
 import { type VariableMap } from './VariableMap.ts';
 
 type ActionHandler = (
-  input: VariableMap,
   request: ActionState,
+  inputVariables: VariableMap,
   init: Readonly<{ signal: AbortSignal }>
 ) => Promise<ActionState>;
 
 export default function useSchemaOrgAction<T extends object = object>(
   initialAction: T,
-  handler: ActionHandler
+  handler: ActionHandler,
+  initialActionState: ActionState = {}
 ): readonly [
   ActionState,
   Dispatch<SetStateAction<ActionState>>,
@@ -39,9 +40,11 @@ export default function useSchemaOrgAction<T extends object = object>(
   }>
 ] {
   const [actionState, setActionState] = useState<ActionState>(() => ({
+    ...(initialActionState || {}),
     actionStatus: parse(
       fallback(actionStatusTypeSchema, 'PotentialActionStatus'),
-      'actionStatus' in initialAction && initialAction.actionStatus
+      ('actionStatus' in initialActionState && initialActionState['actionStatus']) ||
+        ('actionStatus' in initialAction && initialAction.actionStatus)
     )
   }));
   const abortController = useMemo(() => new AbortController(), []);
@@ -64,12 +67,16 @@ export default function useSchemaOrgAction<T extends object = object>(
 
     setActionState(actionState => ({ ...actionState, actionStatus: 'ActiveActionStatus' }));
 
-    const input = extractVariablesFromActionStateRecursive(initialActionRef.current, actionStateRef.current, 'input');
+    const inputVariables = extractVariablesFromActionStateRecursive(
+      initialActionRef.current,
+      actionStateRef.current,
+      'input'
+    );
 
     // TODO: Refactor to extractInputPropertiesFromActionStateRecursive.
     const request = mergeActionStateRecursive(initialActionRef.current, {}, actionStateRef.current, 'input');
 
-    const response = await handlerRef.current(input, request, { signal: abortController.signal });
+    const response = await handlerRef.current(request, inputVariables, { signal: abortController.signal });
 
     try {
       parse(outputSchema, response);

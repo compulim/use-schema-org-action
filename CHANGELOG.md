@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public release
 
+### Added
+
+- Added full constraint validation, by [@compulim](https://github.com/compulim), in PR [#XXX](https://github.com/compulim/use-schema-org-action/pull/XXX)
+
 ### Changed
 
 - Bumped dependencies, in PR [#11](https://github.com/compulim/use-schema-org-action/pull/11)

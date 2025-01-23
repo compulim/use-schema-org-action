@@ -103,12 +103,9 @@ describe('Spec: Movie review site API with -input and -output', () => {
 
         test('should be called once', () => expect(handler).toHaveBeenCalledTimes(1));
 
-        test('should be called with empty input', () =>
-          expect(sortEntries(handler.mock.calls[0]?.[0] || [])).toEqual([]));
-
         test('should be called with request', () =>
           // [FROM-SPEC] But the spec is not exactly correct.
-          expect(handler.mock.calls[0]?.[1]).toEqual({
+          expect(handler.mock.calls[0]?.[0]).toEqual({
             object: { url: 'http://example.com/movies/123' },
             result: {
               reviewBody: 'yada, yada, yada',
@@ -116,7 +113,10 @@ describe('Spec: Movie review site API with -input and -output', () => {
             }
           }));
 
-        test('should merge response', () =>
+          test('should be called with empty input variables', () =>
+            expect(sortEntries(handler.mock.calls[0]?.[1] || [])).toEqual([]));
+
+          test('should merge response', () =>
           // [NOT-IN-SPEC]
           expect(renderResult.result.current[0]).toEqual({
             actionStatus: 'CompletedActionStatus',
