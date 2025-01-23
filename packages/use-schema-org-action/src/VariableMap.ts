@@ -1,1 +1,1 @@
-export type VariableMap = ReadonlyMap<string, boolean | Date | number | string | undefined>;
+export type VariableMap = ReadonlyMap<string, any>;

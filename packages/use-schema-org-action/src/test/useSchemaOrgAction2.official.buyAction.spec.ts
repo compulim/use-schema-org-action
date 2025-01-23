@@ -39,7 +39,7 @@ type Product = {
 
 describe('Spec: Product purchase API call with -output', () => {
   let product: Product;
-  let handler: MockOf<ActionHandler<BuyAction>>;
+  let handler: MockOf<ActionHandler>;
 
   beforeEach(() => {
     // [FROM-SPEC]
@@ -101,16 +101,14 @@ describe('Spec: Product purchase API call with -output', () => {
 
       // [FROM-SPEC]
       test('should have called with URL', () =>
-        expect(renderResult.result.current[0].target.urlTemplate).toBe('https://example.com/products/ipod/buy'));
+        expect(product.potentialAction.target.urlTemplate).toBe('https://example.com/products/ipod/buy'));
 
       // [NOT-IN-SPEC]
       test('should merge response into action', () =>
         expect(renderResult.result.current[0]).toEqual({
-          ...product.potentialAction,
           actionStatus: 'CompletedActionStatus',
           object: 'https://example.com/products/ipod',
           result: {
-            ...product.potentialAction.result,
             url: 'http://example.com/orders/1199334',
             confirmationNumber: '1ABBCDDF23234',
             orderNumber: '1199334',

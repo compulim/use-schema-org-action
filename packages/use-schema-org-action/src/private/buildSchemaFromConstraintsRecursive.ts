@@ -6,27 +6,35 @@ function buildSchemaFromConstraintsRecursiveInternal<T extends object>(
   action: T,
   mode: 'input' | 'output'
 ): ObjectSchema<ObjectEntries, ErrorMessage<ObjectIssue> | undefined> | undefined {
-  let empty = true;
   const objectEntriesSchema: ObjectEntries = {};
 
   for (const [key, value] of Object.entries(action)) {
     if (mode === 'input' && key.endsWith('-input')) {
-      empty = false;
-      objectEntriesSchema[key.slice(0, -6)] = toValibotSchema(value);
+      const unprefixedKey = key.slice(0, -6);
+      const unprefixedValue = isPlainObject(action) && action[unprefixedKey];
+
+      objectEntriesSchema[unprefixedKey] = toValibotSchema(
+        value,
+        Array.isArray(unprefixedValue) ? unprefixedValue : undefined
+      );
     } else if (mode === 'output' && key.endsWith('-output')) {
-      empty = false;
-      objectEntriesSchema[key.slice(0, -7)] = toValibotSchema(value);
+      const unprefixedKey = key.slice(0, -7);
+      const unprefixedValue = isPlainObject(action) && action[unprefixedKey];
+
+      objectEntriesSchema[unprefixedKey] = toValibotSchema(
+        value,
+        Array.isArray(unprefixedValue) ? unprefixedValue : undefined
+      );
     } else if (isPlainObject(value)) {
       const schema = buildSchemaFromConstraintsRecursiveInternal(value, mode);
 
       if (schema) {
-        empty = false;
         objectEntriesSchema[key] = schema;
       }
     }
   }
 
-  return empty ? undefined : object(objectEntriesSchema);
+  return Object.entries(objectEntriesSchema).length ? object(objectEntriesSchema) : undefined;
 }
 
 export default function buildSchemaFromConstraintsRecursive<T extends object>(

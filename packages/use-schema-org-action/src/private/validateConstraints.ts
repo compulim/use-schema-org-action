@@ -1,15 +1,12 @@
-import { safeParse } from 'valibot';
-import buildSchemaFromConstraintsRecursive from './buildSchemaFromConstraintsRecursive.ts';
+import { safeParse, type ErrorMessage, type ObjectEntries, type ObjectIssue, type ObjectSchema } from 'valibot';
 
-export default function validateConstraints<T extends object>(
-  action: T,
-  mode: 'input' | 'output'
+export default function validateConstraints(
+  schema: ObjectSchema<ObjectEntries, ErrorMessage<ObjectIssue> | undefined>,
+  actionState: unknown
 ): Readonly<ValidityState> {
-  const schema = buildSchemaFromConstraintsRecursive(action, mode);
-
   // TODO: Should implement ValidityState with multiple issues.
   //       https://developer.mozilla.org/en-US/docs/Web/API/ValidityState
-  const { success } = safeParse(schema, action);
+  const { success } = safeParse(schema, actionState);
 
   return Object.freeze({
     badInput: false,

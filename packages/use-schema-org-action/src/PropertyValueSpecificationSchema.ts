@@ -13,6 +13,7 @@ import {
   object,
   optional,
   parse,
+  picklist,
   pipe,
   regex,
   safeParse,
@@ -138,7 +139,7 @@ type MySchema<T> =
       any
     >;
 
-function toValibotSchema(propertyValueSpecification: PropertyValueSpecification) {
+function toValibotSchema(propertyValueSpecification: PropertyValueSpecification, choices: any[] = []) {
   if (typeof propertyValueSpecification === 'string') {
     propertyValueSpecification = parse(propertyValueSpecificationStringSchema, propertyValueSpecification);
   }
@@ -240,6 +241,12 @@ function toValibotSchema(propertyValueSpecification: PropertyValueSpecification)
     stringSchema = pipe(stringSchema, minLength(propertyValueSpecification.valueMinLength));
   } else if (typeof propertyValueSpecification.valueMinLength === 'string') {
     stringSchema = pipe(stringSchema, minLength(parse(htmlStringNumber, propertyValueSpecification.valueMinLength)));
+  }
+
+  if (choices.length) {
+    dateSchema = pipe(dateSchema, picklist(choices));
+    numberSchema = pipe(numberSchema, picklist(choices));
+    stringSchema = pipe(stringSchema, picklist(choices));
   }
 
   if (propertyValueSpecification.multipleValues) {

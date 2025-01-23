@@ -25,7 +25,7 @@ type WebSite = {
 
 describe('Spec: Text search deep link with -input', () => {
   let webSite: WebSite;
-  let handler: MockOf<ActionHandler<SearchAction>>;
+  let handler: MockOf<ActionHandler>;
 
   beforeEach(() => {
     // [FROM-SPEC]
@@ -51,10 +51,7 @@ describe('Spec: Text search deep link with -input', () => {
     });
 
     test('should set "actionStatus" to "PotentialActionStatus"', () =>
-      expect(renderResult.result.current[0]).toEqual({
-        ...webSite.potentialAction,
-        actionStatus: 'PotentialActionStatus'
-      }));
+      expect(renderResult.result.current[0]).toEqual({ actionStatus: 'PotentialActionStatus' }));
 
     test('should return "inputValidity.valid" of false', () =>
       expect(renderResult.result.current[2]).toHaveProperty('inputValidity.valid', false));
@@ -64,7 +61,6 @@ describe('Spec: Text search deep link with -input', () => {
 
       test('should merge input', () =>
         expect(renderResult.result.current[0]).toEqual({
-          ...webSite.potentialAction,
           actionStatus: 'PotentialActionStatus',
           query: 'the search'
         }));
@@ -83,7 +79,7 @@ describe('Spec: Text search deep link with -input', () => {
 
         // [FROM-SPEC]
         test('should expand URL template', () => {
-          const template = parseTemplate(renderResult.result.current[0].target);
+          const template = parseTemplate(webSite.potentialAction.target);
 
           const variables = handler.mock.lastCall?.[0];
 

@@ -37,7 +37,7 @@ describe('Spec: Movie review site API with -input and -output', () => {
     };
   };
 
-  let handler: MockOf<ActionHandler<ReviewAction>>;
+  let handler: MockOf<ActionHandler>;
   let renderResult: RenderHookResult<ReturnType<typeof useSchemaOrgAction<ReviewAction>>>;
   let reviewAction: ReviewAction;
 
@@ -60,9 +60,7 @@ describe('Spec: Movie review site API with -input and -output', () => {
         '@type': 'Review',
         'url-output': 'required',
         'reviewBody-input': 'required',
-        reviewRating: {
-          'ratingValue-input': 'required'
-        }
+        reviewRating: { 'ratingValue-input': 'required' }
       }
     };
 
@@ -91,17 +89,10 @@ describe('Spec: Movie review site API with -input and -output', () => {
           // [NOT-IN-SPEC]
           renderResult.result.current[1](action => ({
             ...action,
-            object: {
-              ...action.object,
-              url: 'http://example.com/movies/123'
-            },
+            object: { url: 'http://example.com/movies/123' },
             result: {
-              ...action.result,
               reviewBody: 'yada, yada, yada',
-              reviewRating: {
-                ...action.result?.reviewRating,
-                ratingValue: '4'
-              }
+              reviewRating: { ratingValue: '4' }
             }
           }))
         )
@@ -128,30 +119,12 @@ describe('Spec: Movie review site API with -input and -output', () => {
         test('should merge response', () =>
           // [NOT-IN-SPEC]
           expect(renderResult.result.current[0]).toEqual({
-            '@context': 'https://schema.org',
-            '@type': 'ReviewAction',
             actionStatus: 'CompletedActionStatus',
-            target: {
-              '@type': 'EntryPoint',
-              urlTemplate: 'https://api.example.com/review',
-              encodingType: 'application/ld+json',
-              contentType: 'application/ld+json'
-            },
-            object: {
-              '@type': 'Movie',
-              url: 'http://example.com/movies/123',
-              'url-input': 'required'
-            },
+            object: { url: 'http://example.com/movies/123' },
             result: {
-              '@type': 'Review',
               url: 'http://example.com/reviews/abc',
-              'url-output': 'required',
               reviewBody: 'yada, yada, yada',
-              'reviewBody-input': 'required',
-              reviewRating: {
-                ratingValue: '4',
-                'ratingValue-input': 'required'
-              }
+              reviewRating: { ratingValue: '4' }
             }
           }));
       });
