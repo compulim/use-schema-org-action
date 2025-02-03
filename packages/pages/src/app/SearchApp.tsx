@@ -18,19 +18,20 @@ const SearchApp = ({ action }: SearchAppProps) => {
       const url = new URL(
         parseTemplate(action.target).expand(
           Object.fromEntries(
-            input
-              .entries()
-              .map(([key, value]) => [
-                key,
-                value instanceof Date ? value.toISOString() : typeof value === 'undefined' ? null : value
-              ])
+            Object.entries(input).map(([key, value]) => [
+              key,
+              value instanceof Date ? value.toISOString() : typeof value === 'undefined' ? null : value
+            ])
           )
         )
       );
 
       url.search = new URLSearchParams(
         Array.from(
-          input.entries().map(([key, value]) => [key, value instanceof Date ? value.toISOString() : `${value || ''}`])
+          Object.entries(input).map(([key, value]) => [
+            key,
+            value instanceof Date ? value.toISOString() : `${value || ''}`
+          ])
         )
       ).toString();
 
@@ -61,10 +62,11 @@ const SearchApp = ({ action }: SearchAppProps) => {
     <Fragment>
       <h2>Search</h2>
       <form onSubmit={handleSubmit}>
-        <input onInput={handleQueryInput} type="search" value={state.query || ''} />
+        <input autoFocus={true} onInput={handleQueryInput} type="search" value={state['query'] || ''} />
         <button disabled={!inputValidity.valid} type="submit">
-          Submit
+          {state['actionStatus'] === 'ActiveActionStatus' ? 'Submitting...' : 'Submit'}
         </button>
+        {state['actionStatus'] === 'FailedActionStatus' ? <span>Failed to submit</span> : undefined}
       </form>
     </Fragment>
   );

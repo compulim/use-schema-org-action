@@ -67,34 +67,40 @@ export default function useSchemaOrgAction<T extends object = object>(
 
     setActionState(actionState => ({ ...actionState, actionStatus: 'ActiveActionStatus' }));
 
-    const inputVariables = extractVariablesFromActionStateRecursive(
-      initialActionRef.current,
-      actionStateRef.current,
-      'input'
-    );
-
-    // TODO: Refactor to extractInputPropertiesFromActionStateRecursive.
-    const request = mergeActionStateRecursive(initialActionRef.current, {}, actionStateRef.current, 'input');
-
-    const response = await handlerRef.current(request, inputVariables, { signal: abortController.signal });
+    let response: ActionState;
 
     try {
-      parse(outputSchema, response);
-      parse(object({ actionStatus: optional(actionStatusTypeSchema) }), response);
-    } catch (cause) {
+      const inputVariables = extractVariablesFromActionStateRecursive(
+        initialActionRef.current,
+        actionStateRef.current,
+        'input'
+      );
+
+      // TODO: Refactor to extractInputPropertiesFromActionStateRecursive helper.
+      const request = mergeActionStateRecursive(initialActionRef.current, {}, actionStateRef.current, 'input');
+
+      response = await handlerRef.current(request, inputVariables, { signal: abortController.signal });
+
+      try {
+        parse(outputSchema, response);
+        parse(object({ actionStatus: optional(actionStatusTypeSchema) }), response);
+      } catch (cause) {
+        const error = new Error('Output is invalid.');
+
+        error.cause = cause;
+
+        throw error;
+      }
+
+      if (abortController.signal.aborted) {
+        return;
+      }
+    } catch (error) {
       if (!abortController.signal.aborted) {
         setActionState(actionState => ({ ...actionState, actionStatus: 'FailedActionStatus' }));
       }
 
-      const error = new Error('Output is invalid.');
-
-      error.cause = cause;
-
       throw error;
-    }
-
-    if (abortController.signal.aborted) {
-      return;
     }
 
     setActionState(actionState =>

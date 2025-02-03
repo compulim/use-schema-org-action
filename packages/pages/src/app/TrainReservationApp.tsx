@@ -14,6 +14,7 @@ type TrainReservation = {
   bookingTime?: Date | undefined;
   modifiedTime?: Date | undefined;
   priceCurrency?: string | undefined;
+  'priceCurrency-input'?: PropertyValueSpecification | undefined;
   reservationId?: string | undefined;
   'reservationId-output'?: PropertyValueSpecification | undefined;
   reservationStatus?: `Reservation${'Cancelled' | 'Confirmed' | 'Hold' | 'Pending'}` | undefined;
@@ -39,7 +40,9 @@ type Seat = {
 type TrainStation = {
   '@type': 'TrainStation';
   alternateName?: string | undefined;
-  name: string;
+  'alternateName-input'?: PropertyValueSpecification | undefined;
+  name?: string | undefined;
+  'name-input'?: PropertyValueSpecification | undefined;
 };
 
 type TrainTrip = {
@@ -61,6 +64,9 @@ const baseReservation: TrainReservation = {
   '@id': '8/21/B',
   '@type': 'TrainReservation',
   priceCurrency: 'JPY',
+  'priceCurrency-input': {
+    '@type': 'PropertyValueSpecification'
+  },
   'reservationId-output': {
     '@type': 'PropertyValueSpecification',
     valueName: 'id',
@@ -125,15 +131,21 @@ const availableReservations: [TrainReservation, TrainReservation, TrainReservati
   }
 ];
 
+const baseTrainStation: TrainStation = {
+  '@type': 'TrainStation',
+  'alternateName-input': {},
+  'name-input': {}
+};
+
 const availableTrainTrips: [TrainTrip, TrainTrip, TrainTrip] = [
   {
     '@type': 'TrainTrip',
     '@id': 'toki/301',
     arrivalPlatform: '11・12',
-    arrivalStation: { '@type': 'TrainStation', alternateName: '越後湯沢', name: 'Echigo-Yuzawa' },
+    arrivalStation: { ...baseTrainStation, alternateName: '越後湯沢', name: 'Echigo-Yuzawa' },
     arrivalTime: '07:22',
     departurePlatform: '22',
-    departureStation: { '@type': 'TrainStation', alternateName: '東京', name: 'Tokyo' },
+    departureStation: { ...baseTrainStation, alternateName: '東京', name: 'Tokyo' },
     departureTime: '06:08',
     trainName: 'Toki',
     'trainName-input': { '@type': 'PropertyValueSpecification', valueName: 'name' },
@@ -144,10 +156,10 @@ const availableTrainTrips: [TrainTrip, TrainTrip, TrainTrip] = [
     '@type': 'TrainTrip',
     '@id': 'tanigawa/33',
     arrivalPlatform: '11・12',
-    arrivalStation: { '@type': 'TrainStation', alternateName: '越後湯沢', name: 'Echigo-Yuzawa' },
+    arrivalStation: { ...baseTrainStation, alternateName: '越後湯沢', name: 'Echigo-Yuzawa' },
     arrivalTime: '07:50',
     departurePlatform: '20',
-    departureStation: { '@type': 'TrainStation', alternateName: '東京', name: 'Tokyo' },
+    departureStation: { ...baseTrainStation, alternateName: '東京', name: 'Tokyo' },
     departureTime: '06:44',
     trainName: 'Tanigawa',
     'trainName-input': { '@type': 'PropertyValueSpecification', valueName: 'name' },
@@ -158,10 +170,10 @@ const availableTrainTrips: [TrainTrip, TrainTrip, TrainTrip] = [
     '@type': 'TrainTrip',
     '@id': 'tanigawa/401',
     arrivalPlatform: '11・12',
-    arrivalStation: { '@type': 'TrainStation', alternateName: '越後湯沢', name: 'Echigo-Yuzawa' },
+    arrivalStation: { ...baseTrainStation, alternateName: '越後湯沢', name: 'Echigo-Yuzawa' },
     arrivalTime: '08:02',
     departurePlatform: '23',
-    departureStation: { '@type': 'TrainStation', alternateName: '東京', name: 'Tokyo' },
+    departureStation: { ...baseTrainStation, alternateName: '東京', name: 'Tokyo' },
     departureTime: '06:36',
     trainName: 'Tanigawa',
     'trainName-input': { '@type': 'PropertyValueSpecification', valueName: 'name' },
@@ -177,24 +189,36 @@ const initialPlanAction: PlanAction = {
 };
 
 const TrainReservationApp = () => {
-  const [action, setAction, { inputValidity, submit }] = useSchemaOrgAction<PlanAction>(initialPlanAction, async () => {
-    await new Promise(resolve => setTimeout(resolve, 1_000));
+  const [actionState, setActionState, { inputValidity, submit }] = useSchemaOrgAction<PlanAction>(
+    initialPlanAction,
+    async () => {
+      await new Promise(resolve => setTimeout(resolve, 1_000));
 
-    return new Map<string, boolean | Date | number | string>([
-      ['id', Math.random().toString(36).substring(2, 8).toUpperCase()],
-      ['issued', new Date()],
-      ['status', 'ReservationConfirmed']
-    ]);
-  });
+      return new Map<string, boolean | Date | number | string>([
+        ['id', Math.random().toString(36).substring(2, 8).toUpperCase()],
+        ['issued', new Date()],
+        ['status', 'ReservationConfirmed']
+      ]);
+    },
+    {
+      object: {
+        trainName: 'Toki',
+        trainNumber: '301'
+      },
+      result: {
+        priceCurrency: 'JPY'
+      }
+    }
+  );
 
   const currencyFormat = useMemo(
     () =>
       new Intl.NumberFormat([], {
-        currency: action.result?.priceCurrency,
+        currency: actionState['result']?.priceCurrency,
         currencyDisplay: 'symbol',
         style: 'currency'
       }),
-    [action.result?.priceCurrency]
+    [actionState['result']?.priceCurrency]
   );
 
   const handleSubmit = useCallback<FormEventHandler<HTMLFormElement>>(
@@ -210,14 +234,14 @@ const TrainReservationApp = () => {
     event => {
       const { currentTarget } = event;
 
-      setAction(planAction => {
+      setActionState(planAction => {
         const trainReservation: TrainReservation = {
-          ...planAction.result,
+          ...planAction['result'],
           ...(availableReservations.find(reservation => reservation['@id'] === currentTarget.value) ||
-            planAction.result)
+            planAction['result'])
         };
 
-        trainReservation.reservedTicket.dateIssued = planAction.result.reservedTicket.dateIssued;
+        trainReservation.reservedTicket.dateIssued = planAction['result'].reservedTicket.dateIssued;
 
         return {
           ...planAction,
@@ -225,19 +249,19 @@ const TrainReservationApp = () => {
         };
       });
     },
-    [setAction]
+    [setActionState]
   );
 
   const handleTrainChange = useCallback<FormEventHandler<HTMLSelectElement>>(
     event => {
       const { currentTarget } = event;
 
-      setAction(planAction => ({
+      setActionState(planAction => ({
         ...planAction,
-        object: availableTrainTrips.find(trip => trip['@id'] === currentTarget.value) || planAction.object
+        object: availableTrainTrips.find(trip => trip['@id'] === currentTarget.value) || planAction['object']
       }));
     },
-    [setAction]
+    [setActionState]
   );
 
   return (
@@ -248,9 +272,9 @@ const TrainReservationApp = () => {
           <dt>Train</dt>
           <dd>
             <select
-              disabled={action.actionStatus === 'ActiveActionStatus'}
+              disabled={actionState['actionStatus'] === 'ActiveActionStatus'}
               onChange={handleTrainChange}
-              value={action.object['@id']}
+              value={actionState['object']['@id']}
             >
               {availableTrainTrips.map(trainTrip => (
                 <option value={trainTrip['@id']}>
@@ -261,22 +285,22 @@ const TrainReservationApp = () => {
           </dd>
           <dt>Depart from</dt>
           <dd>
-            {action.object.departureStation.name} ({action.object.departureStation.alternateName})
+            {actionState['object'].departureStation.name} ({actionState['object'].departureStation.alternateName})
           </dd>
           <dt>Arrive at</dt>
           <dd>
-            {action.object.arrivalStation.name} ({action.object.arrivalStation.alternateName})
+            {actionState['object'].arrivalStation.name} ({actionState['object'].arrivalStation.alternateName})
           </dd>
           <dt>Time</dt>
           <dd>
-            {action.object.departureTime} -&gt; {action.object.arrivalTime}
+            {actionState['object'].departureTime} -&gt; {actionState['object'].arrivalTime}
           </dd>
           <dt>Seat</dt>
           <dd>
             <select
-              disabled={action.actionStatus === 'ActiveActionStatus'}
+              disabled={actionState['actionStatus'] === 'ActiveActionStatus'}
               onChange={handleSeatChange}
-              value={action.result['@id']}
+              value={actionState['result']['@id']}
             >
               {availableReservations.map(reservation => (
                 <option value={reservation['@id']}>
@@ -288,26 +312,26 @@ const TrainReservationApp = () => {
             </select>
           </dd>
           <dt>Price</dt>
-          <dd>{currencyFormat.format(action.result.totalPrice || 0)}</dd>
+          <dd>{currencyFormat.format(actionState['result'].totalPrice || 0)}</dd>
           <dt>Reservation status</dt>
-          <dd>{action.result.reservationStatus}</dd>
-          {action.result.reservationId && (
+          <dd>{actionState['result'].reservationStatus}</dd>
+          {actionState['result'].reservationId && (
             <Fragment>
               <dt>Reservation ID</dt>
-              <dd>{action.result.reservationId}</dd>
+              <dd>{actionState['result'].reservationId}</dd>
             </Fragment>
           )}
-          {action.result.reservedTicket.dateIssued && (
+          {actionState['result'].reservedTicket.dateIssued && (
             <Fragment>
               <dt>Issued date</dt>
-              <dd>{action.result.reservedTicket.dateIssued.toLocaleString()}</dd>
+              <dd>{actionState['result'].reservedTicket.dateIssued.toLocaleString()}</dd>
             </Fragment>
           )}
         </dl>
-        <button disabled={action.actionStatus === 'ActiveActionStatus'} type="submit">
-          {action.actionStatus === 'ActiveActionStatus'
+        <button disabled={actionState['actionStatus'] === 'ActiveActionStatus'} type="submit">
+          {actionState['actionStatus'] === 'ActiveActionStatus'
             ? 'Processing...'
-            : action.actionStatus === 'CompletedActionStatus'
+            : actionState['actionStatus'] === 'CompletedActionStatus'
               ? 'Modify'
               : 'Reserve'}
         </button>

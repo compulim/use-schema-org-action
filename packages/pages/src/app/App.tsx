@@ -14,8 +14,8 @@ const App = () => (
     />
     <hr />
     <VoteApp />
-    <hr />
-    <TrainReservationApp />
+    {/* <hr />
+    <TrainReservationApp /> */}
   </main>
 );
 

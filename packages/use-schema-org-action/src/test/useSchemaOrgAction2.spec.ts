@@ -251,6 +251,19 @@ describe('when rendered initially', () => {
         describe('when handler() is rejected after unmount', () => {
           beforeEach(() =>
             act(() => {
+              handlerResolvers.reject(new Error('Artificial failure.'));
+            })
+          );
+
+          test('should throw', () => expect(submitPromise).rejects.toThrow('Artificial failure.'));
+
+          test('should change "actionStatus" to "FailedActionStatus"', () =>
+            expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'FailedActionStatus'));
+        });
+
+        describe('when handler() is rejected after unmount', () => {
+          beforeEach(() =>
+            act(() => {
               renderResult.unmount();
               handlerResolvers.resolve({ result: { url: 'too-short' } });
             })
