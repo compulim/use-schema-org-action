@@ -1,4 +1,4 @@
-/** @jest-environment ./src/test/JSDOMEnvironmentWithWritableStream.js */
+/** @jest-environment ./src/test/HappyDOMEnvironmentWithWritableStream.js */
 
 import { act } from '@testing-library/react';
 import { type PartialDeep } from 'type-fest';

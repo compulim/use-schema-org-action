@@ -1,4 +1,4 @@
-/** @jest-environment ./src/test/JSDOMEnvironmentWithWritableStream.js */
+/** @jest-environment ./src/test/HappyDOMEnvironmentWithWritableStream.js */
 
 import { act } from 'react';
 import { parseTemplate } from 'url-template';
