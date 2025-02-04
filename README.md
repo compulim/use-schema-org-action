@@ -70,7 +70,7 @@ function VoteButton() {
 
 > For complete API reference, please refer to TypeScript definition files.
 
-```js
+```ts
 type ActionState = Record<string, any>;
 
 function useSchemaOrgAction<T extends object>(
@@ -92,6 +92,16 @@ function useSchemaOrgAction<T extends object>(
     submit: () => Promise<void>;
   }>
 ];
+```
+
+### Helper functions
+
+```ts
+// Converts variables into URLSearchParams.
+function toURLSearchParams(variables: ReadonlyMap<string, unknown>): URLSearchParams;
+
+// Converts variables into object of key of string and data of string, and allow multiple values.
+function toURLTemplateData(variables: ReadonlyMap<string, unknown>): Record<string, string[]>;
 ```
 
 ## Designs

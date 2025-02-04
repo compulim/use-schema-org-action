@@ -132,7 +132,7 @@ describe('when rendered initially', () => {
 
       beforeEach(() =>
         act(() => {
-          submitPromise = renderResult.result.current[2].submit();
+          submitPromise = renderResult.result.current[2].perform();
           submitPromise.catch(() => {});
         })
       );
@@ -321,7 +321,7 @@ describe('when rendered initially', () => {
       let submitPromise: Promise<void> | undefined;
 
       act(() => {
-        submitPromise = renderResult.result.current[2].submit();
+        submitPromise = renderResult.result.current[2].perform();
         submitPromise.catch(() => {});
       });
 
@@ -373,7 +373,7 @@ describe('when rendered initially', () => {
 
         await act(() => {
           // Do not resolve the promise.
-          renderResult.result.current[2].submit();
+          renderResult.result.current[2].perform();
         });
       });
 
@@ -482,7 +482,7 @@ describe('when call submit() with an action where "actionStatus-output" is set',
       }))
     );
 
-    await act(() => renderResult.result.current[2].submit());
+    await act(() => renderResult.result.current[2].perform());
   });
 
   test('should override "actionStatus" property', () =>
@@ -540,7 +540,7 @@ describe('when call submit() with an action where "actionStatus" is set to an in
     );
 
     await act(() => {
-      submitPromise = renderResult.result.current[2].submit();
+      submitPromise = renderResult.result.current[2].perform();
 
       return submitPromise.catch(() => {});
     });

@@ -1,6 +1,6 @@
-import React, { Fragment, memo, useCallback, type FormEventHandler } from 'react';
+import React, { Fragment, memo, useCallback, useState, type FormEventHandler } from 'react';
 import { parseTemplate } from 'url-template';
-import { useSchemaOrgAction, type PropertyValueSpecification } from 'use-schema-org-action';
+import { toURLTemplateData, useSchemaOrgAction, type PropertyValueSpecification } from 'use-schema-org-action';
 
 type SearchAction = {
   '@type': 'SearchAction';
@@ -9,33 +9,19 @@ type SearchAction = {
   'query-input': PropertyValueSpecification;
 };
 
-type SearchAppProps = { action: SearchAction };
+const SearchApp = () => {
+  const [action] = useState<SearchAction>({
+    '@type': 'SearchAction',
+    'query-input': 'required maxlength=100 name=q',
+    target: 'https://example.com/search?q={q}'
+  });
 
-const SearchApp = ({ action }: SearchAppProps) => {
   const [state, setState, { inputValidity, submit }] = useSchemaOrgAction<SearchAction>(
     action,
-    async (input, request) => {
-      const url = new URL(
-        parseTemplate(action.target).expand(
-          Object.fromEntries(
-            Object.entries(input).map(([key, value]) => [
-              key,
-              value instanceof Date ? value.toISOString() : typeof value === 'undefined' ? null : value
-            ])
-          )
-        )
-      );
-
-      url.search = new URLSearchParams(
-        Array.from(
-          Object.entries(input).map(([key, value]) => [
-            key,
-            value instanceof Date ? value.toISOString() : `${value || ''}`
-          ])
-        )
-      ).toString();
-
-      const res = await fetch(url, {
+    async (request, inputVariables) => {
+      // `url` is https://example.com/search?q=...
+      // `request` is { "query": "..." }
+      const res = await fetch(new URL(parseTemplate(action.target).expand(toURLTemplateData(inputVariables))), {
         body: JSON.stringify(request),
         headers: { 'content-type': 'application/json' },
         method: 'POST'

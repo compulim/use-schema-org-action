@@ -91,7 +91,7 @@ describe('Spec: Product purchase API call with -output', () => {
           }
         });
 
-        await act(() => renderResult.result.current[2].submit());
+        await act(() => renderResult.result.current[2].perform());
       });
 
       test('should have called handler() once', () => expect(handler).toHaveBeenCalledTimes(1));

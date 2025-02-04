@@ -18,25 +18,51 @@ import mergeActionStateRecursive from './private/mergeActionStateRecursive.ts';
 import validateConstraints from './private/validateConstraints.ts';
 import { type VariableMap } from './VariableMap.ts';
 
+/** When called, should perform the action and return action state containing all properties with output constraints. */
 type ActionHandler = (
+  /** Action state containing only input properties and is validated against input constraints. */
   request: ActionState,
+  /** `Map` of input variables for URL template expansion. */
   inputVariables: VariableMap,
-  init: Readonly<{ signal: AbortSignal }>
+  init: Readonly<{
+    /** `AbortSignal` for detecting early unmount. */
+    signal: AbortSignal;
+  }>
 ) => Promise<ActionState>;
 
+/**
+ * Returns a stateful action state, a function to update it, and a function to perform the action.
+ *
+ * Action state contains only input/output properties and [`actionStatus` property](https://schema.org/actionStatus).
+ *
+ * @param action Action which the action state is based on.
+ * @param onPerform Function to call when the action is being performed.
+ * @param initialActionState Initial action state.
+ * @returns Returns a stateful action state, a function to update it, and a function to perform the action.
+ */
 export default function useSchemaOrgAction<T extends object = object>(
-  initialAction: T,
-  handler: ActionHandler,
+  /** Action which the action state is based on. */
+  action: T,
+  /** Function to call when the action is performed. */
+  onPerform: ActionHandler,
+  /** Initial action state. */
   initialActionState: ActionState = {}
 ): readonly [
+  /** A stateful action state. */
   ActionState,
+  /** A function to update the action state. */
   Dispatch<SetStateAction<ActionState>>,
   Readonly<{
+    /** `Map` of named input properties. */
     inputVariables: VariableMap;
+    /** Validity of the input properties. */
     inputValidity: ValidityState;
+    /** Validation schema for input properties. */
     inputSchema: ObjectSchema<ObjectEntries, ErrorMessage<ObjectIssue> | undefined>;
+    /** Validation schema for output properties. */
     outputSchema: ObjectSchema<ObjectEntries, ErrorMessage<ObjectIssue> | undefined>;
-    submit: () => Promise<void>;
+    /** A function to perform the action. */
+    perform: () => Promise<void>;
   }>
 ] {
   const [actionState, setActionState] = useState<ActionState>(() => ({
@@ -44,21 +70,21 @@ export default function useSchemaOrgAction<T extends object = object>(
     actionStatus: parse(
       fallback(actionStatusTypeSchema, 'PotentialActionStatus'),
       ('actionStatus' in initialActionState && initialActionState['actionStatus']) ||
-        ('actionStatus' in initialAction && initialAction.actionStatus)
+        ('actionStatus' in action && action.actionStatus)
     )
   }));
   const abortController = useMemo(() => new AbortController(), []);
-  const handlerRef = useRefFrom(handler);
-  const inputSchema = useMemo(() => buildSchemaFromConstraintsRecursive(initialAction, 'input'), [initialAction]);
-  const outputSchema = useMemo(() => buildSchemaFromConstraintsRecursive(initialAction, 'output'), [initialAction]);
+  const handlerRef = useRefFrom(onPerform);
+  const inputSchema = useMemo(() => buildSchemaFromConstraintsRecursive(action, 'input'), [action]);
+  const outputSchema = useMemo(() => buildSchemaFromConstraintsRecursive(action, 'output'), [action]);
 
   const actionStateRef = useRefFrom(actionState);
-  const initialActionRef = useRefFrom(initialAction);
+  const initialActionRef = useRefFrom(action);
   const inputSchemaRef = useRefFrom(inputSchema);
   const inputValidity = useMemo(() => validateConstraints(inputSchema, actionState), [actionState, inputSchema]);
   const outputSchemaRef = useRefFrom(outputSchema);
 
-  const submit = useCallback<() => Promise<void>>(async () => {
+  const perform = useCallback<() => Promise<void>>(async () => {
     if (!validateConstraints(inputSchemaRef.current, actionStateRef.current).valid) {
       setActionState(actionState => ({ ...actionState, actionStatus: 'FailedActionStatus' }));
 
@@ -114,8 +140,8 @@ export default function useSchemaOrgAction<T extends object = object>(
   }, [abortController, actionStateRef, handlerRef, initialActionRef, inputSchemaRef, outputSchemaRef, setActionState]);
 
   const inputVariables = useMemo(
-    () => extractVariablesFromActionStateRecursive(initialAction, actionState, 'input'),
-    [actionState, initialAction]
+    () => extractVariablesFromActionStateRecursive(action, actionState, 'input'),
+    [actionState, action]
   );
 
   const options = useMemo(
@@ -125,9 +151,9 @@ export default function useSchemaOrgAction<T extends object = object>(
         inputValidity,
         inputVariables,
         outputSchema,
-        submit
+        perform
       }),
-    [inputSchema, inputValidity, inputVariables, outputSchema, submit]
+    [inputSchema, inputValidity, inputVariables, outputSchema, perform]
   );
 
   useEffect(() => () => abortController.abort(), [abortController]);

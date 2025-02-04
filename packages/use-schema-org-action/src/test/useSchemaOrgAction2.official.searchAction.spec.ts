@@ -69,7 +69,7 @@ describe('Spec: Text search deep link with -input', () => {
         expect(renderResult.result.current[2]).toHaveProperty('inputValidity.valid', true));
 
       describe('when submit() is called', () => {
-        beforeEach(() => act(() => renderResult.result.current[2].submit()));
+        beforeEach(() => act(() => renderResult.result.current[2].perform()));
 
         test('should have called handler() once', () => expect(handler).toHaveBeenCalledTimes(1));
 

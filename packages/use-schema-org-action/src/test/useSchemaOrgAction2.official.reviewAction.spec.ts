@@ -99,7 +99,7 @@ describe('Spec: Movie review site API with -input and -output', () => {
       );
 
       describe('when submit() is called', () => {
-        beforeEach(() => act(() => renderResult.result.current[2].submit()));
+        beforeEach(() => act(() => renderResult.result.current[2].perform()));
 
         test('should be called once', () => expect(handler).toHaveBeenCalledTimes(1));
 
