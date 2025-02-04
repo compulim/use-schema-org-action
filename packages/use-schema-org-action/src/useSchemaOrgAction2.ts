@@ -18,11 +18,15 @@ import mergeActionStateRecursive from './private/mergeActionStateRecursive.ts';
 import validateConstraints from './private/validateConstraints.ts';
 import { type VariableMap } from './VariableMap.ts';
 
-/** When called, should perform the action and return action state containing all properties with output constraints. */
+/**
+ * When called, should perform the action and return action state containing all properties with output constraints.
+ *
+ * @param request Input properties validated against input constraints
+ * @param inputVariables `Map` of input variables for URL template expansion.
+ * @returns Output properties and will be validated against output constraints.
+ */
 type ActionHandler = (
-  /** Action state containing only input properties and is validated against input constraints. */
   request: ActionState,
-  /** `Map` of input variables for URL template expansion. */
   inputVariables: VariableMap,
   init: Readonly<{
     /** `AbortSignal` for detecting early unmount. */
