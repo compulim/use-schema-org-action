@@ -122,6 +122,7 @@ const propertyValueSpecificationStringSchema = pipe(
   })
 );
 
+/** Validation schema for `PropertyValueSpecification`. */
 const propertyValueSpecificationSchema = union([
   propertyValueSpecificationObjectSchema,
   propertyValueSpecificationStringSchema
@@ -139,6 +140,13 @@ type MySchema<T> =
       any
     >;
 
+/**
+ * Converts an instance of `PropertyValueSpecification` into a validation schema.
+ *
+ * @param propertyValueSpecification An instance of `PropertyValueSpecification` to convert from.
+ * @param choices A list of values to choose from for the value. An empty array will allow any values.
+ * @returns A validation schema.
+ */
 function toValibotSchema(propertyValueSpecification: PropertyValueSpecification, choices: any[] = []) {
   if (typeof propertyValueSpecification === 'string') {
     propertyValueSpecification = parse(propertyValueSpecificationStringSchema, propertyValueSpecification);
@@ -275,8 +283,10 @@ const htmlStringNumber = pipe(
   transform<string, number>(input => parseInt(input, 10))
 );
 
+/** Validation schema for `PropertyValueSpecification`. */
 export default propertyValueSpecificationSchema;
 
+/** A Property value specification. */
 export type PropertyValueSpecification = InferOutput<typeof propertyValueSpecificationObjectSchema> | string;
 
 export { toValibotSchema };
