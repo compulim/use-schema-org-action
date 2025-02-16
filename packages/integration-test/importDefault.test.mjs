@@ -13,7 +13,7 @@ test('simple scenario', () => {
         actionOption: 'upvote',
         'actionOption-input': { valueName: 'action' }
       },
-      () => Promise({})
+      () => Promise.resolve({})
     );
 
     return JSON.stringify(action);
