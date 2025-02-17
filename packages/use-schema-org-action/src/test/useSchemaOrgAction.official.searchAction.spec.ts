@@ -59,7 +59,7 @@ describe('Spec: Text search deep link with -input', () => {
       expect(renderResult.result.current[2]).toHaveProperty('inputValidity.valid', false));
 
     describe('when setting the input value', () => {
-      beforeEach(() => act(() => renderResult.result.current[1](action => ({ ...action, query: 'the search' }))));
+      beforeEach(() => act(() => renderResult.result.current[1](actionState => ({ ...actionState, query: 'the search' }))));
 
       test('should merge input', () =>
         expect(renderResult.result.current[0]).toStrictEqual({

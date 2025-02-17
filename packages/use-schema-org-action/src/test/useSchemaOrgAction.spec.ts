@@ -98,13 +98,16 @@ describe('when rendered initially', () => {
   describe('when inputs are set to valid values', () => {
     beforeEach(() =>
       act(() =>
-        renderResult.result.current[1](action => ({
-          ...action,
+        renderResult.result.current[1](actionState => ({
+          ...actionState,
           object: { url: 'https://example.com/input' },
           result: {
-            ...action['result'],
+            ...actionState['result'],
             reviewBody: 'Great movie.',
-            reviewRating: { ratingValue: 5 }
+            reviewRating: {
+              ...actionState['result']?.['reviewRating'],
+              ratingValue: 5
+            }
           }
         }))
       )
@@ -274,11 +277,11 @@ describe('when rendered initially', () => {
   describe('when input is set to an invalid value', () => {
     beforeEach(() =>
       act(() =>
-        renderResult.result.current[1](action => ({
-          ...action,
+        renderResult.result.current[1](actionState => ({
+          ...actionState,
           object: { url: 'https://example.com/input' },
           result: {
-            ...action['result'],
+            ...actionState['result'],
             reviewBody: 'Great movie.',
             reviewRating: { ratingValue: -1 }
           }
@@ -355,11 +358,15 @@ describe('when rendered initially', () => {
     describe('when submit() is called', () => {
       beforeEach(async () => {
         await act(() => {
-          renderResult.result.current[1](reviewAction => ({
-            ...reviewAction,
+          renderResult.result.current[1](actionState => ({
+            ...actionState,
             result: {
+              ...actionState['result'],
               reviewBody: 'Great movie.',
-              reviewRating: { ratingValue: 5 },
+              reviewRating: {
+                ...actionState['result']?.['reviewRating'],
+                ratingValue: 5
+              },
               url: undefined
             }
           }));
@@ -482,12 +489,16 @@ describe('when call submit() with an action where "actionStatus-output" is set',
     );
 
     await act(() =>
-      renderResult.result.current[1](action => ({
-        ...action,
+      renderResult.result.current[1](actionState => ({
+        ...actionState,
         object: { url: 'https://example.com/input' },
         result: {
+          ...actionState['result'],
           reviewBody: 'Great movie.',
-          reviewRating: { ratingValue: 5 }
+          reviewRating: {
+            ...actionState['result']?.['reviewRating'],
+            ratingValue: 5
+          }
         }
       }))
     );

@@ -87,12 +87,16 @@ describe('Spec: Movie review site API with -input and -output', () => {
       beforeEach(() =>
         act(() =>
           // [NOT-IN-SPEC]
-          renderResult.result.current[1](action => ({
-            ...action,
+          renderResult.result.current[1](actionState => ({
+            ...actionState,
             object: { url: 'http://example.com/movies/123' },
             result: {
+              ...actionState['result'],
               reviewBody: 'yada, yada, yada',
-              reviewRating: { ratingValue: '4' }
+              reviewRating: {
+                ...actionState['result']?.['reviewRating'],
+                ratingValue: '4'
+              }
             }
           }))
         )
