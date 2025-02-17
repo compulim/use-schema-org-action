@@ -10,7 +10,7 @@ Schema.org actions is a way to [describe the capability to perform an action and
 1. Extracts named input properties from the action and forms a list of variables to support [RFC 6570 URI Template](https://www.rfc-editor.org/rfc/rfc6570) variable expansion
 1. Marks the action as [active](https://schema.org/docs/actions.html#part-1)
 1. Performs the action asynchronously
-1. Validates the action result against output [constraints](https://schema.org/docs/actions.html#part-4)
+1. Validates the response against output [constraints](https://schema.org/docs/actions.html#part-4)
 1. Marks the action as [completed or failed](https://schema.org/docs/actions.html#part-1)
 1. If successful, merges the output variables back into the action via named output properties
 
@@ -29,9 +29,9 @@ To install this package, run `npm install use-schema-org-action` or visit our [p
 ```ts
 import { useSchemaOrgAction, type ActionHandler, type PropertyValueSpecification } from 'use-schema-org-action';
 
-// This function will POST the vote action asynchronously.
+// This function, when called, will send HTTP POST of the vote action.
 const postVote: ActionHandler = async (request) => {
-  // `request` includes properties with *-input:
+  // "request" includes properties with input constraints (with companion "*-input"):
   // {
   //   actionOption: 'upvote'
   // }
@@ -46,12 +46,12 @@ function VoteButton() {
       '@context': 'https://schema.org',
       '@type': 'VoteAction',
       actionOption: 'upvote',
-      'actionOption-input': 'required'
+      'actionOption-input': 'required' // Input constraints of "actionOption".
     },
     submitVoteAction
   );
 
-  // Action state include "actionStatus" property and all properties marked by *-input and *-output.
+  // Action state only includes "actionStatus" property and properties with input and output constraints.
   // {
   //   actionOption: 'upvote',
   //   actionStatus: 'PotentialActionStatus'
@@ -100,7 +100,7 @@ function useSchemaOrgAction<T extends object>(
 ### Helper functions
 
 ```ts
-// Converts variables into URLSearchParams.
+// Converts variables into `URLSearchParams`.
 function toURLSearchParams(variables: ReadonlyMap<string, unknown>): URLSearchParams;
 
 // Converts variables into object of key of string and data of string, and allow multiple values.
@@ -141,15 +141,15 @@ Properties of action that should be participated in the request must have input 
 
 Only properties with input constraints will become part of the request.
 
-### Some results are not reflected in the updated action
+### Some results are not reflected in the updated action state
 
 Properties of response that should be merged into the action must have output constraints defined (`*-output`) with `valueName` property defined.
 
-After an action is performed, properties marked with output constraints will be merged into the action.
+After an action is performed, properties marked with output constraints will be merged into the action state.
 
-### After the action is performed, how can I propagate the action status to the updated action?
+### After the action is performed, how can I propagate the action status to the updated action state?
 
-Marks the action with `actionStatus-output` and `valueName` property defined. In the handler, returns `actionStatus` with a [supported value](https://schema.org/ActionStatusType). Then, the corresponding output variable will be merged into the action.
+Marks the action with `actionStatus-output` and `valueName` property defined. In the handler, returns `actionStatus` with a [supported value](https://schema.org/ActionStatusType). Then, the corresponding output variable will be merged into the action state.
 
 If the handler did not respond with `actionStatus` or output constraints is not defined, it will set `actionStatus` to `"CompletedActionStatus"` for resolutions, or `"FailedActionStatus"` for rejections.
 
