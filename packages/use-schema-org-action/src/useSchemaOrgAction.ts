@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from 'react';
 import { useRefFrom } from 'use-ref-from';
 import {
   fallback,
@@ -25,13 +25,13 @@ import { type VariableMap } from './VariableMap.ts';
  *
  * Action state contains only input/output properties and [`actionStatus` property](https://schema.org/actionStatus).
  *
- * @param action Action which the action state is based on.
+ * @param initialAction Action which the action state is based on.
  * @param onPerform Function to call when the action is being performed.
  * @returns Returns a stateful action state, a function to update it, and a function to perform the action.
  */
 export default function useSchemaOrgAction<T extends object = object>(
   /** Initial action which the action state is based on. */
-  action: T,
+  initialAction: T,
   /** Function to call when the action is performed. */
   onPerform: ActionHandler
 ): readonly [
@@ -53,19 +53,20 @@ export default function useSchemaOrgAction<T extends object = object>(
   }>
 ] {
   const [actionState, setActionState] = useState<ActionState>(() => ({
-    ...extractActionStateFromAction(action),
+    ...extractActionStateFromAction(initialAction),
     actionStatus: parse(
       fallback(actionStatusTypeSchema, 'PotentialActionStatus'),
-      'actionStatus' in action && action.actionStatus
+      'actionStatus' in initialAction && initialAction.actionStatus
     )
   }));
   const abortController = useMemo(() => new AbortController(), []);
-  const handlerRef = useRefFrom(onPerform);
-  const inputSchema = useMemo(() => buildSchemaFromConstraintsRecursive(action, 'input'), [action]);
-  const outputSchema = useMemo(() => buildSchemaFromConstraintsRecursive(action, 'output'), [action]);
+  const initialActionRef = useRef(initialAction);
+  const onPerformRef = useRefFrom(onPerform);
 
-  const actionRef = useRefFrom(action);
   const actionStateRef = useRefFrom(actionState);
+  const inputSchema = useMemo(() => buildSchemaFromConstraintsRecursive(initialActionRef.current, 'input'), [initialActionRef]);
+  const outputSchema = useMemo(() => buildSchemaFromConstraintsRecursive(initialActionRef.current, 'output'), [initialActionRef]);
+
   const inputSchemaRef = useRefFrom(inputSchema);
   const inputValidity = useMemo(() => validateConstraints(inputSchema, actionState), [actionState, inputSchema]);
   const outputSchemaRef = useRefFrom(outputSchema);
@@ -83,15 +84,15 @@ export default function useSchemaOrgAction<T extends object = object>(
 
     try {
       const inputVariables = extractVariablesFromActionStateRecursive(
-        actionRef.current,
+        initialActionRef.current,
         actionStateRef.current,
         'input'
       );
 
       // TODO: Refactor to extractInputPropertiesFromActionStateRecursive helper.
-      const request = mergeActionStateRecursive(actionRef.current, {}, actionStateRef.current, 'input');
+      const request = mergeActionStateRecursive(initialActionRef.current, {}, actionStateRef.current, 'input');
 
-      response = await handlerRef.current(request, inputVariables, { signal: abortController.signal });
+      response = await onPerformRef.current(request, inputVariables, { signal: abortController.signal });
 
       try {
         parse(outputSchema, response);
@@ -117,17 +118,17 @@ export default function useSchemaOrgAction<T extends object = object>(
 
     setActionState(actionState =>
       mergeActionStateRecursive(
-        actionRef.current,
+        initialActionRef.current,
         { ...actionState, actionStatus: 'CompletedActionStatus' },
         response,
         'output'
       )
     );
-  }, [abortController, actionStateRef, handlerRef, actionRef, inputSchemaRef, outputSchemaRef, setActionState]);
+  }, [abortController, initialActionRef, actionStateRef, inputSchemaRef, onPerformRef, outputSchemaRef, setActionState]);
 
   const inputVariables = useMemo(
-    () => extractVariablesFromActionStateRecursive(action, actionState, 'input'),
-    [actionState, action]
+    () => extractVariablesFromActionStateRecursive(initialActionRef.current, actionState, 'input'),
+    [actionState, initialActionRef]
   );
 
   const options = useMemo(

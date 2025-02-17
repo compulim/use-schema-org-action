@@ -638,3 +638,79 @@ describe('initialAction with actionStatus', () => {
       }
     }));
 });
+
+describe('setActionState should not change input/output', () => {
+  let handler: MockOf<ActionHandler>;
+  let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void>;
+
+  beforeEach(() => {
+    handler = jest.fn().mockImplementation(() => ({
+      result: { url: 'https://example.com/output' }
+    }));
+
+    renderResult = renderHook(() =>
+      useSchemaOrgAction(
+        {
+          ...reviewAction,
+          object: {
+            ...reviewAction['object'],
+            url: 'https://example.com/input'
+          },
+          result: {
+            ...reviewAction['result'],
+            reviewBody: 'Great movie.',
+            reviewRating: {
+              ...reviewAction['result']?.['reviewRating'],
+              ratingValue: 5
+            }
+          }
+        },
+        handler
+      )
+    );
+
+    expect(renderResult.result.current[0]).toStrictEqual({
+      actionStatus: 'PotentialActionStatus',
+      object: { url: 'https://example.com/input' },
+      result: {
+        reviewBody: 'Great movie.',
+        reviewRating: { ratingValue: 5 },
+        url: undefined
+      }
+    });
+
+    act(() => {
+      renderResult.result.current[1](actionState => ({
+        ...actionState,
+        object: {
+          ...actionState['object'],
+          'url-input': undefined
+        },
+        name: 'John Doe',
+        'name-input': 'required',
+        result: {
+          ...actionState['result'],
+          'reviewBody-input': undefined,
+          reviewRating: {
+            ...actionState['result']?.['reviewRating'],
+            'ratingValue-input': undefined
+          },
+          'url-output': undefined
+        }
+      }));
+    });
+  });
+
+  test('should not change input', async () => {
+    await act(() => renderResult.result.current[2].perform());
+
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler.mock.calls[0]?.[0]).toStrictEqual({
+      object: { url: 'https://example.com/input' },
+      result: {
+        reviewBody: 'Great movie.',
+        reviewRating: { ratingValue: 5 }
+      }
+    });
+  });
+});
