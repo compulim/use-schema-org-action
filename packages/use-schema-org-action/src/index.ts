@@ -1,3 +1,4 @@
+import { type ActionHandler } from './ActionHandler.ts';
 import { type ActionState } from './ActionState.ts';
 import { actionStatusTypeSchema, type ActionStatusType } from './ActionStatusType.ts';
 import { type ActionWithActionStatus } from './ActionWithActionStatus.ts';
@@ -15,6 +16,7 @@ export {
   toURLSearchParams,
   toURLTemplateData,
   useSchemaOrgAction,
+  type ActionHandler,
   type ActionState,
   type ActionStatusType,
   type ActionWithActionStatus,

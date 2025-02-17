@@ -1,23 +1,35 @@
 import React, { memo, useCallback, useState } from 'react';
-import { useSchemaOrgAction, type PropertyValueSpecification } from 'use-schema-org-action';
+import { useSchemaOrgAction, type ActionHandler, type PropertyValueSpecification } from 'use-schema-org-action';
 
 type Action = {
   actionObject?: 'downvote' | 'upvote';
   'actionObject-input': PropertyValueSpecification;
   actionStatus?: `${'Active' | 'Completed' | 'Failed' | 'Potential'}ActionStatus`;
+  'endTime-output': PropertyValueSpecification;
 };
 
 const VoteApp = () => {
-  const [performed, setPerformed] = useState<any>();
-  const [actionState, setActionState, { inputValidity, perform }] = useSchemaOrgAction<Action>(
-    { 'actionObject-input': 'required' },
+  const [currentRequest, setCurrentRequest] = useState<any>();
+  const [currentResponse, setCurrentResponse] = useState<any>();
+
+  const handlePerform = useCallback<ActionHandler>(
     async request => {
-      setPerformed(request);
+      setCurrentRequest(request);
 
-      await new Promise(resolve => setTimeout(resolve, 1_000));
+      const res = await fetch('https://example.com/vote', { body: JSON.stringify(request), method: 'POST' });
 
-      return {};
-    }
+      const response = await res.json();
+
+      setCurrentResponse(response);
+
+      return response;
+    },
+    [setCurrentRequest, setCurrentResponse]
+  );
+
+  const [actionState, setActionState, { inputValidity, perform }] = useSchemaOrgAction<Action>(
+    { 'actionObject-input': 'required', 'endTime-output': 'required' },
+    handlePerform
   );
 
   const handleDownvoteClick = useCallback(
@@ -48,10 +60,12 @@ const VoteApp = () => {
       >
         Perform
       </button>
-      <h3>Current action</h3>
+      <h3>Current action state</h3>
       <pre>{JSON.stringify(actionState, null, 2)}</pre>
-      <h3>Submitted action</h3>
-      <pre>{JSON.stringify(performed, null, 2)}</pre>
+      <h3>Request body</h3>
+      <pre>{JSON.stringify(currentRequest, null, 2)}</pre>
+      <h3>Response body</h3>
+      <pre>{JSON.stringify(currentResponse, null, 2)}</pre>
     </section>
   );
 };

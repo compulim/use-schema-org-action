@@ -10,6 +10,7 @@ import {
   type ObjectIssue,
   type ObjectSchema
 } from 'valibot';
+import { type ActionHandler } from './ActionHandler.ts';
 import { type ActionState } from './ActionState.ts';
 import { actionStatusTypeSchema } from './ActionStatusType.ts';
 import buildSchemaFromConstraintsRecursive from './private/buildSchemaFromConstraintsRecursive.ts';
@@ -17,22 +18,6 @@ import extractVariablesFromActionStateRecursive from './private/extractVariables
 import mergeActionStateRecursive from './private/mergeActionStateRecursive.ts';
 import validateConstraints from './private/validateConstraints.ts';
 import { type VariableMap } from './VariableMap.ts';
-
-/**
- * When called, should perform the action and return action state containing all properties with output constraints.
- *
- * @param request Input properties validated against input constraints
- * @param inputVariables `Map` of input variables for URL template expansion.
- * @returns Output properties and will be validated against output constraints.
- */
-type ActionHandler = (
-  request: ActionState,
-  inputVariables: VariableMap,
-  init: Readonly<{
-    /** `AbortSignal` for detecting early unmount. */
-    signal: AbortSignal;
-  }>
-) => Promise<ActionState>;
 
 /**
  * Returns a stateful action state, a function to update it, and a function to perform the action.
