@@ -1,4 +1,5 @@
 /* istanbul ignore file */
+
 type RenderHookResult<T = unknown, P = unknown> = {
   rerender: (props: P) => void;
   result: { current: T };
