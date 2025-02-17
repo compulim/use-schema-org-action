@@ -30,39 +30,46 @@ To install this package, run `npm install use-schema-org-action` or visit our [p
 import { useSchemaOrgAction, type PropertyValueSpecification } from 'use-schema-org-action';
 
 // This function will submit the vote action asynchronously.
-function submitVote(
-  // Input variables is a Map by extracting named input properties. It is validated against input constraints.
-  // It can be used in RFC 6570 URI Template for variable expansion.
-  input: Map<string, unknown>,
-  { signal }: { signal: AbortSignal }
-): Promise<Map<string, unknown>> {
-  console.log(input.get('action')); // 'upvote';
+const submitVoteAction: ActionHandler = async (request) => {
+  // `request` includes properties with *-input:
+  // {
+  //   actionOption: 'upvote'
+  // }
+  const res = await fetch('https://example.com/vote', { body: JSON.stringify(request), method: 'POST' });
 
-  // Return a Map of output variables, will be validated against output constraints before merging into the action.
-  return new Map();
-}
+  return await res.json();
+};
 
 function VoteButton() {
-  const [action, setAction, { isInputValid, submit }] = useSchemaOrgAction(
+  const [actionState, setActionState, { inputValidity, perform }] = useSchemaOrgAction(
     {
+      '@context': 'https://schema.org',
+      '@type': 'VoteAction',
       'actionOption-input': {
         valueName: 'action',
         valueRequired: true
       } satisfies PropertyValueSpecification
     },
-    submitVote,
+    submitVoteAction,
     {
       actionOption: 'upvote'
     }
   );
 
-  // Action include "actionStatus" property.
-  console.log(action); // { actionOption: 'upvote', 'actionOption-input': { valueName: 'action' }, actionStatus: 'PotentialActionStatus' }
+  // Action state include "actionStatus" property.
+  // {
+  //   actionOption: 'upvote',
+  //   actionStatus: 'PotentialActionStatus'
+  // }
+  console.log(action);
 
-  // Similar to `useState`, to modify the action.
-  useEffect(() => setAction({ actionOption: 'downvote' }), [setAction]);
-
-  return <button disabled={!isValid} onClick={performAction}>Vote</button>;
+  return (
+    <button
+      disabled={!inputValidity.valid || actionState.actionStatus === 'ActiveActionStatus'}
+      onClick={perform}>
+      Vote
+    </button>
+  );
 }
 ```
 
