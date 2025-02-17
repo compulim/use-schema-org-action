@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - First public release
 - Added full constraint validation, by [@compulim](https://github.com/compulim), in PR [#14](https://github.com/compulim/use-schema-org-action/pull/14)
 
+### Fixed
+
+- Fixed [#16](https://github.com/compulim/use-schema-org-action/issues/16). `actionStatus` in response should be ignored if `actionStatus-output` is not specified, by [@compulim](https://github.com/compulim), in PR [#17](https://github.com/compulim/use-schema-org-action/pull/17)
+
 ### Changed
 
 - Bumped dependencies, in PR [#11](https://github.com/compulim/use-schema-org-action/pull/11)
