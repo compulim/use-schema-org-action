@@ -4,9 +4,9 @@ import { toURLTemplateData, useSchemaOrgAction, type PropertyValueSpecification 
 
 type SearchAction = {
   '@type': 'SearchAction';
-  target: string;
   query?: string | undefined;
   'query-input': PropertyValueSpecification;
+  target: string;
 };
 
 const SearchApp = () => {
