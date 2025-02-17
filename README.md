@@ -86,8 +86,8 @@ function useSchemaOrgAction<T extends object>(
   Dispatch<SetStateAction<ActionState>>
   Readonly<{
     inputSchema: ObjectSchema<ObjectEntries, ErrorMessage<ObjectIssue> | undefined>,
-    inputVariables: ReadonlyMap<string, unknown>;
     inputValidity: ValidityState;
+    inputVariables: ReadonlyMap<string, unknown>;
     outputSchema: ObjectSchema<ObjectEntries, ErrorMessage<ObjectIssue> | undefined>,
     submit: () => Promise<void>;
   }>
@@ -101,6 +101,7 @@ function useSchemaOrgAction<T extends object>(
 function toURLSearchParams(variables: ReadonlyMap<string, unknown>): URLSearchParams;
 
 // Converts variables into object of key of string and data of string, and allow multiple values.
+// Output can be used directly with `url-template` package for variable expansion.
 function toURLTemplateData(variables: ReadonlyMap<string, unknown>): Record<string, string[]>;
 ```
 
