@@ -46,15 +46,12 @@ function VoteButton() {
       '@context': 'https://schema.org',
       '@type': 'VoteAction',
       actionOption: 'upvote',
-      'actionOption-input': {
-        valueName: 'action',
-        valueRequired: true
-      } satisfies PropertyValueSpecification
+      'actionOption-input': 'required'
     },
     submitVoteAction
   );
 
-  // Action state include "actionStatus" property.
+  // Action state include "actionStatus" property and all properties marked by *-input and *-output.
   // {
   //   actionOption: 'upvote',
   //   actionStatus: 'PotentialActionStatus'
