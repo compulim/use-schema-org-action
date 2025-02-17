@@ -45,6 +45,26 @@
       "react-test-renderer": "18.0.0"
     }
   },
+  "pinDependencies": {
+    "@testing-library/react": [
+      "16"
+    ],
+    "@types/react": [
+      "18"
+    ],
+    "@types/react-dom": [
+      "18"
+    ],
+    "react": [
+      "18"
+    ],
+    "react-dom": [
+      "18"
+    ],
+    "react-test-renderer": [
+      "18"
+    ]
+  },
   "devDependencies": {
     "@babel/core": "^7.25.8",
     "@babel/preset-env": "^7.25.8",

@@ -102,7 +102,12 @@ export default function useSchemaOrgAction<T extends object = object>(
 
       try {
         parse(outputSchema, response);
-        parse(object({ actionStatus: optional(actionStatusTypeSchema) }), response);
+
+        // If "actionStatus-output" is defined, validate "actionStatus" property in the response.
+        // Otherwise, do not validate the property.
+        if ('actionStatus-output' in initialActionRef.current) {
+          parse(object({ actionStatus: optional(actionStatusTypeSchema) }), response);
+        }
       } catch (cause) {
         const error = new Error('Output is invalid.');
 
