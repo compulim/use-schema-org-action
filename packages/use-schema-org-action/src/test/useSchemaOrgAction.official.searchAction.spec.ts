@@ -4,7 +4,7 @@ import { act } from 'react';
 import { parseTemplate } from 'url-template';
 
 import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
-import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction2';
+import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction';
 import variableMapToNullableStringRecord from '../variableMapToNullableStringRecord';
 import { type MockOf } from './MockOf';
 import renderHook, { type RenderHookResult } from './renderHook';

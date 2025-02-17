@@ -3,7 +3,7 @@
 import { act } from 'react';
 
 import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
-import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction2';
+import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction';
 import { type MockOf } from './MockOf';
 import renderHook, { type RenderHookResult } from './renderHook';
 import sortEntries from './sortEntries';
