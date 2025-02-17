@@ -93,7 +93,7 @@ function useSchemaOrgAction<T extends object>(
     inputValidity: ValidityState;
     inputVariables: ReadonlyMap<string, unknown>;
     outputSchema: ObjectSchema<ObjectEntries, ErrorMessage<ObjectIssue> | undefined>,
-    submit: () => Promise<void>;
+    perform: () => Promise<void>;
   }>
 ];
 ```
@@ -115,17 +115,17 @@ function toURLTemplateData(variables: ReadonlyMap<string, unknown>): Record<stri
 
 Except [`actionStatus`](https://schema.org/actionStatus), other properties are not controlled.
 
-Initially, `actionStatus` is set to `"PotentialActionStatus"`. When `performAction()` is called, it will set `actionStatus` accordingly:
+Initially, `actionStatus` is set to `"PotentialActionStatus"`. When `perform()` is called, it will set `actionStatus` accordingly:
 
-- When `performAction()` is being called, `actionStatus` will become `"ActiveActionStatus"`
-- When `performAction()` is being resolved, `actionStatus` will become `"CompletedActionStatus"`
-- When `performAction()` is being rejected, `actionStatus` will become `"FailedActionStatus"`
+- When `perform()` is being called, `actionStatus` will become `"ActiveActionStatus"`
+- When `perform()` is being resolved, `actionStatus` will become `"CompletedActionStatus"`
+- When `perform()` is being rejected, `actionStatus` will become `"FailedActionStatus"`
 
 In special circumstances:
 
 - If `actionStatus` is passed in `initialAction`, its value will be used, instead of the default `"PotentialActionStatus"`
   - If `actionStatus` is passed incorrectly, the default value `"PotentialActionStatus"` will be used
-- If `actionStatus-output` is set in `initialAction` with `valueName`, after `performAction()` is resolved, `actionStatus` from the output will be used, replacing `"CompletedActionStatus"`
+- If `actionStatus-output` is set in `initialAction` with `valueName`, after `perform()` is resolved, `actionStatus` from the output will be used, replacing `"CompletedActionStatus"`
   - If `actionStatus` is returned with an invalid value, error will be thrown
 
 ### Request/response are based on input/output constraints
@@ -151,12 +151,6 @@ After an action is performed, properties marked with output constraints will be 
 Marks the action with `actionStatus-output` and `valueName` property defined. In the handler, returns `actionStatus` with a [supported value](https://schema.org/ActionStatusType). Then, the corresponding output variable will be merged into the action.
 
 If the handler did not respond with `actionStatus` or output constraints is not defined, it will set `actionStatus` to `"CompletedActionStatus"` for resolutions, or `"FailedActionStatus"` for rejections.
-
-### Why the `submit` function is being invalidated on every re-render?
-
-The `handler` function (passed as second argument) should be memoized via `useCallback`.
-
-When a different `handler` function is passed, the `submit` function will be invalidated.
 
 ## Roadmap
 

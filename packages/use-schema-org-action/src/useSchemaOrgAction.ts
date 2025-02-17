@@ -64,8 +64,14 @@ export default function useSchemaOrgAction<T extends object = object>(
   const onPerformRef = useRefFrom(onPerform);
 
   const actionStateRef = useRefFrom(actionState);
-  const inputSchema = useMemo(() => buildSchemaFromConstraintsRecursive(initialActionRef.current, 'input'), [initialActionRef]);
-  const outputSchema = useMemo(() => buildSchemaFromConstraintsRecursive(initialActionRef.current, 'output'), [initialActionRef]);
+  const inputSchema = useMemo(
+    () => buildSchemaFromConstraintsRecursive(initialActionRef.current, 'input'),
+    [initialActionRef]
+  );
+  const outputSchema = useMemo(
+    () => buildSchemaFromConstraintsRecursive(initialActionRef.current, 'output'),
+    [initialActionRef]
+  );
 
   const inputSchemaRef = useRefFrom(inputSchema);
   const inputValidity = useMemo(() => validateConstraints(inputSchema, actionState), [actionState, inputSchema]);
@@ -124,7 +130,15 @@ export default function useSchemaOrgAction<T extends object = object>(
         'output'
       )
     );
-  }, [abortController, initialActionRef, actionStateRef, inputSchemaRef, onPerformRef, outputSchemaRef, setActionState]);
+  }, [
+    abortController,
+    actionStateRef,
+    initialActionRef,
+    inputSchemaRef,
+    onPerformRef,
+    outputSchemaRef,
+    setActionState
+  ]);
 
   const inputVariables = useMemo(
     () => extractVariablesFromActionStateRecursive(initialActionRef.current, actionState, 'input'),
