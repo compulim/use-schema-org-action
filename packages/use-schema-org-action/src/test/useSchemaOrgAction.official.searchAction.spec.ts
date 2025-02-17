@@ -50,7 +50,10 @@ describe('Spec: Text search deep link with -input', () => {
     });
 
     test('should set "actionStatus" to "PotentialActionStatus"', () =>
-      expect(renderResult.result.current[0]).toEqual({ actionStatus: 'PotentialActionStatus' }));
+      expect(renderResult.result.current[0]).toStrictEqual({
+        actionStatus: 'PotentialActionStatus',
+        query: undefined
+      }));
 
     test('should return "inputValidity.valid" of false', () =>
       expect(renderResult.result.current[2]).toHaveProperty('inputValidity.valid', false));
@@ -59,7 +62,7 @@ describe('Spec: Text search deep link with -input', () => {
       beforeEach(() => act(() => renderResult.result.current[1](action => ({ ...action, query: 'the search' }))));
 
       test('should merge input', () =>
-        expect(renderResult.result.current[0]).toEqual({
+        expect(renderResult.result.current[0]).toStrictEqual({
           actionStatus: 'PotentialActionStatus',
           query: 'the search'
         }));
@@ -74,7 +77,7 @@ describe('Spec: Text search deep link with -input', () => {
 
         // [NOT-IN-SPEC]
         test('should build request without constraints', () =>
-          expect(handler.mock.lastCall?.[0]).toEqual({ query: 'the search' }));
+          expect(handler.mock.lastCall?.[0]).toStrictEqual({ query: 'the search' }));
 
         // [FROM-SPEC]
         test('should construct the input variables', () =>

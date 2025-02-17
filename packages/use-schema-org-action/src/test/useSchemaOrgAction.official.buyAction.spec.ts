@@ -95,7 +95,7 @@ describe('Spec: Product purchase API call with -output', () => {
 
       test('should have called handler() once', () => expect(handler).toHaveBeenCalledTimes(1));
 
-      test('should have called with empty request', () => expect(handler.mock.calls[0]?.[0]).toEqual({}));
+      test('should have called with empty request', () => expect(handler.mock.calls[0]?.[0]).toStrictEqual({}));
 
       test('should have called with empty input variables', () =>
         expect(sortEntries(handler.mock.calls[0]?.[1].entries() || [])).toEqual([]));
@@ -106,7 +106,7 @@ describe('Spec: Product purchase API call with -output', () => {
 
       // [NOT-IN-SPEC]
       test('should merge response into action', () =>
-        expect(renderResult.result.current[0]).toEqual({
+        expect(renderResult.result.current[0]).toStrictEqual({
           actionStatus: 'CompletedActionStatus',
           object: 'https://example.com/products/ipod',
           result: {

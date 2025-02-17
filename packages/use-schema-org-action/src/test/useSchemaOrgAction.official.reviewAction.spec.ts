@@ -105,7 +105,7 @@ describe('Spec: Movie review site API with -input and -output', () => {
 
         test('should be called with request', () =>
           // [FROM-SPEC] But the spec is not exactly correct.
-          expect(handler.mock.calls[0]?.[0]).toEqual({
+          expect(handler.mock.calls[0]?.[0]).toStrictEqual({
             object: { url: 'http://example.com/movies/123' },
             result: {
               reviewBody: 'yada, yada, yada',
@@ -118,7 +118,7 @@ describe('Spec: Movie review site API with -input and -output', () => {
 
         test('should merge response', () =>
           // [NOT-IN-SPEC]
-          expect(renderResult.result.current[0]).toEqual({
+          expect(renderResult.result.current[0]).toStrictEqual({
             actionStatus: 'CompletedActionStatus',
             object: { url: 'http://example.com/movies/123' },
             result: {

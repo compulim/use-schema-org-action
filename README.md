@@ -45,15 +45,13 @@ function VoteButton() {
     {
       '@context': 'https://schema.org',
       '@type': 'VoteAction',
+      actionOption: 'upvote',
       'actionOption-input': {
         valueName: 'action',
         valueRequired: true
       } satisfies PropertyValueSpecification
     },
-    submitVoteAction,
-    {
-      actionOption: 'upvote'
-    }
+    submitVoteAction
   );
 
   // Action state include "actionStatus" property.
@@ -86,8 +84,7 @@ function useSchemaOrgAction<T extends object>(
     request: ActionState,
     inputVariables: ReadonlyMap<string, unknown>,
     init: Readonly<{ signal: AbortSignal }>
-  ) => Promise<ActionState>,
-  initialActionState: ActionState
+  ) => Promise<ActionState>
 ): [
   ActionState,
   Dispatch<SetStateAction<ActionState>>

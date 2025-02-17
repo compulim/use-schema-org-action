@@ -14,6 +14,7 @@ import { type ActionHandler } from './ActionHandler.ts';
 import { type ActionState } from './ActionState.ts';
 import { actionStatusTypeSchema } from './ActionStatusType.ts';
 import buildSchemaFromConstraintsRecursive from './private/buildSchemaFromConstraintsRecursive.ts';
+import extractActionStateFromAction from './private/extractActionStateFromAction.ts';
 import extractVariablesFromActionStateRecursive from './private/extractVariablesFromActionStateRecursive.ts';
 import mergeActionStateRecursive from './private/mergeActionStateRecursive.ts';
 import validateConstraints from './private/validateConstraints.ts';
@@ -26,16 +27,13 @@ import { type VariableMap } from './VariableMap.ts';
  *
  * @param action Action which the action state is based on.
  * @param onPerform Function to call when the action is being performed.
- * @param initialActionState Initial action state.
  * @returns Returns a stateful action state, a function to update it, and a function to perform the action.
  */
 export default function useSchemaOrgAction<T extends object = object>(
-  /** Action which the action state is based on. */
+  /** Initial action which the action state is based on. */
   action: T,
   /** Function to call when the action is performed. */
-  onPerform: ActionHandler,
-  /** Initial action state. */
-  initialActionState: ActionState = {}
+  onPerform: ActionHandler
 ): readonly [
   /** A stateful action state. */
   ActionState,
@@ -55,11 +53,10 @@ export default function useSchemaOrgAction<T extends object = object>(
   }>
 ] {
   const [actionState, setActionState] = useState<ActionState>(() => ({
-    ...(initialActionState || {}),
+    ...extractActionStateFromAction(action),
     actionStatus: parse(
       fallback(actionStatusTypeSchema, 'PotentialActionStatus'),
-      ('actionStatus' in initialActionState && initialActionState['actionStatus']) ||
-        ('actionStatus' in action && action.actionStatus)
+      'actionStatus' in action && action.actionStatus
     )
   }));
   const abortController = useMemo(() => new AbortController(), []);
@@ -67,8 +64,8 @@ export default function useSchemaOrgAction<T extends object = object>(
   const inputSchema = useMemo(() => buildSchemaFromConstraintsRecursive(action, 'input'), [action]);
   const outputSchema = useMemo(() => buildSchemaFromConstraintsRecursive(action, 'output'), [action]);
 
+  const actionRef = useRefFrom(action);
   const actionStateRef = useRefFrom(actionState);
-  const initialActionRef = useRefFrom(action);
   const inputSchemaRef = useRefFrom(inputSchema);
   const inputValidity = useMemo(() => validateConstraints(inputSchema, actionState), [actionState, inputSchema]);
   const outputSchemaRef = useRefFrom(outputSchema);
@@ -86,13 +83,13 @@ export default function useSchemaOrgAction<T extends object = object>(
 
     try {
       const inputVariables = extractVariablesFromActionStateRecursive(
-        initialActionRef.current,
+        actionRef.current,
         actionStateRef.current,
         'input'
       );
 
       // TODO: Refactor to extractInputPropertiesFromActionStateRecursive helper.
-      const request = mergeActionStateRecursive(initialActionRef.current, {}, actionStateRef.current, 'input');
+      const request = mergeActionStateRecursive(actionRef.current, {}, actionStateRef.current, 'input');
 
       response = await handlerRef.current(request, inputVariables, { signal: abortController.signal });
 
@@ -120,13 +117,13 @@ export default function useSchemaOrgAction<T extends object = object>(
 
     setActionState(actionState =>
       mergeActionStateRecursive(
-        initialActionRef.current,
+        actionRef.current,
         { ...actionState, actionStatus: 'CompletedActionStatus' },
         response,
         'output'
       )
     );
-  }, [abortController, actionStateRef, handlerRef, initialActionRef, inputSchemaRef, outputSchemaRef, setActionState]);
+  }, [abortController, actionStateRef, handlerRef, actionRef, inputSchemaRef, outputSchemaRef, setActionState]);
 
   const inputVariables = useMemo(
     () => extractVariablesFromActionStateRecursive(action, actionState, 'input'),

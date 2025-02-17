@@ -81,9 +81,15 @@ describe('when rendered initially', () => {
     renderResult = renderHook(() => useSchemaOrgAction(reviewAction, handler));
   });
 
-  test('should return action with actionStatus of "PotentialActionStatus"', () =>
-    expect(renderResult.result.current[0]).toEqual({
-      actionStatus: 'PotentialActionStatus'
+  test('should return actionState with actionStatus of "PotentialActionStatus"', () =>
+    expect(renderResult.result.current[0]).toStrictEqual({
+      actionStatus: 'PotentialActionStatus',
+      object: { url: undefined },
+      result: {
+        reviewBody: undefined,
+        reviewRating: { ratingValue: undefined },
+        url: undefined
+      }
     }));
 
   test('"inputValidity.valid" should be false', () =>
@@ -96,6 +102,7 @@ describe('when rendered initially', () => {
           ...action,
           object: { url: 'https://example.com/input' },
           result: {
+            ...action['result'],
             reviewBody: 'Great movie.',
             reviewRating: { ratingValue: 5 }
           }
@@ -114,16 +121,13 @@ describe('when rendered initially', () => {
       ));
 
     test('actionState should contain value', () =>
-      expect(renderResult.result.current[0]).toEqual({
+      expect(renderResult.result.current[0]).toStrictEqual({
         actionStatus: 'PotentialActionStatus',
-        object: {
-          url: 'https://example.com/input'
-        },
+        object: { url: 'https://example.com/input' },
         result: {
           reviewBody: 'Great movie.',
-          reviewRating: {
-            ratingValue: 5
-          }
+          reviewRating: { ratingValue: 5 },
+          url: undefined
         }
       }));
 
@@ -152,15 +156,11 @@ describe('when rendered initially', () => {
 
         test('with request only marked by input constraints', () =>
           // [NOT-IN-SPEC]
-          expect(handler.mock.calls[0]?.[0]).toEqual({
-            object: {
-              url: 'https://example.com/input'
-            },
+          expect(handler.mock.calls[0]?.[0]).toStrictEqual({
+            object: { url: 'https://example.com/input' },
             result: {
               reviewBody: 'Great movie.',
-              reviewRating: {
-                ratingValue: 5
-              }
+              reviewRating: { ratingValue: 5 }
             }
           }));
 
@@ -174,16 +174,13 @@ describe('when rendered initially', () => {
         test('with unaborted signal', () => expect(handler.mock.calls[0]?.[2].signal).toHaveProperty('aborted', false));
 
         test('with "actionStatus" property of "ActiveActionStatus"', () => {
-          expect(renderResult.result.current[0]).toEqual({
+          expect(renderResult.result.current[0]).toStrictEqual({
             actionStatus: 'ActiveActionStatus',
-            object: {
-              url: 'https://example.com/input'
-            },
+            object: { url: 'https://example.com/input' },
             result: {
               reviewBody: 'Great movie.',
-              reviewRating: {
-                ratingValue: 5
-              }
+              reviewRating: { ratingValue: 5 },
+              url: undefined
             }
           });
         });
@@ -198,16 +195,12 @@ describe('when rendered initially', () => {
           );
 
           test('should merge output into action and mark as completed', () => {
-            expect(renderResult.result.current[0]).toEqual({
+            expect(renderResult.result.current[0]).toStrictEqual({
               actionStatus: 'CompletedActionStatus',
-              object: {
-                url: 'https://example.com/input'
-              },
+              object: { url: 'https://example.com/input' },
               result: {
                 reviewBody: 'Great movie.',
-                reviewRating: {
-                  ratingValue: 5
-                },
+                reviewRating: { ratingValue: 5 },
                 url: 'https://example.com/output'
               }
             });
@@ -234,16 +227,13 @@ describe('when rendered initially', () => {
           );
 
           test('should not merge output into action', () =>
-            expect(renderResult.result.current[0]).toEqual({
+            expect(renderResult.result.current[0]).toStrictEqual({
               actionStatus: 'ActiveActionStatus',
-              object: {
-                url: 'https://example.com/input'
-              },
+              object: { url: 'https://example.com/input' },
               result: {
                 reviewBody: 'Great movie.',
-                reviewRating: {
-                  ratingValue: 5
-                }
+                reviewRating: { ratingValue: 5 },
+                url: undefined
               }
             }));
         });
@@ -288,6 +278,7 @@ describe('when rendered initially', () => {
           ...action,
           object: { url: 'https://example.com/input' },
           result: {
+            ...action['result'],
             reviewBody: 'Great movie.',
             reviewRating: { ratingValue: -1 }
           }
@@ -303,16 +294,13 @@ describe('when rendered initially', () => {
       ]));
 
     test('action should contain invalid value', () => {
-      expect(renderResult.result.current[0]).toEqual({
+      expect(renderResult.result.current[0]).toStrictEqual({
         actionStatus: 'PotentialActionStatus',
-        object: {
-          url: 'https://example.com/input'
-        },
+        object: { url: 'https://example.com/input' },
         result: {
           reviewBody: 'Great movie.',
-          reviewRating: {
-            ratingValue: -1
-          }
+          reviewRating: { ratingValue: -1 },
+          url: undefined
         }
       });
     });
@@ -354,9 +342,14 @@ describe('when rendered initially', () => {
     });
 
     test('should have action updated', () =>
-      expect(renderResult.result.current[0]).toEqual({
+      expect(renderResult.result.current[0]).toStrictEqual({
         actionStatus: 'PotentialActionStatus',
-        object: { url: 'https://example.com/input-2' }
+        object: { url: 'https://example.com/input-2' },
+        result: {
+          reviewBody: undefined,
+          reviewRating: { ratingValue: undefined },
+          url: undefined
+        }
       }));
 
     describe('when submit() is called', () => {
@@ -366,7 +359,8 @@ describe('when rendered initially', () => {
             ...reviewAction,
             result: {
               reviewBody: 'Great movie.',
-              reviewRating: { ratingValue: 5 }
+              reviewRating: { ratingValue: 5 },
+              url: undefined
             }
           }));
         });
@@ -379,7 +373,7 @@ describe('when rendered initially', () => {
 
       test('should call handler with updated request', () => {
         // [NOT-IN-SPEC]
-        expect(handler.mock.calls[0]?.[0]).toEqual({
+        expect(handler.mock.calls[0]?.[0]).toStrictEqual({
           object: { url: 'https://example.com/input-2' },
           result: {
             reviewBody: 'Great movie.',
@@ -409,7 +403,15 @@ describe('when rendered with initialAction containing valid "actionStatus" prope
   });
 
   test('should use the initial value', () =>
-    expect(renderResult.result.current[0]).toEqual({ actionStatus: 'CompletedActionStatus' }));
+    expect(renderResult.result.current[0]).toStrictEqual({
+      actionStatus: 'CompletedActionStatus',
+      object: { url: undefined },
+      result: {
+        reviewBody: undefined,
+        reviewRating: { ratingValue: undefined },
+        url: undefined
+      }
+    }));
 });
 
 describe('when rendered with initialAction containing invalid "actionStatus" property', () => {
@@ -424,7 +426,15 @@ describe('when rendered with initialAction containing invalid "actionStatus" pro
   });
 
   test('should replace with "PotentialActionStatus"', () =>
-    expect(renderResult.result.current[0]).toEqual({ actionStatus: 'PotentialActionStatus' }));
+    expect(renderResult.result.current[0]).toStrictEqual({
+      actionStatus: 'PotentialActionStatus',
+      object: { url: undefined },
+      result: {
+        reviewBody: undefined,
+        reviewRating: { ratingValue: undefined },
+        url: undefined
+      }
+    }));
 });
 
 describe('when call submit() with an action where "actionStatus-output" is set', () => {
@@ -552,7 +562,7 @@ describe('when call submit() with an action where "actionStatus" is set to an in
     expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'FailedActionStatus'));
 });
 
-describe('when called with initialActionState', () => {
+describe('initialAction with values', () => {
   let handler: MockOf<ActionHandler>;
   let handlerResolvers: PromiseWithResolvers<PartialDeep<ReviewAction>>;
   let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void>;
@@ -563,50 +573,68 @@ describe('when called with initialActionState', () => {
     handler = jest.fn().mockReturnValueOnce(handlerResolvers.promise);
 
     renderResult = renderHook(() =>
-      useSchemaOrgAction(reviewAction, handler, {
-        object: { url: 'https://example.com/input' },
-        result: {
-          reviewBody: 'Great movie.',
-          reviewRating: { ratingValue: 5 }
-        }
-      })
+      useSchemaOrgAction(
+        {
+          ...reviewAction,
+          object: { ...reviewAction['object'], url: 'https://example.com/input' },
+          result: {
+            ...reviewAction['result'],
+            reviewBody: 'Great movie.',
+            reviewRating: {
+              ...reviewAction['result']?.reviewRating,
+              ratingValue: 5
+            }
+          }
+        },
+        handler
+      )
     );
   });
 
   test('input should be valid', () =>
     expect(renderResult.result.current[2].inputValidity).toHaveProperty('valid', true));
 
-  test('actionState should contain initialActionState', () =>
-    expect(renderResult.result.current[0]).toEqual({
+  test('actionState should contain values', () =>
+    expect(renderResult.result.current[0]).toStrictEqual({
       actionStatus: 'PotentialActionStatus',
       object: { url: 'https://example.com/input' },
       result: {
         reviewBody: 'Great movie.',
-        reviewRating: { ratingValue: 5 }
+        reviewRating: { ratingValue: 5 },
+        url: undefined
       }
     }));
 });
 
-test('initialActionState.actionStatus should be preferred over initialAction.actionStatus', () => {
-  const handlerResolvers: PromiseWithResolvers<PartialDeep<ReviewAction>> = Promise.withResolvers();
-  const handler: MockOf<ActionHandler> = jest.fn().mockReturnValueOnce(handlerResolvers.promise);
-  const renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void> = renderHook(() =>
-    useSchemaOrgAction(
-      {
-        ...reviewAction,
-        actionStatus: 'ActiveActionStatus'
-      },
-      handler,
-      {
-        actionStatus: 'CompletedActionStatus',
-        object: { url: 'https://example.com/input' },
-        result: {
-          reviewBody: 'Great movie.',
-          reviewRating: { ratingValue: 5 }
-        }
-      }
-    )
-  );
+describe('initialAction with actionStatus', () => {
+  let handler: MockOf<ActionHandler>;
+  let handlerResolvers: PromiseWithResolvers<PartialDeep<ReviewAction>>;
+  let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void>;
 
-  expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'CompletedActionStatus');
+  beforeEach(() => {
+    handlerResolvers = Promise.withResolvers();
+
+    handler = jest.fn().mockReturnValueOnce(handlerResolvers.promise);
+
+    renderResult = renderHook(() =>
+      useSchemaOrgAction(
+        {
+          ...reviewAction,
+          actionStatus: 'CompletedActionStatus'
+        },
+        handler
+      )
+    );
+  });
+
+  test('actionState should contain actionStatus from initialAction', () =>
+    expect(renderResult.result.current[0]).toStrictEqual({
+      actionStatus: 'CompletedActionStatus',
+      object: { url: undefined },
+      result: {
+        reviewBody: undefined,
+        reviewRating: { ratingValue: undefined },
+        url: undefined
+      }
+    }));
 });
