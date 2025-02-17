@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import HTTPMonitor from './HTTPMonitor.tsx';
+import HTTPMock from './HTTPMock.tsx';
 import SearchApp from './SearchApp.tsx';
 import VoteApp from './VoteApp.tsx';
 
@@ -9,7 +9,7 @@ const App = () => (
     <hr />
     <VoteApp />
     <hr />
-    <HTTPMonitor />
+    <HTTPMock />
   </main>
 );
 

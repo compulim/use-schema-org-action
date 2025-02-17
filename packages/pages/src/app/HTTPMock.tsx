@@ -2,7 +2,7 @@ import { http, HttpResponse, passthrough } from 'msw';
 import { setupWorker } from 'msw/browser';
 import React, { memo, useEffect, useState } from 'react';
 
-const HTTPMonitor = () => {
+const HTTPMock = () => {
   const [currentRequestJSON, setCurrentRequestJSON] = useState<string>();
   const [currentRequestURL, setCurrentRequestURL] = useState<string>();
   const [currentResponse, setCurrentResponse] = useState<unknown>();
@@ -56,4 +56,4 @@ const HTTPMonitor = () => {
   );
 };
 
-export default memo(HTTPMonitor);
+export default memo(HTTPMock);
