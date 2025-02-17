@@ -1,4 +1,4 @@
-/** @jest-environment jsdom */
+/** @jest-environment @happy-dom/jest-environment */
 
 import React from 'react';
 import { create } from 'react-test-renderer';
@@ -7,23 +7,21 @@ import { useSchemaOrgAction } from 'use-schema-org-action';
 test('simple scenario', () => {
   // SETUP: With a VoteAction.
   const App = () => {
-    const [action] = useSchemaOrgAction(
+    const [actionState] = useSchemaOrgAction(
       {
         '@type': 'VoteAction',
         actionOption: 'upvote',
         'actionOption-input': { valueName: 'action' }
       },
-      () => Promise({})
+      () => Promise.resolve({})
     );
 
-    return JSON.stringify(action);
+    return JSON.stringify(actionState);
   };
 
   // WHEN: Rendered.
   const renderer = create(<App />);
 
-  // THEN: It should render JSON of { "@type": "VoteAction", actionOption: 'upvote', actionStatus: 'PotentialActionStatus' }.
-  expect(renderer.toJSON()).toMatchInlineSnapshot(
-    `"{"actionStatus":"PotentialActionStatus","@type":"VoteAction","actionOption":"upvote"}"`
-  );
+  // THEN: It should render JSON of { actionOption: 'upvote', actionStatus: 'PotentialActionStatus' }.
+  expect(renderer.toJSON()).toBe('{"actionOption":"upvote","actionStatus":"PotentialActionStatus"}');
 });

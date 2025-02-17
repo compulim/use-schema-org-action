@@ -78,34 +78,53 @@ body:
         *Support will be slow or denied if a test case is not provided.*
       render: js
       value: |
-        /** @jest-environment jsdom */
-        /// <reference types="@types/jest" />
+        /** @jest-environment @happy-dom/jest-environment */
 
-        import { create } from 'react-test-renderer';
+        import { act, renderHook } from '@testing-library/react';
         import { useSchemaOrgAction } from 'use-schema-org-action';
 
-        test('simple scenario', () => {
-          // SETUP: With a VoteAction.
-          const App = () => {
-            const [action] = useSchemaOrgAction(
+        test('should work', async () => {
+          const handler = jest.fn().mockResolvedValue({});
+
+          // WHEN: Rendered.
+          const renderResult = renderHook(() =>
+            useSchemaOrgAction(
               {
                 '@type': 'VoteAction',
                 actionOption: 'upvote',
                 'actionOption-input': { valueName: 'action' }
               },
-              () => Promise({})
-            );
-
-            return JSON.stringify(action);
-          };
-
-          // WHEN: Rendered.
-          const renderer = create(<App />);
-
-          // THEN: It should render JSON of { "@type": "VoteAction", actionOption: 'upvote', actionStatus: 'PotentialActionStatus' }.
-          expect(renderer.toJSON()).toMatchInlineSnapshot(
-            `"{"actionStatus":"PotentialActionStatus","@type":"VoteAction","actionOption":"upvote"}"`
+              handler
+            )
           );
+
+          // THEN: Should mark the "actionStatus" as "PotentialActionStatus"
+          expect(renderResult.result.current[0]).toEqual({
+            actionOption: 'upvote',
+            actionStatus: 'PotentialActionStatus'
+          });
+
+          // WHEN: Calling setActionState to update.
+          act(() => renderResult.result.current[1](actionState => ({ ...actionState, actionOption: 'downvote' })));
+
+          // THEN: Should have actionState.actionOption of "downvote".
+          expect(renderResult.result.current[0]).toEqual({
+            actionOption: 'downvote',
+            actionStatus: 'PotentialActionStatus'
+          });
+
+          // WHEN: Calling submit().
+          await act(() => renderResult.result.current[2].submit());
+
+          // THEN: Should have called the handler once.
+          expect(handler).toHaveBeenCalledTimes(1);
+          expect(handler).toHaveBeenLastCalledWith({ actionOption: 'downvote' }, expect.any(Map), expect.any(Object));
+
+          // THEN: Should mark the "actionStatus" as "CompletedActionStatus".
+          expect(renderResult.result.current[0]).toEqual({
+            actionOption: 'downvote',
+            actionStatus: 'CompletedActionStatus'
+          });
         });
   - type: input
     attributes:

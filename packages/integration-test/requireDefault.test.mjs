@@ -1,4 +1,4 @@
-/** @jest-environment jsdom */
+/** @jest-environment @happy-dom/jest-environment */
 
 const React = require('react');
 const { create } = require('react-test-renderer');
@@ -13,7 +13,7 @@ test('simple scenario', () => {
         actionOption: 'upvote',
         'actionOption-input': { valueName: 'action' }
       },
-      () => Promise({})
+      () => Promise.resolve({})
     );
 
     return JSON.stringify(action);
@@ -23,7 +23,5 @@ test('simple scenario', () => {
   const renderer = create(<App />);
 
   // THEN: It should render JSON of { "@type": "VoteAction", actionOption: 'upvote', actionStatus: 'PotentialActionStatus' }.
-  expect(renderer.toJSON()).toMatchInlineSnapshot(
-    `"{"actionStatus":"PotentialActionStatus","@type":"VoteAction","actionOption":"upvote"}"`
-  );
+  expect(renderer.toJSON()).toBe('{"actionOption":"upvote","actionStatus":"PotentialActionStatus"}');
 });
