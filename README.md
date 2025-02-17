@@ -27,10 +27,10 @@ The `useSchemaOrgAction` hook is designed to be similar to [React `useState` hoo
 To install this package, run `npm install use-schema-org-action` or visit our [package on NPM](https://npmjs.com/package/use-schema-org-action).
 
 ```ts
-import { useSchemaOrgAction, type PropertyValueSpecification } from 'use-schema-org-action';
+import { useSchemaOrgAction, type ActionHandler, type PropertyValueSpecification } from 'use-schema-org-action';
 
-// This function will submit the vote action asynchronously.
-const submitVoteAction: ActionHandler = async (request) => {
+// This function will POST the vote action asynchronously.
+const postVote: ActionHandler = async (request) => {
   // `request` includes properties with *-input:
   // {
   //   actionOption: 'upvote'
@@ -59,12 +59,14 @@ function VoteButton() {
   //   actionOption: 'upvote',
   //   actionStatus: 'PotentialActionStatus'
   // }
-  console.log(action);
+  console.log(actionState);
 
   return (
     <button
-      disabled={!inputValidity.valid || actionState.actionStatus === 'ActiveActionStatus'}
-      onClick={perform}>
+      disabled={!inputValidity.valid || actionState['actionStatus'] === 'ActiveActionStatus'}
+      onClick={perform}
+      type="button
+    >
       Vote
     </button>
   );
@@ -125,12 +127,14 @@ In special circumstances:
 
 - If `actionStatus` is passed in `initialAction`, its value will be used, instead of the default `"PotentialActionStatus"`
   - If `actionStatus` is passed incorrectly, the default value `"PotentialActionStatus"` will be used
-- If `actionStatus-output` is set in `initialAction` with `valueName`, after `perform()` is resolved, `actionStatus` from the output will be used, replacing `"CompletedActionStatus"`
+- If `actionStatus-output` is specified, after `perform()` is resolved, `actionStatus` from the output will be used, replacing `"CompletedActionStatus"`
   - If `actionStatus` is returned with an invalid value, error will be thrown
 
 ### Request/response are based on input/output constraints
 
-Properties of action that would participate in a request must have their input constraints defined (`*-input`) with `valueName` property. Similarly, properties of response that would merge into action must have their output constraints defined (`*-output`) with `valueName` property.
+Properties of action that would participate in a request must have their input constraints defined (`*-input`). Similarly, properties of response that would merge into action must have their output constraints defined (`*-output`).
+
+Properties with name defined in their input constraints, will participate in input variables.
 
 ## Behaviors
 

@@ -8,16 +8,21 @@ type Action = {
   'endTime-output': PropertyValueSpecification;
 };
 
+// This function will POST the vote action asynchronously.
+const postVote: ActionHandler = async request => {
+  // `request` includes properties with *-input:
+  // {
+  //   actionOption: 'upvote'
+  // }
+  const res = await fetch('https://example.com/vote', { body: JSON.stringify(request), method: 'POST' });
+
+  return await res.json();
+};
+
 const VoteApp = () => {
-  const handlePerform = useCallback<ActionHandler>(async request => {
-    const res = await fetch('https://example.com/vote', { body: JSON.stringify(request), method: 'POST' });
-
-    return await res.json();
-  }, []);
-
   const [actionState, setActionState, { inputValidity, perform }] = useSchemaOrgAction<Action>(
     { 'actionObject-input': 'required', 'endTime-output': 'required' },
-    handlePerform
+    postVote
   );
 
   const handleDownvoteClick = useCallback(
