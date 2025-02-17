@@ -10,8 +10,6 @@ const App = () => (
     <VoteApp />
     <hr />
     <HTTPMonitor />
-    {/* <hr />
-    <TrainReservationApp /> */}
   </main>
 );
 
