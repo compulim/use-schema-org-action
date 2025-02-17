@@ -11,10 +11,10 @@ test('should work', async () => {
     useSchemaOrgAction(
       {
         '@type': 'VoteAction',
+        actionOption: 'upvote',
         'actionOption-input': { valueName: 'action' }
       },
-      handler,
-      { actionOption: 'upvote' }
+      handler
     )
   );
 
