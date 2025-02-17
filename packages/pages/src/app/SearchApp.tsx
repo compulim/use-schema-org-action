@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useCallback, useState, type FormEventHandler } from 'react';
+import React, { Fragment, memo, useCallback, useMemo, type FormEventHandler } from 'react';
 import { parseTemplate } from 'url-template';
 import { toURLTemplateData, useSchemaOrgAction, type PropertyValueSpecification } from 'use-schema-org-action';
 
@@ -6,17 +6,23 @@ type SearchAction = {
   '@type': 'SearchAction';
   query?: string | undefined;
   'query-input': PropertyValueSpecification;
+  result?: [] | undefined;
+  'result-output': PropertyValueSpecification;
   target: string;
 };
 
 const SearchApp = () => {
-  const [action] = useState<SearchAction>({
-    '@type': 'SearchAction',
-    'query-input': 'required maxlength=100 name=q',
-    target: 'https://example.com/search?q={q}'
-  });
+  const action = useMemo<SearchAction>(
+    () => ({
+      '@type': 'SearchAction',
+      'query-input': 'required maxlength=100 name=q',
+      'result-output': 'multiple',
+      target: 'https://example.com/search?q={q}'
+    }),
+    []
+  );
 
-  const [state, setState, { inputValidity, perform }] = useSchemaOrgAction<SearchAction>(
+  const [actionState, setActionState, { inputValidity, perform }] = useSchemaOrgAction<SearchAction>(
     action,
     async (request, inputVariables) => {
       // `url` is https://example.com/search?q=...
@@ -32,8 +38,8 @@ const SearchApp = () => {
   );
 
   const handleQueryInput = useCallback<FormEventHandler<HTMLInputElement>>(
-    ({ currentTarget: { value } }) => setState(state => ({ ...state, query: value })),
-    [setState]
+    ({ currentTarget: { value } }) => setActionState(state => ({ ...state, query: value })),
+    [setActionState]
   );
 
   const handleSubmit = useCallback<FormEventHandler<HTMLFormElement>>(
@@ -48,12 +54,14 @@ const SearchApp = () => {
     <Fragment>
       <h2>Search</h2>
       <form onSubmit={handleSubmit}>
-        <input autoFocus={true} onInput={handleQueryInput} type="search" value={state['query'] || ''} />
+        <input autoFocus={true} onInput={handleQueryInput} type="search" value={actionState['query'] || ''} />
         <button disabled={!inputValidity.valid} type="submit">
-          {state['actionStatus'] === 'ActiveActionStatus' ? 'Submitting...' : 'Submit'}
+          {actionState['actionStatus'] === 'ActiveActionStatus' ? 'Submitting...' : 'Submit'}
         </button>
-        {state['actionStatus'] === 'FailedActionStatus' ? <span>Failed to submit</span> : undefined}
+        {actionState['actionStatus'] === 'FailedActionStatus' ? <span>Failed to submit</span> : undefined}
       </form>
+      <h3>Current action state</h3>
+      <pre>{JSON.stringify(actionState, null, 2)}</pre>
     </Fragment>
   );
 };

@@ -9,23 +9,11 @@ type Action = {
 };
 
 const VoteApp = () => {
-  const [currentRequest, setCurrentRequest] = useState<any>();
-  const [currentResponse, setCurrentResponse] = useState<any>();
+  const handlePerform = useCallback<ActionHandler>(async request => {
+    const res = await fetch('https://example.com/vote', { body: JSON.stringify(request), method: 'POST' });
 
-  const handlePerform = useCallback<ActionHandler>(
-    async request => {
-      setCurrentRequest(request);
-
-      const res = await fetch('https://example.com/vote', { body: JSON.stringify(request), method: 'POST' });
-
-      const response = await res.json();
-
-      setCurrentResponse(response);
-
-      return response;
-    },
-    [setCurrentRequest, setCurrentResponse]
-  );
+    return await res.json();
+  }, []);
 
   const [actionState, setActionState, { inputValidity, perform }] = useSchemaOrgAction<Action>(
     { 'actionObject-input': 'required', 'endTime-output': 'required' },
@@ -62,10 +50,6 @@ const VoteApp = () => {
       </button>
       <h3>Current action state</h3>
       <pre>{JSON.stringify(actionState, null, 2)}</pre>
-      <h3>Request body</h3>
-      <pre>{JSON.stringify(currentRequest, null, 2)}</pre>
-      <h3>Response body</h3>
-      <pre>{JSON.stringify(currentResponse, null, 2)}</pre>
     </section>
   );
 };
