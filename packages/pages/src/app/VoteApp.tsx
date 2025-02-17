@@ -8,55 +8,48 @@ type Action = {
 };
 
 const VoteApp = () => {
-  const [performed, setPerformed] = useState<object | undefined>(undefined);
+  const [performed, setPerformed] = useState<any>();
+  const [actionState, setActionState, { inputValidity, perform }] = useSchemaOrgAction<Action>(
+    { 'actionObject-input': 'required' },
+    async request => {
+      setPerformed(request);
 
-  const handler = useCallback(
-    (
-      input: ReadonlyMap<string, boolean | Date | number | string | undefined>
-    ): Promise<ReadonlyMap<string, boolean | Date | number | string | undefined>> => {
-      setPerformed({ action, values: Object.freeze(Object.fromEntries(input.entries())) });
+      await new Promise(resolve => setTimeout(resolve, 1_000));
 
-      return new Promise(resolve => setTimeout(() => resolve(new Map()), 1000));
-    },
-    [setPerformed]
-  );
-
-  const [action, setAction, { inputValidity, submit }] = useSchemaOrgAction<Action>(
-    {
-      'actionObject-input': {
-        valueName: 'action',
-        valueRequired: true
-      }
-    },
-    handler
+      return {};
+    }
   );
 
   const handleDownvoteClick = useCallback(
-    () => setAction(action => ({ ...action, actionObject: 'downvote' })),
-    [setAction]
+    () => setActionState(actionState => ({ ...actionState, actionObject: 'downvote' })),
+    [setActionState]
   );
 
   const handleUpvoteClick = useCallback(
-    () => setAction(action => ({ ...action, actionObject: 'upvote' })),
-    [setAction]
+    () => setActionState(actionState => ({ ...actionState, actionObject: 'upvote' })),
+    [setActionState]
   );
 
   return (
     <section>
       <h2>Vote</h2>
       <label>
-        <input checked={action.actionObject === 'upvote'} onClick={handleUpvoteClick} type="radio" />
+        <input checked={actionState['actionObject'] === 'upvote'} onClick={handleUpvoteClick} type="radio" />
         Upvote
       </label>
       <label>
-        <input checked={action.actionObject === 'downvote'} onClick={handleDownvoteClick} type="radio" />
+        <input checked={actionState['actionObject'] === 'downvote'} onClick={handleDownvoteClick} type="radio" />
         Downvote
       </label>
-      <button disabled={!inputValidity.valid || action.actionStatus === 'ActiveActionStatus'} onClick={submit} type="button">
+      <button
+        disabled={!inputValidity.valid || actionState['actionStatus'] === 'ActiveActionStatus'}
+        onClick={perform}
+        type="button"
+      >
         Perform
       </button>
       <h3>Current action</h3>
-      <pre>{JSON.stringify(action, null, 2)}</pre>
+      <pre>{JSON.stringify(actionState, null, 2)}</pre>
       <h3>Submitted action</h3>
       <pre>{JSON.stringify(performed, null, 2)}</pre>
     </section>

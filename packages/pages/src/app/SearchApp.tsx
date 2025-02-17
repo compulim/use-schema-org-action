@@ -16,7 +16,7 @@ const SearchApp = () => {
     target: 'https://example.com/search?q={q}'
   });
 
-  const [state, setState, { inputValidity, submit }] = useSchemaOrgAction<SearchAction>(
+  const [state, setState, { inputValidity, perform }] = useSchemaOrgAction<SearchAction>(
     action,
     async (request, inputVariables) => {
       // `url` is https://example.com/search?q=...
@@ -39,9 +39,9 @@ const SearchApp = () => {
   const handleSubmit = useCallback<FormEventHandler<HTMLFormElement>>(
     event => {
       event.preventDefault();
-      submit();
+      perform();
     },
-    [submit]
+    [perform]
   );
 
   return (
