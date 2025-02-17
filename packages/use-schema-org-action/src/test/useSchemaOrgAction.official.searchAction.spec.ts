@@ -1,8 +1,7 @@
 /** @jest-environment ./src/test/HappyDOMEnvironmentWithWritableStream.js */
 
-import { act } from 'react';
+import { act } from '@testing-library/react';
 import { parseTemplate } from 'url-template';
-
 import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
 import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction';
 import variableMapToNullableStringRecord from '../variableMapToNullableStringRecord';

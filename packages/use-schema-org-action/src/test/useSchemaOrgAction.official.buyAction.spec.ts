@@ -1,7 +1,6 @@
 /** @jest-environment ./src/test/HappyDOMEnvironmentWithWritableStream.js */
 
-import { act } from 'react';
-
+import { act } from '@testing-library/react';
 import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
 import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction';
 import { type MockOf } from './MockOf';

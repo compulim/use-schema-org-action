@@ -1,6 +1,6 @@
 /** @jest-environment ./src/test/HappyDOMEnvironmentWithWritableStream.js */
 
-import { act } from 'react';
+import { act } from '@testing-library/react';
 import { type ActionStatusType } from '../ActionStatusType';
 import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
 import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction';
