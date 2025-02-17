@@ -788,6 +788,18 @@ describe('call useSchemaOrgAction()', () => {
     });
   });
 
+  test('should not change actionState', () => {
+    expect(renderResult.result.current[0]).toStrictEqual({
+      actionStatus: 'PotentialActionStatus',
+      object: { url: 'https://example.com/input' },
+      result: {
+        reviewBody: 'Great movie.',
+        reviewRating: { ratingValue: 5 },
+        url: undefined
+      }
+    });
+  });
+
   test('should not change input', async () => {
     await act(() => renderResult.result.current[2].perform());
 
