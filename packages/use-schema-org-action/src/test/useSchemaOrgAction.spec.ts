@@ -728,6 +728,7 @@ describe('calling setActionState', () => {
 
 describe('call useSchemaOrgAction()', () => {
   let handler: MockOf<ActionHandler>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, any>;
 
   beforeEach(() => {
