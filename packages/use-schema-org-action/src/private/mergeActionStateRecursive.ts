@@ -1,8 +1,9 @@
-import isPlainObject from './isPlainObject';
+import isPlainObject from './isPlainObject.ts';
 
-// type ActionState<T extends Record<string, any>> = PartialDeep<T> & Record<string, any>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ActionState = Record<string, any>;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mergeActionStateRecursiveInternal<T extends Record<string, any>>(
   action: T,
   base: ActionState | undefined,
@@ -21,7 +22,7 @@ function mergeActionStateRecursiveInternal<T extends Record<string, any>>(
 
       nextActionState[unprefixedKey] = update?.[unprefixedKey] ?? base?.[unprefixedKey];
     } else if (isPlainObject(value)) {
-      let subValue = mergeActionStateRecursiveInternal(value, base?.[key], update?.[key], mode);
+      const subValue = mergeActionStateRecursiveInternal(value, base?.[key], update?.[key], mode);
 
       if (typeof subValue !== 'undefined') {
         nextActionState[key] = subValue;
@@ -32,6 +33,7 @@ function mergeActionStateRecursiveInternal<T extends Record<string, any>>(
   return Object.entries(nextActionState).length ? nextActionState : undefined;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function mergeActionStateRecursive<T extends Record<string, any>>(
   action: T,
   base: ActionState | undefined,

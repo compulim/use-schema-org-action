@@ -1,10 +1,10 @@
-import toURLSearchParams from './toURLSearchParams';
+import toURLSearchParams from './toURLSearchParams.ts';
 
 let urlSearchParams: URLSearchParams;
 
 beforeEach(() => {
   urlSearchParams = toURLSearchParams(
-    new Map<string, any>([
+    new Map<string, unknown>([
       ['booleanFalse', false],
       ['booleanTrue', true],
       ['date', new Date(0)],

@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
-import HTTPMonitor from './HTTPMonitor';
-import SearchApp from './SearchApp';
-import VoteApp from './VoteApp';
+import HTTPMonitor from './HTTPMonitor.tsx';
+import SearchApp from './SearchApp.tsx';
+import VoteApp from './VoteApp.tsx';
 
 const App = () => (
   <main>

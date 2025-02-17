@@ -1,5 +1,5 @@
-import { type ActionState } from "./ActionState";
-import { type VariableMap } from "./VariableMap";
+import { type ActionState } from './ActionState.ts';
+import { type VariableMap } from './VariableMap.ts';
 
 /**
  * When called, should perform the action and return action state containing all properties with output constraints.

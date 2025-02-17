@@ -1,5 +1,5 @@
-import { type VariableMap } from './VariableMap';
-import variableMapToNullableStringRecord from './variableMapToNullableStringRecord';
+import { type VariableMap } from './VariableMap.ts';
+import variableMapToNullableStringRecord from './variableMapToNullableStringRecord.ts';
 
 describe('when converting a variable map', () => {
   let record: Record<string, null | string>;

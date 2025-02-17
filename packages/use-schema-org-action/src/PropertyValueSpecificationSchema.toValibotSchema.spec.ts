@@ -1,5 +1,5 @@
 import { parse } from 'valibot';
-import { toValibotSchema } from './PropertyValueSpecificationSchema';
+import { toValibotSchema } from './PropertyValueSpecificationSchema.ts';
 
 describe('toValibotSchema', () => {
   describe('for string', () => {

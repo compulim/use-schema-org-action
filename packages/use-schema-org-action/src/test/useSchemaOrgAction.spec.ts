@@ -588,15 +588,9 @@ describe('when called with initialActionState', () => {
 });
 
 test('initialActionState.actionStatus should be preferred over initialAction.actionStatus', () => {
-  let handler: MockOf<ActionHandler>;
-  let handlerResolvers: PromiseWithResolvers<PartialDeep<ReviewAction>>;
-  let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void>;
-
-  handlerResolvers = Promise.withResolvers();
-
-  handler = jest.fn().mockReturnValueOnce(handlerResolvers.promise);
-
-  renderResult = renderHook(() =>
+  const handlerResolvers: PromiseWithResolvers<PartialDeep<ReviewAction>> = Promise.withResolvers();
+  const handler: MockOf<ActionHandler> = jest.fn().mockReturnValueOnce(handlerResolvers.promise);
+  const renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void> = renderHook(() =>
     useSchemaOrgAction(
       {
         ...reviewAction,

@@ -1,10 +1,10 @@
-import toURLTemplateData from './toURLTemplateData';
+import toURLTemplateData from './toURLTemplateData.ts';
 
 let urlTemplateData: Record<string, string[]>;
 
 beforeEach(() => {
   urlTemplateData = toURLTemplateData(
-    new Map<string, any>([
+    new Map<string, unknown>([
       ['booleanFalse', false],
       ['booleanTrue', true],
       ['date', new Date(0)],

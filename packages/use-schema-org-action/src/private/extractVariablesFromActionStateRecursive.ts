@@ -1,15 +1,16 @@
 import { parse } from 'valibot';
-import { type ActionState } from '../ActionState';
-import propertyValueSpecificationSchema from '../PropertyValueSpecificationSchema';
-import { type VariableMap } from '../VariableMap';
-import isPlainObject from './isPlainObject';
+import { type ActionState } from '../ActionState.ts';
+import propertyValueSpecificationSchema from '../PropertyValueSpecificationSchema.ts';
+import { type VariableMap } from '../VariableMap.ts';
+import isPlainObject from './isPlainObject.ts';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function extractVariablesFromActionStateRecursive<T extends Record<string, any>>(
   action: T,
   actionState: ActionState | undefined,
   mode: 'input' | 'output'
 ): VariableMap {
-  const variables = new Map<string, any>();
+  const variables = new Map<string, unknown>();
 
   for (const [key, value] of Object.entries(action)) {
     if (mode === 'input' && key.endsWith('-input')) {

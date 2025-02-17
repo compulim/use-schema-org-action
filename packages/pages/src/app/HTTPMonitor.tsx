@@ -3,9 +3,9 @@ import { setupWorker } from 'msw/browser';
 import React, { memo, useEffect, useState } from 'react';
 
 const HTTPMonitor = () => {
-  const [currentRequestJSON, setCurrentRequestJSON] = useState<any>();
+  const [currentRequestJSON, setCurrentRequestJSON] = useState<string>();
   const [currentRequestURL, setCurrentRequestURL] = useState<string>();
-  const [currentResponse, setCurrentResponse] = useState<any>();
+  const [currentResponse, setCurrentResponse] = useState<unknown>();
 
   useEffect(() => {
     const worker = setupWorker(

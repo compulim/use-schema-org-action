@@ -147,6 +147,7 @@ type MySchema<T> =
  * @param choices A list of values to choose from for the value. An empty array will allow any values.
  * @returns A validation schema.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toValibotSchema(propertyValueSpecification: PropertyValueSpecification, choices: any[] = []) {
   if (typeof propertyValueSpecification === 'string') {
     propertyValueSpecification = parse(propertyValueSpecificationStringSchema, propertyValueSpecification);

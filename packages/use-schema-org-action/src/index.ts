@@ -5,8 +5,8 @@ import { type ActionWithActionStatus } from './ActionWithActionStatus.ts';
 import propertyValueSpecificationSchema, {
   type PropertyValueSpecification
 } from './PropertyValueSpecificationSchema.ts';
-import toURLSearchParams from './toURLSearchParams';
-import toURLTemplateData from './toURLTemplateData';
+import toURLSearchParams from './toURLSearchParams.ts';
+import toURLTemplateData from './toURLTemplateData.ts';
 import useSchemaOrgAction from './useSchemaOrgAction.ts';
 import { type VariableMap } from './VariableMap.ts';
 

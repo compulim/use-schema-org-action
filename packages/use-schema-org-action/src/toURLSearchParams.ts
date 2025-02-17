@@ -1,4 +1,4 @@
-import { type VariableMap } from './VariableMap';
+import { type VariableMap } from './VariableMap.ts';
 
 /**
  * Converts `Map` of variables into `URLSearchParams`.

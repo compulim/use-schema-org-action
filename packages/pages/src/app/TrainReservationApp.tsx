@@ -189,7 +189,7 @@ const initialPlanAction: PlanAction = {
 };
 
 const TrainReservationApp = () => {
-  const [actionState, setActionState, { inputValidity, submit }] = useSchemaOrgAction<PlanAction>(
+  const [actionState, setActionState, { inputValidity, perform }] = useSchemaOrgAction<PlanAction>(
     initialPlanAction,
     async () => {
       await new Promise(resolve => setTimeout(resolve, 1_000));
@@ -225,9 +225,9 @@ const TrainReservationApp = () => {
     event => {
       event.preventDefault();
 
-      inputValidity.valid && submit();
+      inputValidity.valid && perform();
     },
-    [inputValidity, submit]
+    [inputValidity, perform]
   );
 
   const handleSeatChange = useCallback<FormEventHandler<HTMLSelectElement>>(
@@ -277,7 +277,7 @@ const TrainReservationApp = () => {
               value={actionState['object']['@id']}
             >
               {availableTrainTrips.map(trainTrip => (
-                <option value={trainTrip['@id']}>
+                <option key={trainTrip['@id']} value={trainTrip['@id']}>
                   {trainTrip.trainName} {trainTrip.trainNumber}
                 </option>
               ))}
@@ -303,7 +303,7 @@ const TrainReservationApp = () => {
               value={actionState['result']['@id']}
             >
               {availableReservations.map(reservation => (
-                <option value={reservation['@id']}>
+                <option key={reservation['@id']} value={reservation['@id']}>
                   ({reservation.reservedTicket.seat.seatingType}) {reservation.reservedTicket.seat.seatSection}{' '}
                   {reservation.reservedTicket.seat.seatNumber}
                   {reservation.reservedTicket.seat.seatRow}

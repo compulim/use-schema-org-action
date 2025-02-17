@@ -1,5 +1,5 @@
-import toURLSearchParams from './toURLSearchParams';
-import { type VariableMap } from './VariableMap';
+import toURLSearchParams from './toURLSearchParams.ts';
+import { type VariableMap } from './VariableMap.ts';
 
 /**
  * Converts `Map` of variables into object of strings.
@@ -15,7 +15,7 @@ import { type VariableMap } from './VariableMap';
  * @returns {Record<string, string[]>}
  */
 export default function toURLTemplateData(variableMap: VariableMap): Record<string, string[]> {
-  let expandables: Record<string, string[]> = {};
+  const expandables: Record<string, string[]> = {};
 
   toURLSearchParams(variableMap).forEach((value, key) => (expandables[key] = expandables[key] || []).push(value));
 

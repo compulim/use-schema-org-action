@@ -113,10 +113,10 @@ describe('Spec: Movie review site API with -input and -output', () => {
             }
           }));
 
-          test('should be called with empty input variables', () =>
-            expect(sortEntries(handler.mock.calls[0]?.[1] || [])).toEqual([]));
+        test('should be called with empty input variables', () =>
+          expect(sortEntries(handler.mock.calls[0]?.[1] || [])).toEqual([]));
 
-          test('should merge response', () =>
+        test('should merge response', () =>
           // [NOT-IN-SPEC]
           expect(renderResult.result.current[0]).toEqual({
             actionStatus: 'CompletedActionStatus',
