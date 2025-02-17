@@ -91,10 +91,10 @@ body:
             useSchemaOrgAction(
               {
                 '@type': 'VoteAction',
+                actionOption: 'upvote',
                 'actionOption-input': { valueName: 'action' }
               },
-              handler,
-              { actionOption: 'upvote' }
+              handler
             )
           );
 
