@@ -33,8 +33,8 @@ test('should work', async () => {
     actionStatus: 'PotentialActionStatus'
   });
 
-  // WHEN: Calling submit().
-  await act(() => renderResult.result.current[2].submit());
+  // WHEN: Calling perform().
+  await act(() => renderResult.result.current[2].perform());
 
   // THEN: Should have called the handler once.
   expect(handler).toHaveBeenCalledTimes(1);
