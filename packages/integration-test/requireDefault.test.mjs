@@ -23,7 +23,5 @@ test('simple scenario', () => {
   const renderer = create(<App />);
 
   // THEN: It should render JSON of { "@type": "VoteAction", actionOption: 'upvote', actionStatus: 'PotentialActionStatus' }.
-  expect(renderer.toJSON()).toBe(
-    '{"actionStatus":"PotentialActionStatus","actionOption":"upvote"}'
-  );
+  expect(renderer.toJSON()).toBe('{"actionOption":"upvote","actionStatus":"PotentialActionStatus"}');
 });
