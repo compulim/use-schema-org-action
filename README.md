@@ -12,7 +12,7 @@ Schema.org actions is a way to [describe the capability to perform an action and
 1. Performs the action asynchronously
 1. Validates the response against output [constraints](https://schema.org/docs/actions.html#part-4)
 1. Marks the action as [completed or failed](https://schema.org/docs/actions.html#part-1)
-1. If successful, merges the output variables back into the action via named output properties
+1. If successful, merges the output variables back into the action
 
 This package wraps all these steps as a React hook, including HTML-compatible constraint validation.
 
@@ -24,21 +24,12 @@ Click here for [our live demo](https://compulim.github.io/use-schema-org-action/
 
 The `useSchemaOrgAction` hook is designed to be similar to [React `useState` hook](https://react.dev/reference/react/useState) with extra functionality to expose the business logics of an action.
 
+Input/output properties of the action are extracted as "action state" and is mutable via the getter and setter function.
+
 To install this package, run `npm install use-schema-org-action` or visit our [package on NPM](https://npmjs.com/package/use-schema-org-action).
 
 ```ts
 import { useSchemaOrgAction, type ActionHandler, type PropertyValueSpecification } from 'use-schema-org-action';
-
-// This function, when called, will send HTTP POST of the vote action.
-const postVote: ActionHandler = async (request) => {
-  // "request" includes properties with input constraints (with companion "*-input"):
-  // {
-  //   actionOption: 'upvote'
-  // }
-  const res = await fetch('https://example.com/vote', { body: JSON.stringify(request), method: 'POST' });
-
-  return await res.json();
-};
 
 function VoteButton() {
   const [actionState, setActionState, { inputValidity, perform }] = useSchemaOrgAction(
@@ -48,7 +39,7 @@ function VoteButton() {
       actionOption: 'upvote',
       'actionOption-input': 'required' // Input constraints of "actionOption".
     },
-    submitVoteAction
+    submitVoteAction // Callback function to perform the action.
   );
 
   // Action state only includes "actionStatus" property and properties with input and output constraints.
@@ -68,6 +59,17 @@ function VoteButton() {
     </button>
   );
 }
+
+// This function, when called, will send HTTP POST of the vote action.
+const postVote: ActionHandler = async (request) => {
+  // "request" includes properties with input constraints (with companion "*-input"):
+  // {
+  //   actionOption: 'upvote'
+  // }
+  const res = await fetch('https://example.com/vote', { body: JSON.stringify(request), method: 'POST' });
+
+  return await res.json();
+};
 ```
 
 ## API
