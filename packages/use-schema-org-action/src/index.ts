@@ -7,7 +7,7 @@ import propertyValueSpecificationSchema, {
 } from './PropertyValueSpecificationSchema.ts';
 import toURLSearchParams from './toURLSearchParams';
 import toURLTemplateData from './toURLTemplateData';
-import useSchemaOrgAction from './useSchemaOrgAction2.ts';
+import useSchemaOrgAction from './useSchemaOrgAction.ts';
 import { type VariableMap } from './VariableMap.ts';
 
 export {
