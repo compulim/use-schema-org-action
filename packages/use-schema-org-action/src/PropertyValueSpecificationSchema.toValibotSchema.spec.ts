@@ -596,7 +596,7 @@ describe('toValibotSchema', () => {
             const result = parse(schema, undefined);
 
             expect(result).toEqual(expect.any(Date));
-          // @ts-expect-error result instanceof Date.
+            // @ts-expect-error result instanceof Date.
             expect(+result).toBe(123);
           });
         }
