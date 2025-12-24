@@ -7,6 +7,7 @@ export default defineConfig([
       'use-schema-org-action': './src/index.ts'
     },
     format: ['cjs', 'esm'],
-    sourcemap: true
+    sourcemap: true,
+    target: 'esnext'
   }
 ]);
