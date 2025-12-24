@@ -1,3 +1,4 @@
+import { beforeEach, expect, test } from '@jest/globals';
 import type { PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
 import sortEntries from '../test/sortEntries';
 import extractVariablesFromActionStateRecursive from './extractVariablesFromActionStateRecursive';

@@ -1,6 +1,8 @@
 /** @jest-environment ./src/test/HappyDOMEnvironmentWithWritableStream.js */
 
+import { beforeEach, describe, expect, test } from '@jest/globals';
 import { act } from '@testing-library/react';
+import { fn } from 'jest-mock';
 import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
 import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction';
 import { type MockOf } from './MockOf';
@@ -64,7 +66,7 @@ describe('Spec: Product purchase API call with -output', () => {
       }
     };
 
-    handler = jest.fn();
+    handler = fn();
   });
 
   describe('when useSchemaOrgAction() is rendered', () => {

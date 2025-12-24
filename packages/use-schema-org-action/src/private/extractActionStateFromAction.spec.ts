@@ -1,3 +1,4 @@
+import { expect, test } from '@jest/globals';
 import extractActionStateFromAction from './extractActionStateFromAction';
 
 test('should work', () => {
