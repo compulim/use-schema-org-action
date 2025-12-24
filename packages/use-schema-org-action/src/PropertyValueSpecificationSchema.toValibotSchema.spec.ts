@@ -416,6 +416,7 @@ describe('toValibotSchema', () => {
           const result = parse(schema, new Date(5));
 
           expect(result).toEqual(expect.any(Date));
+          // @ts-expect-error result instanceof Date.
           expect(+result).toBe(5);
         });
 
@@ -438,6 +439,7 @@ describe('toValibotSchema', () => {
           const result = parse(schema, new Date(100));
 
           expect(result).toEqual(expect.any(Date));
+          // @ts-expect-error result instanceof Date.
           expect(+result).toBe(100);
         });
       });
@@ -463,6 +465,7 @@ describe('toValibotSchema', () => {
           const result = parse(schema, new Date(5));
 
           expect(result).toEqual(expect.any(Date));
+          // @ts-expect-error result instanceof Date.
           expect(+result).toBe(5);
         });
 
@@ -485,6 +488,7 @@ describe('toValibotSchema', () => {
           const result = parse(schema, new Date(1));
 
           expect(result).toEqual(expect.any(Date));
+          // @ts-expect-error result instanceof Date.
           expect(+result).toBe(1);
         });
       });
@@ -506,6 +510,7 @@ describe('toValibotSchema', () => {
           const result = parse(schema, new Date(10));
 
           expect(result).toEqual(expect.any(Date));
+          // @ts-expect-error result instanceof Date.
           expect(+result).toBe(10);
         });
 
@@ -528,6 +533,7 @@ describe('toValibotSchema', () => {
           const result = parse(schema, new Date(1));
 
           expect(result).toEqual(expect.any(Date));
+          // @ts-expect-error result instanceof Date.
           expect(+result).toBe(1);
         });
       });
@@ -548,8 +554,11 @@ describe('toValibotSchema', () => {
           const result = parse(schema, [new Date(1), new Date(2), new Date(3)]);
 
           expect(result).toEqual([expect.any(Date), expect.any(Date), expect.any(Date)]);
+          // @ts-expect-error result instanceof Date.
           expect(+result[0]).toBe(1);
+          // @ts-expect-error result instanceof Date.
           expect(+result[1]).toBe(2);
+          // @ts-expect-error result instanceof Date.
           expect(+result[2]).toBe(3);
         });
 
@@ -587,6 +596,7 @@ describe('toValibotSchema', () => {
             const result = parse(schema, undefined);
 
             expect(result).toEqual(expect.any(Date));
+            // @ts-expect-error result instanceof Date.
             expect(+result).toBe(123);
           });
         }
@@ -608,6 +618,7 @@ describe('toValibotSchema', () => {
           const result = parse(schema, new Date(1));
 
           expect(result).toEqual(expect.any(Date));
+          // @ts-expect-error result instanceof Date.
           expect(+result).toBe(1);
         });
 
@@ -657,6 +668,7 @@ describe('toValibotSchema', () => {
           const result = parse(schema, new Date(5));
 
           expect(result).toEqual(expect.any(Date));
+          // @ts-expect-error result instanceof Date.
           expect(+result).toBe(5);
         });
       });
