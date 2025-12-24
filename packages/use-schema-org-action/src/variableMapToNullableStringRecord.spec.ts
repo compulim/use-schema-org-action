@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, test } from '@jest/globals';
 import { type VariableMap } from './VariableMap.ts';
 import variableMapToNullableStringRecord from './variableMapToNullableStringRecord.ts';
 

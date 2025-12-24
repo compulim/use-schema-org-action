@@ -1,3 +1,4 @@
+import { beforeEach, expect, test } from '@jest/globals';
 import toURLSearchParams from './toURLSearchParams.ts';
 
 let urlSearchParams: URLSearchParams;

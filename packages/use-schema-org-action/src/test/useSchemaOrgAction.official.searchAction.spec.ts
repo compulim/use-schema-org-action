@@ -1,6 +1,8 @@
 /** @jest-environment ./src/test/HappyDOMEnvironmentWithWritableStream.js */
 
+import { beforeEach, describe, expect, test } from '@jest/globals';
 import { act } from '@testing-library/react';
+import { fn } from 'jest-mock';
 import { parseTemplate } from 'url-template';
 import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
 import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction';
@@ -39,7 +41,7 @@ describe('Spec: Text search deep link with -input', () => {
       }
     };
 
-    handler = jest.fn().mockResolvedValueOnce({});
+    handler = fn<ActionHandler>().mockResolvedValueOnce({});
   });
 
   describe('when useSchemaOrgAction() is rendered', () => {
