@@ -1,6 +1,8 @@
 /** @jest-environment ./src/test/HappyDOMEnvironmentWithWritableStream.js */
 
+import { beforeEach, describe, expect, test } from '@jest/globals';
 import { act } from '@testing-library/react';
+import { fn } from 'jest-mock';
 import { type ActionStatusType } from '../ActionStatusType';
 import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
 import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction';
@@ -64,7 +66,7 @@ describe('Spec: Movie review site API with -input and -output', () => {
       }
     };
 
-    handler = jest.fn().mockResolvedValueOnce(
+    handler = fn<ActionHandler>().mockResolvedValueOnce(
       // [FROM-SPEC]
       Promise.resolve({
         '@context': 'https://schema.org',

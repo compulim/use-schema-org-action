@@ -6,6 +6,7 @@ class HappyDOMEnvironmentWithWritableStream extends HappyDOMEnvironment {
     // @ts-ignore
     super(...args);
 
+    // eslint-disable-next-line no-undef
     this.global.WritableStream = WritableStream;
   }
 }

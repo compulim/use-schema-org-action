@@ -1,3 +1,4 @@
+import { beforeEach, expect, test } from '@jest/globals';
 import toURLTemplateData from './toURLTemplateData.ts';
 
 let urlTemplateData: Record<string, string[]>;

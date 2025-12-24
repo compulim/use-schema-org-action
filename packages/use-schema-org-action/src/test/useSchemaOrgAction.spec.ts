@@ -1,6 +1,8 @@
 /** @jest-environment ./src/test/HappyDOMEnvironmentWithWritableStream.js */
 
+import { beforeEach, describe, expect, test } from '@jest/globals';
 import { act } from '@testing-library/react';
+import { fn } from 'jest-mock';
 import { type PartialDeep } from 'type-fest';
 import { type ActionStatusType } from '../ActionStatusType';
 import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
@@ -76,7 +78,7 @@ describe('when rendered initially', () => {
   beforeEach(() => {
     handlerResolvers = Promise.withResolvers();
 
-    handler = jest.fn().mockReturnValueOnce(handlerResolvers.promise);
+    handler = fn().mockReturnValueOnce(handlerResolvers.promise);
 
     renderResult = renderHook(() => useSchemaOrgAction(reviewAction, handler));
   });
@@ -405,7 +407,7 @@ describe('when rendered with initialAction containing valid "actionStatus" prope
 
   beforeEach(() => {
     renderResult = renderHook(() =>
-      useSchemaOrgAction<ReviewAction>({ ...reviewAction, actionStatus: 'CompletedActionStatus' }, jest.fn())
+      useSchemaOrgAction<ReviewAction>({ ...reviewAction, actionStatus: 'CompletedActionStatus' }, fn<ActionHandler>())
     );
   });
 
@@ -428,7 +430,7 @@ describe('when rendered with initialAction containing invalid "actionStatus" pro
     renderResult = renderHook(() =>
       // Explicitly set an invalid value.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      useSchemaOrgAction<ReviewAction>({ ...reviewAction, actionStatus: '123' as any }, jest.fn())
+      useSchemaOrgAction<ReviewAction>({ ...reviewAction, actionStatus: '123' as any }, fn<ActionHandler>())
     );
   });
 
@@ -452,7 +454,7 @@ describe('initialAction with values', () => {
   beforeEach(() => {
     handlerResolvers = Promise.withResolvers();
 
-    handler = jest.fn().mockReturnValueOnce(handlerResolvers.promise);
+    handler = fn().mockReturnValueOnce(handlerResolvers.promise);
 
     renderResult = renderHook(() =>
       useSchemaOrgAction(
@@ -496,7 +498,7 @@ describe('initialAction with actionStatus', () => {
   beforeEach(() => {
     handlerResolvers = Promise.withResolvers();
 
-    handler = jest.fn().mockReturnValueOnce(handlerResolvers.promise);
+    handler = fn().mockReturnValueOnce(handlerResolvers.promise);
 
     renderResult = renderHook(() =>
       useSchemaOrgAction(
@@ -526,7 +528,7 @@ describe('calling setActionState', () => {
   let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void>;
 
   beforeEach(() => {
-    handler = jest.fn().mockImplementation(() => ({
+    handler = fn().mockImplementation(() => ({
       result: { url: 'https://example.com/output' }
     }));
 
@@ -603,7 +605,7 @@ describe('call useSchemaOrgAction()', () => {
   let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, any>;
 
   beforeEach(() => {
-    handler = jest.fn().mockImplementation(() => ({
+    handler = fn().mockImplementation(() => ({
       result: { url: 'https://example.com/output' }
     }));
 
