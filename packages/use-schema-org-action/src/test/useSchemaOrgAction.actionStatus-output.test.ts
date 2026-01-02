@@ -1,12 +1,10 @@
-/** @jest-environment ./src/test/HappyDOMEnvironmentWithWritableStream.js */
-
-import { beforeEach, describe, expect, test } from '@jest/globals';
+import { renderHook, type RenderHookResult } from '@compulim/test-harness/renderHook';
 import { act } from '@testing-library/react';
-import { fn } from 'jest-mock';
-import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
-import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction';
-import { type MockOf } from './MockOf';
-import renderHook, { type RenderHookResult } from './renderHook';
+import { expect } from 'expect';
+import { beforeEach, describe, mock, test } from 'node:test';
+import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema.ts';
+import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction.ts';
+import type { MockOf } from './MockOf.ts';
 
 type SearchAction = {
   '@type': 'SearchAction';
@@ -35,7 +33,7 @@ describe('an action where "actionStatus-output" is set', () => {
   let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void>;
 
   beforeEach(async () => {
-    handler = fn();
+    handler = mock.fn();
     renderResult = renderHook(() =>
       useSchemaOrgAction<SearchAction>({ ...searchAction, 'actionStatus-output': '' }, handler)
     );
@@ -45,7 +43,7 @@ describe('an action where "actionStatus-output" is set', () => {
     let promise: Promise<void>;
 
     beforeEach(async () => {
-      handler.mockImplementation((_input: unknown, _request: unknown, _option: unknown) =>
+      handler.mock.mockImplementation((_input: unknown, _request: unknown, _option: unknown) =>
         Promise.resolve({
           actionStatus: 'FailedActionStatus',
           result: { url: 'https://example.com/output' }
@@ -69,7 +67,7 @@ describe('an action where "actionStatus-output" is set', () => {
     let promise: Promise<void>;
 
     beforeEach(() => {
-      handler.mockImplementation((_input: unknown, _request: unknown, _option: unknown) =>
+      handler.mock.mockImplementation((_input: unknown, _request: unknown, _option: unknown) =>
         Promise.resolve({
           actionStatus: '<INVALID>',
           result: { url: 'https://example.com/output' }
@@ -95,7 +93,7 @@ describe('an action where "actionStatus-output" is not set', () => {
   let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void>;
 
   beforeEach(async () => {
-    handler = fn();
+    handler = mock.fn();
     renderResult = renderHook(() => useSchemaOrgAction<SearchAction>(searchAction, handler));
   });
 
@@ -103,7 +101,7 @@ describe('an action where "actionStatus-output" is not set', () => {
     let promise: Promise<void>;
 
     beforeEach(async () => {
-      handler.mockImplementation((_input: unknown, _request: unknown, _option: unknown) =>
+      handler.mock.mockImplementation((_input: unknown, _request: unknown, _option: unknown) =>
         Promise.resolve({
           actionStatus: 'FailedActionStatus',
           result: { url: 'https://example.com/output' }
@@ -117,7 +115,9 @@ describe('an action where "actionStatus-output" is not set', () => {
       });
     });
 
-    test('should not throw', () => expect(promise).resolves.toBeUndefined());
+    test('should not throw', () => {
+      expect(promise).resolves.toBeUndefined();
+    });
 
     test('should not override "actionStatus" property', () =>
       expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'CompletedActionStatus'));
@@ -127,7 +127,7 @@ describe('an action where "actionStatus-output" is not set', () => {
     let promise: Promise<void>;
 
     beforeEach(async () => {
-      handler.mockImplementation((_input: unknown, _request: unknown, _option: unknown) =>
+      handler.mock.mockImplementation((_input: unknown, _request: unknown, _option: unknown) =>
         Promise.resolve({
           actionStatus: '<INVALID>',
           result: { url: 'https://example.com/output' }

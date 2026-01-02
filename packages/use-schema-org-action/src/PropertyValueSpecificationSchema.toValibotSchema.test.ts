@@ -1,11 +1,13 @@
-import { beforeEach, describe, expect, test } from '@jest/globals';
+import { describeEach } from '@compulim/test-harness/describeEach';
+import { expect } from 'expect';
+import { beforeEach, describe, test } from 'node:test';
 import { parse } from 'valibot';
 import { toValibotSchema } from './PropertyValueSpecificationSchema.ts';
 
 describe('toValibotSchema', () => {
   describe('for string', () => {
     describe('when valueMaxLength is set', () => {
-      describe.each([
+      describeEach([
         ['by string', 'maxlength=5'],
         ['by object as number', { '@type': 'PropertyValueSpecification' as const, valueMaxLength: 5 }],
         ['by object as string', { '@type': 'PropertyValueSpecification' as const, valueMaxLength: '5' }]
@@ -22,7 +24,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when valueMaxLength is not set', () => {
-      describe.each([
+      describeEach([
         ['by string', ''],
         ['by object', { '@type': 'PropertyValueSpecification' as const }]
       ])('%s', (_, propertyValueSpecification) => {
@@ -37,7 +39,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when valueMinLength is set', () => {
-      describe.each([
+      describeEach([
         ['by string', 'minlength=5'],
         ['by object as number', { '@type': 'PropertyValueSpecification' as const, valueMinLength: 5 }],
         ['by object as string', { '@type': 'PropertyValueSpecification' as const, valueMinLength: '5' }]
@@ -54,7 +56,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when valueMinLength is unset', () => {
-      describe.each([
+      describeEach([
         ['by string', ''],
         ['by object', { '@type': 'PropertyValueSpecification' as const }]
       ])('%s', (_, propertyValueSpecification) => {
@@ -69,7 +71,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when valuePattern is set', () => {
-      describe.each([
+      describeEach([
         ['by string', 'pattern=^\\d$'],
         ['by object', { '@type': 'PropertyValueSpecification' as const, valuePattern: /^\d$/u }]
       ])('%s', (_, propertyValueSpecification) => {
@@ -85,7 +87,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when valuePattern is unset', () => {
-      describe.each([
+      describeEach([
         ['by string', ''],
         ['by object', { '@type': 'PropertyValueSpecification' as const }]
       ])('%s', (_, propertyValueSpecification) => {
@@ -100,7 +102,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when multipleValues is set', () => {
-      describe.each([
+      describeEach([
         ['by string', 'multiple'],
         ['by object', { '@type': 'PropertyValueSpecification' as const, multipleValues: true }]
       ])('%s', (_, propertyValueSpecification) => {
@@ -118,7 +120,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when multipleValues is not set', () => {
-      describe.each([
+      describeEach([
         ['by string', ''],
         ['by object', { '@type': 'PropertyValueSpecification' as const }]
       ])('%s', (_, propertyValueSpecification) => {
@@ -133,7 +135,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when defaultValue is set', () => {
-      describe.each([
+      describeEach([
         // ['by quoted string', 'value="Hello, World!"', 'Hello, World!'],
         ['by unquoted string', 'value=Aloha!', 'Aloha!'],
         [
@@ -153,7 +155,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when valueRequired is set to true', () => {
-      describe.each([
+      describeEach([
         ['by string', 'required'],
         ['by object', { '@type': 'PropertyValueSpecification' as const, valueRequired: true }]
       ])('%s', (_, propertyValueSpecification) => {
@@ -169,7 +171,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when valueRequired is set to false', () => {
-      describe.each([
+      describeEach([
         ['by string', ''],
         ['by object', { '@type': 'PropertyValueSpecification' as const, valueRequired: false }]
       ])('%s', (_, propertyValueSpecification) => {
@@ -184,7 +186,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when defaultValue does not meet other constraints', () => {
-      describe.each([
+      describeEach([
         ['by string', 'maxlength=5 value=Aloha!'],
         [
           'by object',
@@ -205,7 +207,7 @@ describe('toValibotSchema', () => {
 
   describe('for number', () => {
     describe('when maxValue is set', () => {
-      describe.each([
+      describeEach([
         ['by string', 'max=5'],
         ['by object', { '@type': 'PropertyValueSpecification' as const, maxValue: 5 }]
       ])('%s', (_, propertyValueSpecification) => {
@@ -221,7 +223,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when maxValue is not set', () => {
-      describe.each([
+      describeEach([
         ['by string', ''],
         ['by object', { '@type': 'PropertyValueSpecification' as const }]
       ])('%s', (_, propertyValueSpecification) => {
@@ -236,7 +238,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when minValue is set', () => {
-      describe.each([
+      describeEach([
         ['by string', 'min=5'],
         ['by object as number', { '@type': 'PropertyValueSpecification' as const, minValue: 5 }],
         ['by object as string', { '@type': 'PropertyValueSpecification' as const, minValue: '5' }]
@@ -253,7 +255,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when minValue is unset', () => {
-      describe.each([
+      describeEach([
         ['by string', ''],
         ['by object', { '@type': 'PropertyValueSpecification' as const }]
       ])('%s', (_, propertyValueSpecification) => {
@@ -268,7 +270,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when stepValue is set', () => {
-      describe.each([
+      describeEach([
         ['by string', 'step=5'],
         ['by object as number', { '@type': 'PropertyValueSpecification' as const, stepValue: 5 }],
         ['by object as string', { '@type': 'PropertyValueSpecification' as const, stepValue: '5' }]
@@ -285,7 +287,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when stepValue is unset', () => {
-      describe.each([
+      describeEach([
         ['by string', ''],
         ['by object', { '@type': 'PropertyValueSpecification' as const }]
       ])('%s', (_, propertyValueSpecification) => {
@@ -300,7 +302,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when multipleValues is set', () => {
-      describe.each([
+      describeEach([
         ['by string', 'multiple'],
         ['by object', { '@type': 'PropertyValueSpecification' as const, multipleValues: true }]
       ])('%s', (_, propertyValueSpecification) => {
@@ -316,7 +318,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when multipleValues is not set', () => {
-      describe.each([
+      describeEach([
         ['by string', ''],
         ['by object', { '@type': 'PropertyValueSpecification' as const }]
       ])('%s', (_, propertyValueSpecification) => {
@@ -332,7 +334,7 @@ describe('toValibotSchema', () => {
 
     describe('when defaultValue is set', () => {
       // Cannot set "defaultValue" of type number by string.
-      describe.each([['by object', { '@type': 'PropertyValueSpecification' as const, defaultValue: 123 }]])(
+      describeEach([['by object', { '@type': 'PropertyValueSpecification' as const, defaultValue: 123 }]])(
         '%s',
         (_, propertyValueSpecification) => {
           let schema: ReturnType<typeof toValibotSchema>;
@@ -347,7 +349,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when valueRequired is set to true', () => {
-      describe.each([
+      describeEach([
         ['by string', 'required'],
         ['by object', { '@type': 'PropertyValueSpecification' as const, valueRequired: true }]
       ])('%s', (_, propertyValueSpecification) => {
@@ -363,7 +365,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when valueRequired is set to false', () => {
-      describe.each([
+      describeEach([
         ['by string', ''],
         ['by object', { '@type': 'PropertyValueSpecification' as const, valueRequired: false }]
       ])('%s', (_, propertyValueSpecification) => {
@@ -379,7 +381,7 @@ describe('toValibotSchema', () => {
 
     describe('when defaultValue does not meet other constraints', () => {
       // Cannot set "defaultValue" of type number by string.
-      describe.each([['by object', { '@type': 'PropertyValueSpecification' as const, defaultValue: 1, minValue: 5 }]])(
+      describeEach([['by object', { '@type': 'PropertyValueSpecification' as const, defaultValue: 1, minValue: 5 }]])(
         '%s',
         (_, propertyValueSpecification) => {
           let schema: ReturnType<typeof toValibotSchema>;
@@ -397,7 +399,7 @@ describe('toValibotSchema', () => {
 
   describe('for Date', () => {
     describe('when maxValue is set', () => {
-      describe.each([
+      describeEach([
         ['by string', 'max=1970-01-01T00:00:00.005Z'],
         ['by object as date', { '@type': 'PropertyValueSpecification' as const, maxValue: new Date(5) }],
         ['by object as number', { '@type': 'PropertyValueSpecification' as const, maxValue: 5 }],
@@ -425,7 +427,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when maxValue is not set', () => {
-      describe.each([
+      describeEach([
         ['by string', ''],
         ['by object', { '@type': 'PropertyValueSpecification' as const }]
       ])('%s', (_, propertyValueSpecification) => {
@@ -446,7 +448,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when minValue is set', () => {
-      describe.each([
+      describeEach([
         ['by string', 'min=1970-01-01T00:00:00.005Z'],
         ['by object as date', { '@type': 'PropertyValueSpecification' as const, minValue: new Date(5) }],
         ['by object as number', { '@type': 'PropertyValueSpecification' as const, minValue: 5 }],
@@ -474,7 +476,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when minValue is unset', () => {
-      describe.each([
+      describeEach([
         ['by string', ''],
         ['by object', { '@type': 'PropertyValueSpecification' as const }]
       ])('%s', (_, propertyValueSpecification) => {
@@ -495,7 +497,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when stepValue is set', () => {
-      describe.each([
+      describeEach([
         ['by string', 'step=5'],
         ['by object as number', { '@type': 'PropertyValueSpecification' as const, stepValue: 5 }],
         ['by object as string', { '@type': 'PropertyValueSpecification' as const, stepValue: '5' }]
@@ -519,7 +521,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when stepValue is unset', () => {
-      describe.each([
+      describeEach([
         ['by string', ''],
         ['by object', { '@type': 'PropertyValueSpecification' as const }]
       ])('%s', (_, propertyValueSpecification) => {
@@ -540,7 +542,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when multipleValues is set', () => {
-      describe.each([
+      describeEach([
         ['by string', 'multiple'],
         ['by object', { '@type': 'PropertyValueSpecification' as const, multipleValues: true }]
       ])('%s', (_, propertyValueSpecification) => {
@@ -567,7 +569,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when multipleValues is not set', () => {
-      describe.each([
+      describeEach([
         ['by string', ''],
         ['by object', { '@type': 'PropertyValueSpecification' as const }]
       ])('%s', (_, propertyValueSpecification) => {
@@ -583,7 +585,7 @@ describe('toValibotSchema', () => {
 
     describe('when defaultValue is set', () => {
       // Cannot set "defaultValue" of type number by string.
-      describe.each([['by object', { '@type': 'PropertyValueSpecification' as const, defaultValue: new Date(123) }]])(
+      describeEach([['by object', { '@type': 'PropertyValueSpecification' as const, defaultValue: new Date(123) }]])(
         '%s',
         (_, propertyValueSpecification) => {
           let schema: ReturnType<typeof toValibotSchema>;
@@ -604,7 +606,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when valueRequired is set to true', () => {
-      describe.each([
+      describeEach([
         ['by string', 'required'],
         ['by object', { '@type': 'PropertyValueSpecification' as const, valueRequired: true }]
       ])('%s', (_, propertyValueSpecification) => {
@@ -627,7 +629,7 @@ describe('toValibotSchema', () => {
     });
 
     describe('when valueRequired is set to false', () => {
-      describe.each([
+      describeEach([
         ['by string', ''],
         ['by object', { '@type': 'PropertyValueSpecification' as const, valueRequired: false }]
       ])('%s', (_, propertyValueSpecification) => {
@@ -643,7 +645,7 @@ describe('toValibotSchema', () => {
 
     describe('when defaultValue does not meet other constraints', () => {
       // Cannot set "defaultValue" of type number by string.
-      describe.each([
+      describeEach([
         [
           'by object as Date',
           { '@type': 'PropertyValueSpecification' as const, defaultValue: new Date(1), minValue: new Date(5) }

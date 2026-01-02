@@ -1,8 +1,14 @@
 {
-  "name": "use-schema-org-action-integration-test",
+  "name": "@compulim/integration-test",
   "version": "0.0.0-0",
   "description": "",
   "private": true,
+  "files": [
+    "**/*.cjs",
+    "**/*.js",
+    "**/*.mjs",
+    "webDriver/**/*"
+  ],
   "scripts": {
     "build": "npm run build:copy && npm run build:custom --if-present",
     "build:copy": "mkdir -p ./webDriver/static/; SRC=$(node --eval=\"console.log(require('path').resolve(require('resolve-cwd')('use-schema-org-action'), '../../dist'))\"); DEST=$(realpath ./webDriver/static); rm -rf $DEST; mkdir -p $DEST/js/; cp $SRC/** $DEST/js/",
@@ -98,31 +104,19 @@
     ]
   },
   "devDependencies": {
-    "@babel/core": "^7.28.5",
-    "@babel/preset-env": "^7.28.5",
-    "@babel/preset-react": "^7.28.5",
-    "@happy-dom/jest-environment": "^20.0.11",
+    "@compulim/test-harness": "0.0.0-0",
     "@testing-library/react": "^16.3.1",
     "@tsconfig/strictest": "^2.0.8",
-    "@types/jest": "^30.0.0",
     "@types/react": "^18.3.27",
     "@types/react-dom": "^18.3.7",
     "@types/react-test-renderer": "^19.1.0",
-    "jest": "^30.2.0",
+    "expect": "^30.2.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-test-renderer": "^18.3.1",
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "use-schema-org-action": "^0.0.0-0"
-  },
-  "files": [
-    "**/*.cjs",
-    "**/*.js",
-    "**/*.mjs",
-    "webDriver/**/*"
-  ],
-  "exports": {},
-  "peerDependencies": {}
+    "use-schema-org-action": "0.0.0-0"
+  }
 }

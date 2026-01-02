@@ -1,13 +1,11 @@
-/** @jest-environment ./src/test/HappyDOMEnvironmentWithWritableStream.js */
-
-import { beforeEach, describe, expect, test } from '@jest/globals';
+import { renderHook, type RenderHookResult } from '@compulim/test-harness/renderHook';
 import { act } from '@testing-library/react';
-import { fn } from 'jest-mock';
-import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
-import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction';
-import { type MockOf } from './MockOf';
-import renderHook, { type RenderHookResult } from './renderHook';
-import sortEntries from './sortEntries';
+import { expect } from 'expect';
+import { beforeEach, describe, mock, test } from 'node:test';
+import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema.ts';
+import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction.ts';
+import type { MockOf } from './MockOf.ts';
+import sortEntries from './sortEntries.ts';
 
 type BuyAction = {
   '@type': 'BuyAction';
@@ -66,7 +64,7 @@ describe('Spec: Product purchase API call with -output', () => {
       }
     };
 
-    handler = fn();
+    handler = mock.fn();
   });
 
   describe('when useSchemaOrgAction() is rendered', () => {
@@ -79,28 +77,30 @@ describe('Spec: Product purchase API call with -output', () => {
     describe('when submit() is called', () => {
       beforeEach(async () => {
         // [FROM-SPEC]
-        handler.mockResolvedValueOnce({
-          '@type': 'BuyAction',
-          actionStatus: 'CompletedActionStatus',
-          object: 'https://example.com/products/ipod',
-          result: {
-            '@type': 'Order',
-            url: 'http://example.com/orders/1199334',
-            confirmationNumber: '1ABBCDDF23234',
-            orderNumber: '1199334',
-            orderStatus: 'PROCESSING'
-          }
-        });
+        handler.mock.mockImplementationOnce(() =>
+          Promise.resolve({
+            '@type': 'BuyAction',
+            actionStatus: 'CompletedActionStatus',
+            object: 'https://example.com/products/ipod',
+            result: {
+              '@type': 'Order',
+              url: 'http://example.com/orders/1199334',
+              confirmationNumber: '1ABBCDDF23234',
+              orderNumber: '1199334',
+              orderStatus: 'PROCESSING'
+            }
+          })
+        );
 
         await act(() => renderResult.result.current[2].perform());
       });
 
-      test('should have called handler() once', () => expect(handler).toHaveBeenCalledTimes(1));
+      test('should have called handler() once', () => expect(handler.mock.callCount()).toBe(1));
 
-      test('should have called with empty request', () => expect(handler.mock.calls[0]?.[0]).toStrictEqual({}));
+      test('should have called with empty request', () => expect(handler.mock.calls[0]?.arguments[0]).toStrictEqual({}));
 
       test('should have called with empty input variables', () =>
-        expect(sortEntries(handler.mock.calls[0]?.[1].entries() || [])).toEqual([]));
+        expect(sortEntries(handler.mock.calls[0]?.arguments[1].entries() || [])).toEqual([]));
 
       // [FROM-SPEC]
       test('should have called with URL', () =>

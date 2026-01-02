@@ -1,7 +1,8 @@
-import { beforeEach, describe, expect, test } from '@jest/globals';
+import { expect } from 'expect';
+import { beforeEach, describe, test } from 'node:test';
 import { safeParse, type ErrorMessage, type ObjectEntries, type ObjectIssue, type ObjectSchema } from 'valibot';
-import type { PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
-import buildSchemaFromConstraintsRecursive from './buildSchemaFromConstraintsRecursive';
+import type { PropertyValueSpecification } from '../PropertyValueSpecificationSchema.ts';
+import buildSchemaFromConstraintsRecursive from './buildSchemaFromConstraintsRecursive.ts';
 
 type ReviewAction = {
   '@context': 'https://schema.org';

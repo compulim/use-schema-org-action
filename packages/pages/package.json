@@ -1,5 +1,5 @@
 {
-  "name": "use-schema-org-action-pages",
+  "name": "@compulim/pages",
   "version": "0.0.0-0",
   "description": "",
   "private": true,
@@ -17,6 +17,11 @@
     "reinstall": "rm -r node_modules package-lock.json && npm install",
     "start": "npm run build -- --define:IS_DEVELOPMENT=true --servedir=./public --watch",
     "switch": "cat package.json | jq --arg SWITCH_NAME $SWITCH_NAME -r '(.[\"switch:\" + $SWITCH_NAME] // {}) as $TEMPLATE | .devDependencies += ($TEMPLATE.devDependencies // {}) | .dependencies += ($TEMPLATE.dependencies // {})' | tee ./package.json.tmp && mv ./package.json.tmp ./package.json"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public/assets/js"
+    ]
   },
   "author": "William Wong (https://github.com/compulim)",
   "license": "MIT",
@@ -50,9 +55,6 @@
       "react-dom": "18.0.0"
     }
   },
-  "localPeerDependencies": {
-    "use-schema-org-action": "0.0.0-0"
-  },
   "pinDependencies": {
     "@types/react": [
       "18"
@@ -66,6 +68,9 @@
     "react-dom": [
       "18"
     ]
+  },
+  "localPeerDependencies": {
+    "use-schema-org-action": "0.0.0-0"
   },
   "devDependencies": {
     "@fluentui/react": "^8.125.3",
@@ -82,15 +87,8 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "url-template": "^3.1.1",
-    "use-schema-org-action": "^0.0.0-0",
+    "use-schema-org-action": "0.0.0-0",
     "use-state-with-ref": "^0.1.0",
     "valibot": "^1.2.0"
-  },
-  "msw": {
-    "workerDirectory": [
-      "public/assets/js"
-    ]
-  },
-  "exports": {},
-  "peerDependencies": {}
+  }
 }

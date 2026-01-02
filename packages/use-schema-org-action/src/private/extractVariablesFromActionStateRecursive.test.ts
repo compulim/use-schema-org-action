@@ -1,7 +1,8 @@
-import { beforeEach, expect, test } from '@jest/globals';
-import type { PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
-import sortEntries from '../test/sortEntries';
-import extractVariablesFromActionStateRecursive from './extractVariablesFromActionStateRecursive';
+import { expect } from 'expect';
+import { beforeEach, test } from 'node:test';
+import type { PropertyValueSpecification } from '../PropertyValueSpecificationSchema.ts';
+import sortEntries from '../test/sortEntries.ts';
+import extractVariablesFromActionStateRecursive from './extractVariablesFromActionStateRecursive.ts';
 
 type ReviewAction = {
   '@context': 'https://schema.org';

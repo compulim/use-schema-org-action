@@ -1,7 +1,8 @@
-import { expect, test } from '@jest/globals';
+import { expect } from 'expect';
+import { test } from 'node:test';
 
-import buildSchemaFromConstraintsRecursive from './buildSchemaFromConstraintsRecursive';
-import validateConstraints from './validateConstraints';
+import buildSchemaFromConstraintsRecursive from './buildSchemaFromConstraintsRecursive.ts';
+import validateConstraints from './validateConstraints.ts';
 
 test('should return "valid" of true', () => {
   const validity = validateConstraints(buildSchemaFromConstraintsRecursive({ 'url-input': 'required' }, 'input'), {

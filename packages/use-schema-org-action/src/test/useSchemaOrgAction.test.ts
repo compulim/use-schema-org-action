@@ -1,15 +1,13 @@
-/** @jest-environment ./src/test/HappyDOMEnvironmentWithWritableStream.js */
-
-import { beforeEach, describe, expect, test } from '@jest/globals';
+import { renderHook, type RenderHookResult } from '@compulim/test-harness/renderHook';
 import { act } from '@testing-library/react';
-import { fn } from 'jest-mock';
-import { type PartialDeep } from 'type-fest';
-import { type ActionStatusType } from '../ActionStatusType';
-import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
-import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction';
-import { type MockOf } from './MockOf';
-import renderHook, { type RenderHookResult } from './renderHook';
-import sortEntries from './sortEntries';
+import { expect } from 'expect';
+import { beforeEach, describe, mock, test } from 'node:test';
+import type { PartialDeep } from 'type-fest';
+import { type ActionStatusType } from '../ActionStatusType.ts';
+import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema.ts';
+import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction.ts';
+import type { MockOf } from './MockOf.ts';
+import sortEntries from './sortEntries.ts';
 
 type ReviewAction = {
   '@context'?: 'https://schema.org';
@@ -78,7 +76,8 @@ describe('when rendered initially', () => {
   beforeEach(() => {
     handlerResolvers = Promise.withResolvers();
 
-    handler = fn().mockReturnValueOnce(handlerResolvers.promise);
+    handler = mock.fn();
+    handler.mock.mockImplementationOnce(() => handlerResolvers.promise);
 
     renderResult = renderHook(() => useSchemaOrgAction(reviewAction, handler));
   });
@@ -147,21 +146,20 @@ describe('when rendered initially', () => {
       );
 
       describe('should call handler()', () => {
-        test('once', () => expect(handler).toHaveBeenCalledTimes(1));
+        test('once', () => expect(handler.mock.callCount()).toBe(1));
 
         test('with correct type of arguments', () =>
-          expect(handler).toHaveBeenNthCalledWith(
-            1,
+          expect(handler.mock.calls[0]?.arguments).toEqual([
             expect.any(Object),
             expect.any(Map),
             expect.objectContaining({
               signal: expect.any(AbortSignal)
             })
-          ));
+          ]));
 
         test('with request only marked by input constraints', () =>
           // [NOT-IN-SPEC]
-          expect(handler.mock.calls[0]?.[0]).toStrictEqual({
+          expect(handler.mock.calls[0]?.arguments[0]).toStrictEqual({
             object: { url: 'https://example.com/input' },
             result: {
               reviewBody: 'Great movie.',
@@ -170,13 +168,14 @@ describe('when rendered initially', () => {
           }));
 
         test('with input variables', () =>
-          expect(sortEntries(handler.mock.calls[0]?.[1].entries() || [])).toEqual([
+          expect(sortEntries(handler.mock.calls[0]?.arguments[1].entries() || [])).toEqual([
             ['rating', 5],
             ['review', 'Great movie.'],
             ['url', 'https://example.com/input']
           ]));
 
-        test('with unaborted signal', () => expect(handler.mock.calls[0]?.[2].signal).toHaveProperty('aborted', false));
+        test('with unaborted signal', () =>
+          expect(handler.mock.calls[0]?.arguments[2].signal).toHaveProperty('aborted', false));
 
         test('with "actionStatus" property of "ActiveActionStatus"', () => {
           expect(renderResult.result.current[0]).toStrictEqual({
@@ -382,7 +381,7 @@ describe('when rendered initially', () => {
 
       test('should call handler with updated request', () => {
         // [NOT-IN-SPEC]
-        expect(handler.mock.calls[0]?.[0]).toStrictEqual({
+        expect(handler.mock.calls[0]?.arguments[0]).toStrictEqual({
           object: { url: 'https://example.com/input-2' },
           result: {
             reviewBody: 'Great movie.',
@@ -392,7 +391,7 @@ describe('when rendered initially', () => {
       });
 
       test('should call handler with updated input variables', () => {
-        expect(sortEntries(handler.mock.calls[0]?.[1]?.entries() || [])).toEqual([
+        expect(sortEntries(handler.mock.calls[0]?.arguments[1]?.entries() || [])).toEqual([
           ['rating', 5],
           ['review', 'Great movie.'],
           ['url', 'https://example.com/input-2']
@@ -407,7 +406,10 @@ describe('when rendered with initialAction containing valid "actionStatus" prope
 
   beforeEach(() => {
     renderResult = renderHook(() =>
-      useSchemaOrgAction<ReviewAction>({ ...reviewAction, actionStatus: 'CompletedActionStatus' }, fn<ActionHandler>())
+      useSchemaOrgAction<ReviewAction>(
+        { ...reviewAction, actionStatus: 'CompletedActionStatus' },
+        mock.fn<ActionHandler>()
+      )
     );
   });
 
@@ -430,7 +432,7 @@ describe('when rendered with initialAction containing invalid "actionStatus" pro
     renderResult = renderHook(() =>
       // Explicitly set an invalid value.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      useSchemaOrgAction<ReviewAction>({ ...reviewAction, actionStatus: '123' as any }, fn<ActionHandler>())
+      useSchemaOrgAction<ReviewAction>({ ...reviewAction, actionStatus: '123' as any }, mock.fn<ActionHandler>())
     );
   });
 
@@ -454,7 +456,8 @@ describe('initialAction with values', () => {
   beforeEach(() => {
     handlerResolvers = Promise.withResolvers();
 
-    handler = fn().mockReturnValueOnce(handlerResolvers.promise);
+    handler = mock.fn();
+    handler.mock.mockImplementationOnce(() => handlerResolvers.promise);
 
     renderResult = renderHook(() =>
       useSchemaOrgAction(
@@ -498,7 +501,8 @@ describe('initialAction with actionStatus', () => {
   beforeEach(() => {
     handlerResolvers = Promise.withResolvers();
 
-    handler = fn().mockReturnValueOnce(handlerResolvers.promise);
+    handler = mock.fn();
+    handler.mock.mockImplementationOnce(() => handlerResolvers.promise);
 
     renderResult = renderHook(() =>
       useSchemaOrgAction(
@@ -528,7 +532,8 @@ describe('calling setActionState', () => {
   let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void>;
 
   beforeEach(() => {
-    handler = fn().mockImplementation(() => ({
+    handler = mock.fn();
+    handler.mock.mockImplementation(() => ({
       result: { url: 'https://example.com/output' }
     }));
 
@@ -588,8 +593,8 @@ describe('calling setActionState', () => {
   test('should not change input', async () => {
     await act(() => renderResult.result.current[2].perform());
 
-    expect(handler).toHaveBeenCalledTimes(1);
-    expect(handler.mock.calls[0]?.[0]).toStrictEqual({
+    expect(handler.mock.callCount()).toBe(1);
+    expect(handler.mock.calls[0]?.arguments[0]).toStrictEqual({
       object: { url: 'https://example.com/input' },
       result: {
         reviewBody: 'Great movie.',
@@ -605,7 +610,8 @@ describe('call useSchemaOrgAction()', () => {
   let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, any>;
 
   beforeEach(() => {
-    handler = fn().mockImplementation(() => ({
+    handler = mock.fn();
+    handler.mock.mockImplementation(() => ({
       result: { url: 'https://example.com/output' }
     }));
 
@@ -662,7 +668,7 @@ describe('call useSchemaOrgAction()', () => {
   });
 
   test('should not change actionState', () => {
-    expect(renderResult.result.current[0]).toStrictEqual({
+    expect(renderResult.result.current[0]).toEqual({
       actionStatus: 'PotentialActionStatus',
       object: { url: 'https://example.com/input' },
       result: {
@@ -676,8 +682,8 @@ describe('call useSchemaOrgAction()', () => {
   test('should not change input', async () => {
     await act(() => renderResult.result.current[2].perform());
 
-    expect(handler).toHaveBeenCalledTimes(1);
-    expect(handler.mock.calls[0]?.[0]).toStrictEqual({
+    expect(handler.mock.callCount()).toBe(1);
+    expect(handler.mock.calls[0]?.arguments[0]).toStrictEqual({
       object: { url: 'https://example.com/input' },
       result: {
         reviewBody: 'Great movie.',

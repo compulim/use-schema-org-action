@@ -1,10 +1,13 @@
-/** @jest-environment @happy-dom/jest-environment */
-
-import { act, renderHook } from '@testing-library/react';
+import { act } from '@compulim/test-harness/act';
+import { renderHook } from '@compulim/test-harness/renderHook';
+import { expect } from 'expect';
+import { mock, test } from 'node:test';
 import { useSchemaOrgAction } from 'use-schema-org-action';
 
 test('should work', async () => {
-  const handler = jest.fn().mockResolvedValue({});
+  const handler = mock.fn();
+
+  handler.mock.mockImplementation(() => ({}));
 
   // WHEN: Rendered.
   const renderResult = renderHook(() =>
@@ -37,8 +40,12 @@ test('should work', async () => {
   await act(() => renderResult.result.current[2].perform());
 
   // THEN: Should have called the handler once.
-  expect(handler).toHaveBeenCalledTimes(1);
-  expect(handler).toHaveBeenLastCalledWith({ actionOption: 'downvote' }, expect.any(Map), expect.any(Object));
+  expect(handler.mock.callCount()).toBe(1);
+  expect(handler.mock.calls.at(-1)?.arguments).toEqual([
+    { actionOption: 'downvote' },
+    expect.any(Map),
+    expect.any(Object)
+  ]);
 
   // THEN: Should mark the "actionStatus" as "CompletedActionStatus".
   expect(renderResult.result.current[0]).toEqual({

@@ -1,6 +1,6 @@
-/** @jest-environment @happy-dom/jest-environment */
-
-const React = require('react');
+const { expect } = require('expect');
+const { test } = require('node:test');
+const { createElement } = require('react');
 const { create } = require('react-test-renderer');
 const { useSchemaOrgAction } = require('use-schema-org-action');
 
@@ -20,7 +20,7 @@ test('simple scenario', () => {
   };
 
   // WHEN: Rendered.
-  const renderer = create(<App />);
+  const renderer = create(createElement(App));
 
   // THEN: It should render JSON of { "@type": "VoteAction", actionOption: 'upvote', actionStatus: 'PotentialActionStatus' }.
   expect(renderer.toJSON()).toBe('{"actionOption":"upvote","actionStatus":"PotentialActionStatus"}');

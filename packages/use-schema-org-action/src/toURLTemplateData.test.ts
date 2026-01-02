@@ -1,4 +1,5 @@
-import { beforeEach, expect, test } from '@jest/globals';
+import { expect } from 'expect';
+import { beforeEach, test } from 'node:test';
 import toURLTemplateData from './toURLTemplateData.ts';
 
 let urlTemplateData: Record<string, string[]>;

@@ -1,5 +1,6 @@
-import { expect, test } from '@jest/globals';
-import extractActionStateFromAction from './extractActionStateFromAction';
+import { expect } from 'expect';
+import { test } from 'node:test';
+import extractActionStateFromAction from './extractActionStateFromAction.ts';
 
 test('should work', () => {
   const actionState = extractActionStateFromAction({

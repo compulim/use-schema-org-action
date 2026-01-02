@@ -1,14 +1,12 @@
-/** @jest-environment ./src/test/HappyDOMEnvironmentWithWritableStream.js */
-
-import { beforeEach, describe, expect, test } from '@jest/globals';
+import { renderHook, type RenderHookResult } from '@compulim/test-harness/renderHook';
 import { act } from '@testing-library/react';
-import { fn } from 'jest-mock';
+import { expect } from 'expect';
+import { beforeEach, describe, mock, test } from 'node:test';
 import { parseTemplate } from 'url-template';
-import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
-import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction';
-import variableMapToNullableStringRecord from '../variableMapToNullableStringRecord';
-import { type MockOf } from './MockOf';
-import renderHook, { type RenderHookResult } from './renderHook';
+import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema.ts';
+import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction.ts';
+import variableMapToNullableStringRecord from '../variableMapToNullableStringRecord.ts';
+import type { MockOf } from './MockOf.ts';
 
 type SearchAction = {
   '@type': 'SearchAction';
@@ -41,7 +39,8 @@ describe('Spec: Text search deep link with -input', () => {
       }
     };
 
-    handler = fn<ActionHandler>().mockResolvedValueOnce({});
+    handler = mock.fn<ActionHandler>();
+    handler.mock.mockImplementationOnce(() => ({}));
   });
 
   describe('when useSchemaOrgAction() is rendered', () => {
@@ -77,21 +76,21 @@ describe('Spec: Text search deep link with -input', () => {
       describe('when submit() is called', () => {
         beforeEach(() => act(() => renderResult.result.current[2].perform()));
 
-        test('should have called handler() once', () => expect(handler).toHaveBeenCalledTimes(1));
+        test('should have called handler() once', () => expect(handler.mock.callCount()).toBe(1));
 
         // [NOT-IN-SPEC]
         test('should build request without constraints', () =>
-          expect(handler.mock.lastCall?.[0]).toStrictEqual({ query: 'the search' }));
+          expect(handler.mock.calls.at(-1)?.arguments[0]).toStrictEqual({ query: 'the search' }));
 
         // [FROM-SPEC]
         test('should construct the input variables', () =>
-          expect(Array.from(handler.mock.lastCall?.[1].entries() || [])).toEqual([['q', 'the search']]));
+          expect(Array.from(handler.mock.calls.at(-1)?.arguments[1]?.entries() || [])).toEqual([['q', 'the search']]));
 
         // [FROM-SPEC]
         test('should expand URL template', () => {
           const template = parseTemplate(webSite.potentialAction.target);
 
-          const inputVariables = handler.mock.lastCall?.[1];
+          const inputVariables = handler.mock.calls.at(-1)?.arguments[1];
 
           const url = template.expand(variableMapToNullableStringRecord(inputVariables || new Map()));
 

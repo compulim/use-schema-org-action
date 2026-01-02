@@ -1,14 +1,12 @@
-/** @jest-environment ./src/test/HappyDOMEnvironmentWithWritableStream.js */
-
-import { beforeEach, describe, expect, test } from '@jest/globals';
+import { renderHook, type RenderHookResult } from '@compulim/test-harness/renderHook';
 import { act } from '@testing-library/react';
-import { fn } from 'jest-mock';
-import { type ActionStatusType } from '../ActionStatusType';
-import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
-import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction';
-import { type MockOf } from './MockOf';
-import renderHook, { type RenderHookResult } from './renderHook';
-import sortEntries from './sortEntries';
+import { expect } from 'expect';
+import { beforeEach, describe, mock, test } from 'node:test';
+import { type ActionStatusType } from '../ActionStatusType.ts';
+import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema.ts';
+import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction.ts';
+import type { MockOf } from './MockOf.ts';
+import sortEntries from './sortEntries.ts';
 
 describe('Spec: Movie review site API with -input and -output', () => {
   type ReviewAction = {
@@ -66,7 +64,9 @@ describe('Spec: Movie review site API with -input and -output', () => {
       }
     };
 
-    handler = fn<ActionHandler>().mockResolvedValueOnce(
+    handler = mock.fn<ActionHandler>();
+
+    handler.mock.mockImplementationOnce(() =>
       // [FROM-SPEC]
       Promise.resolve({
         '@context': 'https://schema.org',
@@ -107,11 +107,11 @@ describe('Spec: Movie review site API with -input and -output', () => {
       describe('when submit() is called', () => {
         beforeEach(() => act(() => renderResult.result.current[2].perform()));
 
-        test('should be called once', () => expect(handler).toHaveBeenCalledTimes(1));
+        test('should be called once', () => expect(handler.mock.callCount()).toBe(1));
 
         test('should be called with request', () =>
           // [FROM-SPEC] But the spec is not exactly correct.
-          expect(handler.mock.calls[0]?.[0]).toStrictEqual({
+          expect(handler.mock.calls[0]?.arguments[0]).toStrictEqual({
             object: { url: 'http://example.com/movies/123' },
             result: {
               reviewBody: 'yada, yada, yada',

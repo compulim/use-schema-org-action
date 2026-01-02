@@ -1,6 +1,7 @@
-import { beforeEach, expect, test } from '@jest/globals';
-import type { PropertyValueSpecification } from '../PropertyValueSpecificationSchema';
-import mergeActionStateRecursive from './mergeActionStateRecursive';
+import { expect } from 'expect';
+import { beforeEach, test } from 'node:test';
+import type { PropertyValueSpecification } from '../PropertyValueSpecificationSchema.ts';
+import mergeActionStateRecursive from './mergeActionStateRecursive.ts';
 
 type ReviewAction = {
   '@context': 'https://schema.org';
