@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from 'react';
+import React, { type Dispatch, type SetStateAction } from 'react';
 import { useRefFrom } from 'use-ref-from';
 import {
   fallback,
@@ -19,6 +19,8 @@ import extractVariablesFromActionStateRecursive from './private/extractVariables
 import mergeActionStateRecursive from './private/mergeActionStateRecursive.ts';
 import validateConstraints from './private/validateConstraints.ts';
 import { type VariableMap } from './VariableMap.ts';
+
+const { useCallback, useEffect, useMemo, useRef, useState } = React;
 
 /**
  * Returns a stateful action state, a function to update it, and a function to perform the action.

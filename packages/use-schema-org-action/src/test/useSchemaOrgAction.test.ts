@@ -1,0 +1,724 @@
+import { cleanup, renderHook, type RenderHookResult } from '@compulim/test-harness/renderHook';
+import { act, waitFor } from '@testing-library/react';
+import { expect } from 'expect';
+import { afterEach, beforeEach, describe, mock, test, type Mock } from 'node:test';
+import type { PartialDeep } from 'type-fest';
+import { type ActionStatusType } from '../ActionStatusType.ts';
+import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema.ts';
+import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction.ts';
+import sortEntries from './sortEntries.ts';
+
+type ReviewAction = {
+  '@context'?: 'https://schema.org';
+  '@type'?: 'ReviewAction';
+  actionStatus?: ActionStatusType;
+  'actionStatus-output'?: PropertyValueSpecification;
+  target?: {
+    '@type'?: 'EntryPoint';
+    urlTemplate?: string;
+    encodingType?: string;
+    contentType?: string;
+  };
+  object?: {
+    '@type'?: 'Movie';
+    url?: string;
+    'url-input'?: PropertyValueSpecification;
+  };
+  result?: {
+    '@type'?: 'Review';
+    url?: string;
+    'url-output'?: PropertyValueSpecification;
+    reviewBody?: string;
+    'reviewBody-input'?: PropertyValueSpecification;
+    reviewRating?: {
+      ratingValue?: number;
+      'ratingValue-input'?: PropertyValueSpecification;
+    };
+  };
+};
+
+let reviewAction: ReviewAction;
+
+afterEach(cleanup);
+
+beforeEach(() => {
+  // [MODIFIED-FROM-SPEC]
+  reviewAction = {
+    '@context': 'https://schema.org',
+    '@type': 'ReviewAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: 'https://api.example.com/review',
+      encodingType: 'application/ld+json',
+      contentType: 'application/ld+json'
+    },
+    object: {
+      '@type': 'Movie',
+      'url-input': 'name=url required'
+    },
+    result: {
+      '@type': 'Review',
+      'url-output': { valueMinLength: 10, valueRequired: true },
+      'reviewBody-input': { valueName: 'review', valueRequired: true },
+      reviewRating: {
+        'ratingValue-input': { minValue: 0, maxValue: 5, valueName: 'rating', valueRequired: true }
+      }
+    }
+  };
+});
+
+type UseSchemaOrgActionForReviewActionResult = ReturnType<typeof useSchemaOrgAction<ReviewAction>>;
+
+describe('when rendered initially', () => {
+  let handler: Mock<ActionHandler>;
+  let handlerResolvers: PromiseWithResolvers<PartialDeep<ReviewAction>>;
+  let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void>;
+
+  beforeEach(() => {
+    handlerResolvers = Promise.withResolvers();
+
+    handler = mock.fn();
+    handler.mock.mockImplementationOnce(() => handlerResolvers.promise);
+
+    renderResult = renderHook(() => useSchemaOrgAction(reviewAction, handler));
+  });
+
+  test('should return actionState with actionStatus of "PotentialActionStatus"', () =>
+    expect(renderResult.result.current[0]).toStrictEqual({
+      actionStatus: 'PotentialActionStatus',
+      object: { url: undefined },
+      result: {
+        reviewBody: undefined,
+        reviewRating: { ratingValue: undefined },
+        url: undefined
+      }
+    }));
+
+  test('"inputValidity.valid" should be false', () =>
+    expect(renderResult.result.current[2]).toHaveProperty('inputValidity.valid', false));
+
+  describe('when inputs are set to valid values', () => {
+    beforeEach(() => {
+      act(() => {
+        renderResult.result.current[1](actionState => ({
+          ...actionState,
+          object: { url: 'https://example.com/input' },
+          result: {
+            ...actionState['result'],
+            reviewBody: 'Great movie.',
+            reviewRating: {
+              ...actionState['result']?.['reviewRating'],
+              ratingValue: 5
+            }
+          }
+        }));
+      });
+    });
+
+    test('input should contain value', () =>
+      expect(renderResult.result.current[2]).toHaveProperty(
+        'inputVariables',
+        new Map<string, boolean | Date | number | string | undefined>([
+          ['rating', 5],
+          ['review', 'Great movie.'],
+          ['url', 'https://example.com/input']
+        ])
+      ));
+
+    test('actionState should contain value', () =>
+      expect(renderResult.result.current[0]).toStrictEqual({
+        actionStatus: 'PotentialActionStatus',
+        object: { url: 'https://example.com/input' },
+        result: {
+          reviewBody: 'Great movie.',
+          reviewRating: { ratingValue: 5 },
+          url: undefined
+        }
+      }));
+
+    describe('when submit() is called', () => {
+      let submitPromise: Promise<void>;
+
+      beforeEach(() => {
+        act(() => {
+          submitPromise = renderResult.result.current[2].perform();
+          submitPromise.catch(() => {});
+        });
+      });
+
+      describe('should call handler()', () => {
+        test('once', () => expect(handler.mock.callCount()).toBe(1));
+
+        test('with correct type of arguments', () =>
+          expect(handler.mock.calls[0]?.arguments).toEqual([
+            expect.any(Object),
+            expect.any(Map),
+            expect.objectContaining({
+              signal: expect.any(AbortSignal)
+            })
+          ]));
+
+        test('with request only marked by input constraints', () =>
+          // [NOT-IN-SPEC]
+          expect(handler.mock.calls[0]?.arguments[0]).toStrictEqual({
+            object: { url: 'https://example.com/input' },
+            result: {
+              reviewBody: 'Great movie.',
+              reviewRating: { ratingValue: 5 }
+            }
+          }));
+
+        test('with input variables', () =>
+          expect(sortEntries(handler.mock.calls[0]?.arguments[1].entries() || [])).toEqual([
+            ['rating', 5],
+            ['review', 'Great movie.'],
+            ['url', 'https://example.com/input']
+          ]));
+
+        test('with unaborted signal', () =>
+          expect(handler.mock.calls[0]?.arguments[2].signal).toHaveProperty('aborted', false));
+
+        test('with "actionStatus" property of "ActiveActionStatus"', () => {
+          expect(renderResult.result.current[0]).toStrictEqual({
+            actionStatus: 'ActiveActionStatus',
+            object: { url: 'https://example.com/input' },
+            result: {
+              reviewBody: 'Great movie.',
+              reviewRating: { ratingValue: 5 },
+              url: undefined
+            }
+          });
+        });
+
+        describe('when handler() is resolved with valid output', () => {
+          beforeEach(() => {
+            act(() => {
+              handlerResolvers.resolve({ result: { url: 'https://example.com/output' } });
+            });
+          });
+
+          test('should merge output into action and mark as completed', () =>
+            waitFor(() =>
+              expect(renderResult.result.current[0]).toStrictEqual({
+                actionStatus: 'CompletedActionStatus',
+                object: { url: 'https://example.com/input' },
+                result: {
+                  reviewBody: 'Great movie.',
+                  reviewRating: { ratingValue: 5 },
+                  url: 'https://example.com/output'
+                }
+              })
+            ));
+        });
+
+        describe('when handler() is resolved with invalid output', () => {
+          beforeEach(() => {
+            act(() => {
+              handlerResolvers.resolve({ result: { url: 'too-short' } });
+            });
+          });
+
+          test('should throw', () => expect(submitPromise).rejects.toThrow());
+
+          test('should have "actionStatus" set to "FailedActionStatus"', () =>
+            waitFor(() => expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'FailedActionStatus')));
+        });
+
+        describe('when handler() is resolved after unmount', () => {
+          beforeEach(() => {
+            act(() => {
+              renderResult.unmount();
+              handlerResolvers.resolve({ result: { url: 'https://example.com/output' } });
+            });
+          });
+
+          test('should not merge output into action', () =>
+            waitFor(() =>
+              expect(renderResult.result.current[0]).toStrictEqual({
+                actionStatus: 'ActiveActionStatus',
+                object: { url: 'https://example.com/input' },
+                result: {
+                  reviewBody: 'Great movie.',
+                  reviewRating: { ratingValue: 5 },
+                  url: undefined
+                }
+              })
+            ));
+        });
+
+        describe('when handler() is rejected after unmount', () => {
+          beforeEach(() => {
+            act(() => {
+              handlerResolvers.reject(new Error('Artificial failure.'));
+            });
+          });
+
+          test('should throw', () => expect(submitPromise).rejects.toThrow('Artificial failure.'));
+
+          test('should change "actionStatus" to "FailedActionStatus"', () =>
+            waitFor(() => expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'FailedActionStatus')));
+        });
+
+        describe('when handler() is rejected after unmount', () => {
+          beforeEach(() => {
+            act(() => {
+              renderResult.unmount();
+              handlerResolvers.resolve({ result: { url: 'too-short' } });
+            });
+          });
+
+          test('should throw', () => expect(submitPromise).rejects.toThrow());
+
+          test('should keep "actionStatus" with "ActiveActionStatus"', () =>
+            waitFor(() => expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'ActiveActionStatus')));
+        });
+      });
+    });
+
+    test('"inputValidity.valid" should be true', () =>
+      waitFor(() => expect(renderResult.result.current[2]).toHaveProperty('inputValidity.valid', true)));
+  });
+
+  describe('when input is set to an invalid value', () => {
+    beforeEach(() => {
+      act(() => {
+        renderResult.result.current[1](actionState => ({
+          ...actionState,
+          object: { url: 'https://example.com/input' },
+          result: {
+            ...actionState['result'],
+            reviewBody: 'Great movie.',
+            reviewRating: { ratingValue: -1 }
+          }
+        }));
+      });
+    });
+
+    test('input should contain invalid value', () =>
+      waitFor(() =>
+        expect(sortEntries(renderResult.result.current[2].inputVariables.entries?.() || [])).toEqual([
+          ['rating', -1],
+          ['review', 'Great movie.'],
+          ['url', 'https://example.com/input']
+        ])
+      ));
+
+    test('action should contain invalid value', () =>
+      waitFor(() =>
+        expect(renderResult.result.current[0]).toStrictEqual({
+          actionStatus: 'PotentialActionStatus',
+          object: { url: 'https://example.com/input' },
+          result: {
+            reviewBody: 'Great movie.',
+            reviewRating: { ratingValue: -1 },
+            url: undefined
+          }
+        })
+      ));
+
+    test('when submit() is called should reject', async () => {
+      let submitPromise: Promise<void> | undefined;
+
+      act(() => {
+        submitPromise = renderResult.result.current[2].perform();
+        submitPromise.catch(() => {});
+      });
+
+      await expect(submitPromise).rejects.toThrow('Input is invalid, cannot submit.');
+    });
+
+    test('"inputValidity.valid" should be false', () =>
+      waitFor(() => expect(renderResult.result.current[2]).toHaveProperty('inputValidity.valid', false)));
+  });
+
+  describe('when updating action', () => {
+    let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult>;
+
+    beforeEach(() => {
+      renderResult = renderHook(() => useSchemaOrgAction<ReviewAction>(reviewAction, handler));
+
+      act(() => {
+        renderResult.result.current[1](actionState => ({
+          ...actionState,
+          object: { url: 'https://example.com/input-1' }
+        }));
+      });
+
+      act(() => {
+        renderResult.result.current[1](actionState => ({
+          ...actionState,
+          object: { url: 'https://example.com/input-2' }
+        }));
+      });
+    });
+
+    test('should have action updated', () =>
+      waitFor(() =>
+        expect(renderResult.result.current[0]).toStrictEqual({
+          actionStatus: 'PotentialActionStatus',
+          object: { url: 'https://example.com/input-2' },
+          result: {
+            reviewBody: undefined,
+            reviewRating: { ratingValue: undefined },
+            url: undefined
+          }
+        })
+      ));
+
+    describe('when submit() is called', () => {
+      beforeEach(() => {
+        act(() => {
+          renderResult.result.current[1](actionState => ({
+            ...actionState,
+            result: {
+              ...actionState['result'],
+              reviewBody: 'Great movie.',
+              reviewRating: {
+                ...actionState['result']?.['reviewRating'],
+                ratingValue: 5
+              },
+              url: undefined
+            }
+          }));
+        });
+
+        act(() => {
+          // Do not resolve the promise.
+          renderResult.result.current[2].perform();
+        });
+      });
+
+      test('should call handler with updated request', () => {
+        // [NOT-IN-SPEC]
+        expect(handler.mock.calls[0]?.arguments[0]).toStrictEqual({
+          object: { url: 'https://example.com/input-2' },
+          result: {
+            reviewBody: 'Great movie.',
+            reviewRating: { ratingValue: 5 }
+          }
+        });
+      });
+
+      test('should call handler with updated input variables', () => {
+        expect(sortEntries(handler.mock.calls[0]?.arguments[1]?.entries() || [])).toEqual([
+          ['rating', 5],
+          ['review', 'Great movie.'],
+          ['url', 'https://example.com/input-2']
+        ]);
+      });
+    });
+  });
+});
+
+describe('when rendered with initialAction containing valid "actionStatus" property', () => {
+  let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult>;
+
+  beforeEach(() => {
+    renderResult = renderHook(() =>
+      useSchemaOrgAction<ReviewAction>(
+        { ...reviewAction, actionStatus: 'CompletedActionStatus' },
+        mock.fn<ActionHandler>()
+      )
+    );
+  });
+
+  test('should use the initial value', () =>
+    waitFor(() =>
+      expect(renderResult.result.current[0]).toStrictEqual({
+        actionStatus: 'CompletedActionStatus',
+        object: { url: undefined },
+        result: {
+          reviewBody: undefined,
+          reviewRating: { ratingValue: undefined },
+          url: undefined
+        }
+      })
+    ));
+});
+
+describe('when rendered with initialAction containing invalid "actionStatus" property', () => {
+  let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult>;
+
+  beforeEach(() => {
+    renderResult = renderHook(() =>
+      // Explicitly set an invalid value.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      useSchemaOrgAction<ReviewAction>({ ...reviewAction, actionStatus: '123' as any }, mock.fn<ActionHandler>())
+    );
+  });
+
+  test('should replace with "PotentialActionStatus"', () =>
+    waitFor(() =>
+      expect(renderResult.result.current[0]).toStrictEqual({
+        actionStatus: 'PotentialActionStatus',
+        object: { url: undefined },
+        result: {
+          reviewBody: undefined,
+          reviewRating: { ratingValue: undefined },
+          url: undefined
+        }
+      })
+    ));
+});
+
+describe('initialAction with values', () => {
+  let handler: Mock<ActionHandler>;
+  let handlerResolvers: PromiseWithResolvers<PartialDeep<ReviewAction>>;
+  let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void>;
+
+  beforeEach(() => {
+    handlerResolvers = Promise.withResolvers();
+
+    handler = mock.fn();
+    handler.mock.mockImplementationOnce(() => handlerResolvers.promise);
+
+    renderResult = renderHook(() =>
+      useSchemaOrgAction(
+        {
+          ...reviewAction,
+          object: { ...reviewAction['object'], url: 'https://example.com/input' },
+          result: {
+            ...reviewAction['result'],
+            reviewBody: 'Great movie.',
+            reviewRating: {
+              ...reviewAction['result']?.reviewRating,
+              ratingValue: 5
+            }
+          }
+        },
+        handler
+      )
+    );
+  });
+
+  test('input should be valid', () =>
+    waitFor(() => expect(renderResult.result.current[2].inputValidity).toHaveProperty('valid', true)));
+
+  test('actionState should contain values', () =>
+    waitFor(() =>
+      expect(renderResult.result.current[0]).toStrictEqual({
+        actionStatus: 'PotentialActionStatus',
+        object: { url: 'https://example.com/input' },
+        result: {
+          reviewBody: 'Great movie.',
+          reviewRating: { ratingValue: 5 },
+          url: undefined
+        }
+      })
+    ));
+});
+
+describe('initialAction with actionStatus', () => {
+  let handler: Mock<ActionHandler>;
+  let handlerResolvers: PromiseWithResolvers<PartialDeep<ReviewAction>>;
+  let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void>;
+
+  beforeEach(() => {
+    handlerResolvers = Promise.withResolvers();
+
+    handler = mock.fn();
+    handler.mock.mockImplementationOnce(() => handlerResolvers.promise);
+
+    renderResult = renderHook(() =>
+      useSchemaOrgAction(
+        {
+          ...reviewAction,
+          actionStatus: 'CompletedActionStatus'
+        },
+        handler
+      )
+    );
+  });
+
+  test('actionState should contain actionStatus from initialAction', () =>
+    waitFor(() =>
+      expect(renderResult.result.current[0]).toStrictEqual({
+        actionStatus: 'CompletedActionStatus',
+        object: { url: undefined },
+        result: {
+          reviewBody: undefined,
+          reviewRating: { ratingValue: undefined },
+          url: undefined
+        }
+      })
+    ));
+});
+
+describe('calling setActionState', () => {
+  let handler: Mock<ActionHandler>;
+  let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void>;
+
+  beforeEach(async () => {
+    handler = mock.fn();
+    handler.mock.mockImplementation(() =>
+      Promise.resolve({
+        result: { url: 'https://example.com/output' }
+      })
+    );
+
+    renderResult = renderHook(() =>
+      useSchemaOrgAction(
+        {
+          ...reviewAction,
+          object: {
+            ...reviewAction['object'],
+            url: 'https://example.com/input'
+          },
+          result: {
+            ...reviewAction['result'],
+            reviewBody: 'Great movie.',
+            reviewRating: {
+              ...reviewAction['result']?.['reviewRating'],
+              ratingValue: 5
+            }
+          }
+        },
+        handler
+      )
+    );
+
+    await waitFor(() =>
+      expect(renderResult.result.current[0]).toStrictEqual({
+        actionStatus: 'PotentialActionStatus',
+        object: { url: 'https://example.com/input' },
+        result: {
+          reviewBody: 'Great movie.',
+          reviewRating: { ratingValue: 5 },
+          url: undefined
+        }
+      })
+    );
+
+    act(() => {
+      renderResult.result.current[1](actionState => ({
+        ...actionState,
+        object: {
+          ...actionState['object'],
+          'url-input': undefined
+        },
+        name: 'John Doe',
+        'name-input': 'required',
+        result: {
+          ...actionState['result'],
+          'reviewBody-input': undefined,
+          reviewRating: {
+            ...actionState['result']?.['reviewRating'],
+            'ratingValue-input': undefined
+          },
+          'url-output': undefined
+        }
+      }));
+    });
+  });
+
+  test('should not change input', () => {
+    act(() => {
+      renderResult.result.current[2].perform();
+    });
+
+    expect(handler.mock.callCount()).toBe(1);
+    expect(handler.mock.calls[0]?.arguments[0]).toStrictEqual({
+      object: { url: 'https://example.com/input' },
+      result: {
+        reviewBody: 'Great movie.',
+        reviewRating: { ratingValue: 5 }
+      }
+    });
+  });
+});
+
+describe('call useSchemaOrgAction()', () => {
+  let handler: Mock<ActionHandler>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, any>;
+
+  beforeEach(async () => {
+    handler = mock.fn();
+    handler.mock.mockImplementation(() =>
+      Promise.resolve({
+        result: { url: 'https://example.com/output' }
+      })
+    );
+
+    renderResult = renderHook(({ action }) => useSchemaOrgAction(action, handler), {
+      initialProps: {
+        action: {
+          ...reviewAction,
+          object: {
+            ...reviewAction.object,
+            url: 'https://example.com/input'
+          },
+          result: {
+            ...reviewAction.result,
+            reviewBody: 'Great movie.',
+            reviewRating: {
+              ...reviewAction.result?.reviewRating,
+              ratingValue: 5
+            }
+          }
+        }
+      }
+    });
+
+    await waitFor(() =>
+      expect(renderResult.result.current[0]).toStrictEqual({
+        actionStatus: 'PotentialActionStatus',
+        object: { url: 'https://example.com/input' },
+        result: {
+          reviewBody: 'Great movie.',
+          reviewRating: { ratingValue: 5 },
+          url: undefined
+        }
+      })
+    );
+
+    renderResult.rerender({
+      action: {
+        ...reviewAction,
+        object: {
+          ...reviewAction.object,
+          'url-input': undefined
+        },
+        name: 'John Doe',
+        'name-input': 'required',
+        result: {
+          ...reviewAction.result,
+          'reviewBody-input': undefined,
+          reviewRating: {
+            ...reviewAction.result?.reviewRating,
+            'ratingValue-input': undefined
+          },
+          'url-output': undefined
+        }
+      }
+    });
+  });
+
+  test('should not change actionState', () =>
+    waitFor(() =>
+      expect(renderResult.result.current[0]).toEqual({
+        actionStatus: 'PotentialActionStatus',
+        object: { url: 'https://example.com/input' },
+        result: {
+          reviewBody: 'Great movie.',
+          reviewRating: { ratingValue: 5 },
+          url: undefined
+        }
+      })
+    ));
+
+  test('should not change input', () => {
+    act(() => {
+      renderResult.result.current[2].perform();
+    });
+
+    expect(handler.mock.callCount()).toBe(1);
+    expect(handler.mock.calls[0]?.arguments[0]).toStrictEqual({
+      object: { url: 'https://example.com/input' },
+      result: {
+        reviewBody: 'Great movie.',
+        reviewRating: { ratingValue: 5 }
+      }
+    });
+  });
+});
