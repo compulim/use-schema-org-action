@@ -1,5 +1,6 @@
 import { act } from '@compulim/test-harness/act';
 import { cleanup, renderHook } from '@compulim/test-harness/renderHook';
+import { waitFor } from '@testduet/wait-for';
 import { expect } from 'expect';
 import { afterEach, mock, test } from 'node:test';
 import { useSchemaOrgAction } from 'use-schema-org-action';
@@ -50,8 +51,10 @@ test('should work', async () => {
   ]);
 
   // THEN: Should mark the "actionStatus" as "CompletedActionStatus".
-  expect(renderResult.result.current[0]).toEqual({
-    actionOption: 'downvote',
-    actionStatus: 'CompletedActionStatus'
-  });
+  await waitFor(() =>
+    expect(renderResult.result.current[0]).toEqual({
+      actionOption: 'downvote',
+      actionStatus: 'CompletedActionStatus'
+    })
+  );
 });
