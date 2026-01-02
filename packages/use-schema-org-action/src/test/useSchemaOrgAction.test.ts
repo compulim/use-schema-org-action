@@ -1,5 +1,5 @@
 import { cleanup, renderHook, type RenderHookResult } from '@compulim/test-harness/renderHook';
-import { act } from '@testing-library/react';
+import { act, waitFor } from '@testing-library/react';
 import { expect } from 'expect';
 import { afterEach, beforeEach, describe, mock, test, type Mock } from 'node:test';
 import type { PartialDeep } from 'type-fest';
@@ -197,17 +197,18 @@ describe('when rendered initially', () => {
             });
           });
 
-          test('should merge output into action and mark as completed', () => {
-            expect(renderResult.result.current[0]).toStrictEqual({
-              actionStatus: 'CompletedActionStatus',
-              object: { url: 'https://example.com/input' },
-              result: {
-                reviewBody: 'Great movie.',
-                reviewRating: { ratingValue: 5 },
-                url: 'https://example.com/output'
-              }
-            });
-          });
+          test('should merge output into action and mark as completed', () =>
+            waitFor(() =>
+              expect(renderResult.result.current[0]).toStrictEqual({
+                actionStatus: 'CompletedActionStatus',
+                object: { url: 'https://example.com/input' },
+                result: {
+                  reviewBody: 'Great movie.',
+                  reviewRating: { ratingValue: 5 },
+                  url: 'https://example.com/output'
+                }
+              })
+            ));
         });
 
         describe('when handler() is resolved with invalid output', () => {
@@ -220,7 +221,7 @@ describe('when rendered initially', () => {
           test('should throw', () => expect(submitPromise).rejects.toThrow());
 
           test('should have "actionStatus" set to "FailedActionStatus"', () =>
-            expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'FailedActionStatus'));
+            waitFor(() => expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'FailedActionStatus')));
         });
 
         describe('when handler() is resolved after unmount', () => {
@@ -232,15 +233,17 @@ describe('when rendered initially', () => {
           });
 
           test('should not merge output into action', () =>
-            expect(renderResult.result.current[0]).toStrictEqual({
-              actionStatus: 'ActiveActionStatus',
-              object: { url: 'https://example.com/input' },
-              result: {
-                reviewBody: 'Great movie.',
-                reviewRating: { ratingValue: 5 },
-                url: undefined
-              }
-            }));
+            waitFor(() =>
+              expect(renderResult.result.current[0]).toStrictEqual({
+                actionStatus: 'ActiveActionStatus',
+                object: { url: 'https://example.com/input' },
+                result: {
+                  reviewBody: 'Great movie.',
+                  reviewRating: { ratingValue: 5 },
+                  url: undefined
+                }
+              })
+            ));
         });
 
         describe('when handler() is rejected after unmount', () => {
@@ -253,7 +256,7 @@ describe('when rendered initially', () => {
           test('should throw', () => expect(submitPromise).rejects.toThrow('Artificial failure.'));
 
           test('should change "actionStatus" to "FailedActionStatus"', () =>
-            expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'FailedActionStatus'));
+            waitFor(() => expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'FailedActionStatus')));
         });
 
         describe('when handler() is rejected after unmount', () => {
@@ -267,13 +270,13 @@ describe('when rendered initially', () => {
           test('should throw', () => expect(submitPromise).rejects.toThrow());
 
           test('should keep "actionStatus" with "ActiveActionStatus"', () =>
-            expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'ActiveActionStatus'));
+            waitFor(() => expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'ActiveActionStatus')));
         });
       });
     });
 
     test('"inputValidity.valid" should be true', () =>
-      expect(renderResult.result.current[2]).toHaveProperty('inputValidity.valid', true));
+      waitFor(() => expect(renderResult.result.current[2]).toHaveProperty('inputValidity.valid', true)));
   });
 
   describe('when input is set to an invalid value', () => {
@@ -292,23 +295,26 @@ describe('when rendered initially', () => {
     });
 
     test('input should contain invalid value', () =>
-      expect(sortEntries(renderResult.result.current[2].inputVariables.entries?.() || [])).toEqual([
-        ['rating', -1],
-        ['review', 'Great movie.'],
-        ['url', 'https://example.com/input']
-      ]));
+      waitFor(() =>
+        expect(sortEntries(renderResult.result.current[2].inputVariables.entries?.() || [])).toEqual([
+          ['rating', -1],
+          ['review', 'Great movie.'],
+          ['url', 'https://example.com/input']
+        ])
+      ));
 
-    test('action should contain invalid value', () => {
-      expect(renderResult.result.current[0]).toStrictEqual({
-        actionStatus: 'PotentialActionStatus',
-        object: { url: 'https://example.com/input' },
-        result: {
-          reviewBody: 'Great movie.',
-          reviewRating: { ratingValue: -1 },
-          url: undefined
-        }
-      });
-    });
+    test('action should contain invalid value', () =>
+      waitFor(() =>
+        expect(renderResult.result.current[0]).toStrictEqual({
+          actionStatus: 'PotentialActionStatus',
+          object: { url: 'https://example.com/input' },
+          result: {
+            reviewBody: 'Great movie.',
+            reviewRating: { ratingValue: -1 },
+            url: undefined
+          }
+        })
+      ));
 
     test('when submit() is called should reject', async () => {
       let submitPromise: Promise<void> | undefined;
@@ -322,7 +328,7 @@ describe('when rendered initially', () => {
     });
 
     test('"inputValidity.valid" should be false', () =>
-      expect(renderResult.result.current[2]).toHaveProperty('inputValidity.valid', false));
+      waitFor(() => expect(renderResult.result.current[2]).toHaveProperty('inputValidity.valid', false)));
   });
 
   describe('when updating action', () => {
@@ -347,15 +353,17 @@ describe('when rendered initially', () => {
     });
 
     test('should have action updated', () =>
-      expect(renderResult.result.current[0]).toStrictEqual({
-        actionStatus: 'PotentialActionStatus',
-        object: { url: 'https://example.com/input-2' },
-        result: {
-          reviewBody: undefined,
-          reviewRating: { ratingValue: undefined },
-          url: undefined
-        }
-      }));
+      waitFor(() =>
+        expect(renderResult.result.current[0]).toStrictEqual({
+          actionStatus: 'PotentialActionStatus',
+          object: { url: 'https://example.com/input-2' },
+          result: {
+            reviewBody: undefined,
+            reviewRating: { ratingValue: undefined },
+            url: undefined
+          }
+        })
+      ));
 
     describe('when submit() is called', () => {
       beforeEach(() => {
@@ -415,15 +423,17 @@ describe('when rendered with initialAction containing valid "actionStatus" prope
   });
 
   test('should use the initial value', () =>
-    expect(renderResult.result.current[0]).toStrictEqual({
-      actionStatus: 'CompletedActionStatus',
-      object: { url: undefined },
-      result: {
-        reviewBody: undefined,
-        reviewRating: { ratingValue: undefined },
-        url: undefined
-      }
-    }));
+    waitFor(() =>
+      expect(renderResult.result.current[0]).toStrictEqual({
+        actionStatus: 'CompletedActionStatus',
+        object: { url: undefined },
+        result: {
+          reviewBody: undefined,
+          reviewRating: { ratingValue: undefined },
+          url: undefined
+        }
+      })
+    ));
 });
 
 describe('when rendered with initialAction containing invalid "actionStatus" property', () => {
@@ -438,15 +448,17 @@ describe('when rendered with initialAction containing invalid "actionStatus" pro
   });
 
   test('should replace with "PotentialActionStatus"', () =>
-    expect(renderResult.result.current[0]).toStrictEqual({
-      actionStatus: 'PotentialActionStatus',
-      object: { url: undefined },
-      result: {
-        reviewBody: undefined,
-        reviewRating: { ratingValue: undefined },
-        url: undefined
-      }
-    }));
+    waitFor(() =>
+      expect(renderResult.result.current[0]).toStrictEqual({
+        actionStatus: 'PotentialActionStatus',
+        object: { url: undefined },
+        result: {
+          reviewBody: undefined,
+          reviewRating: { ratingValue: undefined },
+          url: undefined
+        }
+      })
+    ));
 });
 
 describe('initialAction with values', () => {
@@ -480,18 +492,20 @@ describe('initialAction with values', () => {
   });
 
   test('input should be valid', () =>
-    expect(renderResult.result.current[2].inputValidity).toHaveProperty('valid', true));
+    waitFor(() => expect(renderResult.result.current[2].inputValidity).toHaveProperty('valid', true)));
 
   test('actionState should contain values', () =>
-    expect(renderResult.result.current[0]).toStrictEqual({
-      actionStatus: 'PotentialActionStatus',
-      object: { url: 'https://example.com/input' },
-      result: {
-        reviewBody: 'Great movie.',
-        reviewRating: { ratingValue: 5 },
-        url: undefined
-      }
-    }));
+    waitFor(() =>
+      expect(renderResult.result.current[0]).toStrictEqual({
+        actionStatus: 'PotentialActionStatus',
+        object: { url: 'https://example.com/input' },
+        result: {
+          reviewBody: 'Great movie.',
+          reviewRating: { ratingValue: 5 },
+          url: undefined
+        }
+      })
+    ));
 });
 
 describe('initialAction with actionStatus', () => {
@@ -517,22 +531,24 @@ describe('initialAction with actionStatus', () => {
   });
 
   test('actionState should contain actionStatus from initialAction', () =>
-    expect(renderResult.result.current[0]).toStrictEqual({
-      actionStatus: 'CompletedActionStatus',
-      object: { url: undefined },
-      result: {
-        reviewBody: undefined,
-        reviewRating: { ratingValue: undefined },
-        url: undefined
-      }
-    }));
+    waitFor(() =>
+      expect(renderResult.result.current[0]).toStrictEqual({
+        actionStatus: 'CompletedActionStatus',
+        object: { url: undefined },
+        result: {
+          reviewBody: undefined,
+          reviewRating: { ratingValue: undefined },
+          url: undefined
+        }
+      })
+    ));
 });
 
 describe('calling setActionState', () => {
   let handler: Mock<ActionHandler>;
   let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     handler = mock.fn();
     handler.mock.mockImplementation(() =>
       Promise.resolve({
@@ -561,15 +577,17 @@ describe('calling setActionState', () => {
       )
     );
 
-    expect(renderResult.result.current[0]).toStrictEqual({
-      actionStatus: 'PotentialActionStatus',
-      object: { url: 'https://example.com/input' },
-      result: {
-        reviewBody: 'Great movie.',
-        reviewRating: { ratingValue: 5 },
-        url: undefined
-      }
-    });
+    await waitFor(() =>
+      expect(renderResult.result.current[0]).toStrictEqual({
+        actionStatus: 'PotentialActionStatus',
+        object: { url: 'https://example.com/input' },
+        result: {
+          reviewBody: 'Great movie.',
+          reviewRating: { ratingValue: 5 },
+          url: undefined
+        }
+      })
+    );
 
     act(() => {
       renderResult.result.current[1](actionState => ({
@@ -614,7 +632,7 @@ describe('call useSchemaOrgAction()', () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, any>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     handler = mock.fn();
     handler.mock.mockImplementation(() =>
       Promise.resolve({
@@ -642,15 +660,17 @@ describe('call useSchemaOrgAction()', () => {
       }
     });
 
-    expect(renderResult.result.current[0]).toStrictEqual({
-      actionStatus: 'PotentialActionStatus',
-      object: { url: 'https://example.com/input' },
-      result: {
-        reviewBody: 'Great movie.',
-        reviewRating: { ratingValue: 5 },
-        url: undefined
-      }
-    });
+    await waitFor(() =>
+      expect(renderResult.result.current[0]).toStrictEqual({
+        actionStatus: 'PotentialActionStatus',
+        object: { url: 'https://example.com/input' },
+        result: {
+          reviewBody: 'Great movie.',
+          reviewRating: { ratingValue: 5 },
+          url: undefined
+        }
+      })
+    );
 
     renderResult.rerender({
       action: {
@@ -674,17 +694,18 @@ describe('call useSchemaOrgAction()', () => {
     });
   });
 
-  test('should not change actionState', () => {
-    expect(renderResult.result.current[0]).toEqual({
-      actionStatus: 'PotentialActionStatus',
-      object: { url: 'https://example.com/input' },
-      result: {
-        reviewBody: 'Great movie.',
-        reviewRating: { ratingValue: 5 },
-        url: undefined
-      }
-    });
-  });
+  test('should not change actionState', () =>
+    waitFor(() =>
+      expect(renderResult.result.current[0]).toEqual({
+        actionStatus: 'PotentialActionStatus',
+        object: { url: 'https://example.com/input' },
+        result: {
+          reviewBody: 'Great movie.',
+          reviewRating: { ratingValue: 5 },
+          url: undefined
+        }
+      })
+    ));
 
   test('should not change input', () => {
     act(() => {

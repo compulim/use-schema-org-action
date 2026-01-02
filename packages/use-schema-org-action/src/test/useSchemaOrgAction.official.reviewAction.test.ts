@@ -6,6 +6,7 @@ import { type ActionStatusType } from '../ActionStatusType.ts';
 import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema.ts';
 import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction.ts';
 import sortEntries from './sortEntries.ts';
+import { waitFor } from '@testduet/wait-for';
 
 afterEach(cleanup);
 
@@ -128,16 +129,18 @@ describe('Spec: Movie review site API with -input and -output', () => {
           expect(sortEntries(handler.mock.calls[0]?.arguments[1] || [])).toEqual([]));
 
         test('should merge response', () =>
-          // [NOT-IN-SPEC]
-          expect(renderResult.result.current[0]).toStrictEqual({
-            actionStatus: 'CompletedActionStatus',
-            object: { url: 'http://example.com/movies/123' },
-            result: {
-              url: 'http://example.com/reviews/abc',
-              reviewBody: 'yada, yada, yada',
-              reviewRating: { ratingValue: '4' }
-            }
-          }));
+          waitFor(() =>
+            // [NOT-IN-SPEC]
+            expect(renderResult.result.current[0]).toStrictEqual({
+              actionStatus: 'CompletedActionStatus',
+              object: { url: 'http://example.com/movies/123' },
+              result: {
+                url: 'http://example.com/reviews/abc',
+                reviewBody: 'yada, yada, yada',
+                reviewRating: { ratingValue: '4' }
+              }
+            })
+          ));
       });
     });
   });

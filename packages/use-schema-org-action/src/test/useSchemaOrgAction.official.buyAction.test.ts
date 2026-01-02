@@ -1,4 +1,5 @@
 import { cleanup, renderHook, type RenderHookResult } from '@compulim/test-harness/renderHook';
+import { waitFor } from '@testduet/wait-for';
 import { act } from '@testing-library/react';
 import { expect } from 'expect';
 import { afterEach, beforeEach, describe, mock, test, type Mock } from 'node:test';
@@ -112,16 +113,18 @@ describe('Spec: Product purchase API call with -output', () => {
 
       // [NOT-IN-SPEC]
       test('should merge response into action', () =>
-        expect(renderResult.result.current[0]).toStrictEqual({
-          actionStatus: 'CompletedActionStatus',
-          object: 'https://example.com/products/ipod',
-          result: {
-            url: 'http://example.com/orders/1199334',
-            confirmationNumber: '1ABBCDDF23234',
-            orderNumber: '1199334',
-            orderStatus: 'PROCESSING'
-          }
-        }));
+        waitFor(() =>
+          expect(renderResult.result.current[0]).toStrictEqual({
+            actionStatus: 'CompletedActionStatus',
+            object: 'https://example.com/products/ipod',
+            result: {
+              url: 'http://example.com/orders/1199334',
+              confirmationNumber: '1ABBCDDF23234',
+              orderNumber: '1199334',
+              orderStatus: 'PROCESSING'
+            }
+          })
+        ));
     });
   });
 });

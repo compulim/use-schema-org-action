@@ -1,4 +1,5 @@
 import { cleanup, renderHook, type RenderHookResult } from '@compulim/test-harness/renderHook';
+import { waitFor } from '@testduet/wait-for';
 import { act } from '@testing-library/react';
 import { expect } from 'expect';
 import { afterEach, beforeEach, describe, mock, test, type Mock } from 'node:test';
@@ -145,6 +146,6 @@ describe('an action where "actionStatus-output" is not set', () => {
     test('should not throw', () => expect(promise).resolves.toBeUndefined());
 
     test('should not override "actionStatus" property', () =>
-      expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'CompletedActionStatus'));
+      waitFor(() => expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'CompletedActionStatus')));
   });
 });
