@@ -1,7 +1,7 @@
-import { renderHook, type RenderHookResult } from '@compulim/test-harness/renderHook';
+import { cleanup, renderHook, type RenderHookResult } from '@compulim/test-harness/renderHook';
 import { act } from '@testing-library/react';
 import { expect } from 'expect';
-import { beforeEach, describe, mock, test, type Mock } from 'node:test';
+import { afterEach, beforeEach, describe, mock, test, type Mock } from 'node:test';
 import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema.ts';
 import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction.ts';
 
@@ -14,6 +14,8 @@ type SearchAction = {
 };
 
 let searchAction: SearchAction;
+
+afterEach(cleanup);
 
 beforeEach(() => {
   // [MODIFIED-FROM-SPEC]

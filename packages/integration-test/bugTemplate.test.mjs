@@ -1,8 +1,10 @@
 import { act } from '@compulim/test-harness/act';
-import { renderHook } from '@compulim/test-harness/renderHook';
+import { cleanup, renderHook } from '@compulim/test-harness/renderHook';
 import { expect } from 'expect';
-import { mock, test } from 'node:test';
+import { afterEach, mock, test } from 'node:test';
 import { useSchemaOrgAction } from 'use-schema-org-action';
+
+afterEach(cleanup);
 
 test('should work', async () => {
   const handler = mock.fn();
