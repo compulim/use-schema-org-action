@@ -1,10 +1,9 @@
 import { renderHook, type RenderHookResult } from '@compulim/test-harness/renderHook';
 import { act } from '@testing-library/react';
 import { expect } from 'expect';
-import { beforeEach, describe, mock, test } from 'node:test';
+import { beforeEach, describe, mock, test, type Mock } from 'node:test';
 import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema.ts';
 import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction.ts';
-import type {  } from './MockOf.ts';
 import sortEntries from './sortEntries.ts';
 
 type BuyAction = {
@@ -38,7 +37,7 @@ type Product = {
 
 describe('Spec: Product purchase API call with -output', () => {
   let product: Product;
-  let handler: MockOf<ActionHandler>;
+  let handler: Mock<ActionHandler>;
 
   beforeEach(() => {
     // [FROM-SPEC]
