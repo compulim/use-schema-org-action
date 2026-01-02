@@ -97,7 +97,8 @@ describe('Spec: Product purchase API call with -output', () => {
 
       test('should have called handler() once', () => expect(handler.mock.callCount()).toBe(1));
 
-      test('should have called with empty request', () => expect(handler.mock.calls[0]?.arguments[0]).toStrictEqual({}));
+      test('should have called with empty request', () =>
+        expect(handler.mock.calls[0]?.arguments[0]).toStrictEqual({}));
 
       test('should have called with empty input variables', () =>
         expect(sortEntries(handler.mock.calls[0]?.arguments[1].entries() || [])).toEqual([]));
