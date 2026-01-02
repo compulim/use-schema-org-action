@@ -31,7 +31,9 @@ test('should work', async () => {
   });
 
   // WHEN: Calling setActionState to update.
-  act(() => renderResult.result.current[1](actionState => ({ ...actionState, actionOption: 'downvote' })));
+  act(() => {
+    renderResult.result.current[1](actionState => ({ ...actionState, actionOption: 'downvote' }));
+  });
 
   // THEN: Should have actionState.actionOption of "downvote".
   expect(renderResult.result.current[0]).toEqual({
@@ -40,7 +42,9 @@ test('should work', async () => {
   });
 
   // WHEN: Calling perform().
-  act(() => renderResult.result.current[2].perform());
+  act(() => {
+    renderResult.result.current[2].perform();
+  });
 
   // THEN: Should have called the handler once.
   expect(handler.mock.callCount()).toBe(1);
