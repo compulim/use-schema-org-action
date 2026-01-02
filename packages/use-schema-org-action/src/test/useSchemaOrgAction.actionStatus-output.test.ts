@@ -62,7 +62,7 @@ describe('an action where "actionStatus-output" is set', () => {
     test('should not throw', () => expect(promise).resolves.toBeUndefined());
 
     test('should override "actionStatus" property', () =>
-      expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'FailedActionStatus'));
+      waitFor(() => expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'FailedActionStatus')));
   });
 
   describe('when called and response has an invalid "actionStatus"', () => {
@@ -86,7 +86,7 @@ describe('an action where "actionStatus-output" is set', () => {
     test('should throw', () => expect(promise).rejects.toThrow());
 
     test('should set "actionStatus" property to "FailedActionStatus"', () =>
-      expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'FailedActionStatus'));
+      waitFor(() => expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'FailedActionStatus')));
   });
 });
 
@@ -122,7 +122,7 @@ describe('an action where "actionStatus-output" is not set', () => {
     });
 
     test('should not override "actionStatus" property', () =>
-      expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'CompletedActionStatus'));
+      waitFor(() => expect(renderResult.result.current[0]).toHaveProperty('actionStatus', 'CompletedActionStatus')));
   });
 
   describe('when called and response has an invalid "actionStatus"', () => {
