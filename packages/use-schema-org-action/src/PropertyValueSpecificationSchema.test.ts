@@ -1,7 +1,9 @@
-import { beforeEach, describe, expect, test } from '@jest/globals';
+import { expect } from 'expect';
+import { beforeEach, describe, test } from 'node:test';
 import { parse } from 'valibot';
-
-import propertyValueSpecificationSchema, { type PropertyValueSpecification } from './PropertyValueSpecificationSchema';
+import propertyValueSpecificationSchema, {
+  type PropertyValueSpecification
+} from './PropertyValueSpecificationSchema.ts';
 
 describe('parse from string "name=abc required"', () => {
   let actual: PropertyValueSpecification;

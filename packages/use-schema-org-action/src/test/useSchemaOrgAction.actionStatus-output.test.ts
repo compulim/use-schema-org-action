@@ -1,10 +1,9 @@
 import { renderHook, type RenderHookResult } from '@compulim/test-harness/renderHook';
 import { act } from '@testing-library/react';
 import { expect } from 'expect';
-import { beforeEach, describe, mock, test } from 'node:test';
+import { beforeEach, describe, mock, test, type Mock } from 'node:test';
 import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema.ts';
 import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction.ts';
-import type { MockOf } from './MockOf.ts';
 
 type SearchAction = {
   '@type': 'SearchAction';
@@ -29,7 +28,7 @@ beforeEach(() => {
 type UseSchemaOrgActionForReviewActionResult = ReturnType<typeof useSchemaOrgAction<SearchAction>>;
 
 describe('an action where "actionStatus-output" is set', () => {
-  let handler: MockOf<ActionHandler>;
+  let handler: Mock<ActionHandler>;
   let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void>;
 
   beforeEach(async () => {
@@ -89,7 +88,7 @@ describe('an action where "actionStatus-output" is set', () => {
 });
 
 describe('an action where "actionStatus-output" is not set', () => {
-  let handler: MockOf<ActionHandler>;
+  let handler: Mock<ActionHandler>;
   let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void>;
 
   beforeEach(async () => {

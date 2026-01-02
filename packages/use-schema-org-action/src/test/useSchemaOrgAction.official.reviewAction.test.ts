@@ -1,11 +1,10 @@
 import { renderHook, type RenderHookResult } from '@compulim/test-harness/renderHook';
 import { act } from '@testing-library/react';
 import { expect } from 'expect';
-import { beforeEach, describe, mock, test } from 'node:test';
+import { beforeEach, describe, mock, test, type Mock } from 'node:test';
 import { type ActionStatusType } from '../ActionStatusType.ts';
 import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema.ts';
 import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction.ts';
-import type { MockOf } from './MockOf.ts';
 import sortEntries from './sortEntries.ts';
 
 describe('Spec: Movie review site API with -input and -output', () => {
@@ -37,7 +36,7 @@ describe('Spec: Movie review site API with -input and -output', () => {
     };
   };
 
-  let handler: MockOf<ActionHandler>;
+  let handler: Mock<ActionHandler>;
   let renderResult: RenderHookResult<ReturnType<typeof useSchemaOrgAction<ReviewAction>>>;
   let reviewAction: ReviewAction;
 
@@ -120,7 +119,7 @@ describe('Spec: Movie review site API with -input and -output', () => {
           }));
 
         test('should be called with empty input variables', () =>
-          expect(sortEntries(handler.mock.calls[0]?.[1] || [])).toEqual([]));
+          expect(sortEntries(handler.mock.calls[0]?.arguments[1] || [])).toEqual([]));
 
         test('should merge response', () =>
           // [NOT-IN-SPEC]

@@ -1,12 +1,11 @@
 import { renderHook, type RenderHookResult } from '@compulim/test-harness/renderHook';
 import { act } from '@testing-library/react';
 import { expect } from 'expect';
-import { beforeEach, describe, mock, test } from 'node:test';
+import { beforeEach, describe, mock, test, type Mock } from 'node:test';
 import { parseTemplate } from 'url-template';
 import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema.ts';
 import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction.ts';
 import variableMapToNullableStringRecord from '../variableMapToNullableStringRecord.ts';
-import type { MockOf } from './MockOf.ts';
 
 type SearchAction = {
   '@type': 'SearchAction';
@@ -24,7 +23,7 @@ type WebSite = {
 
 describe('Spec: Text search deep link with -input', () => {
   let webSite: WebSite;
-  let handler: MockOf<ActionHandler>;
+  let handler: Mock<ActionHandler>;
 
   beforeEach(() => {
     // [FROM-SPEC]
@@ -40,7 +39,7 @@ describe('Spec: Text search deep link with -input', () => {
     };
 
     handler = mock.fn<ActionHandler>();
-    handler.mock.mockImplementationOnce(() => ({}));
+    handler.mock.mockImplementationOnce(() => Promise.resolve({}));
   });
 
   describe('when useSchemaOrgAction() is rendered', () => {

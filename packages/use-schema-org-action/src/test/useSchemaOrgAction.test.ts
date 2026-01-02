@@ -1,12 +1,11 @@
 import { renderHook, type RenderHookResult } from '@compulim/test-harness/renderHook';
 import { act } from '@testing-library/react';
 import { expect } from 'expect';
-import { beforeEach, describe, mock, test } from 'node:test';
+import { beforeEach, describe, mock, test, type Mock } from 'node:test';
 import type { PartialDeep } from 'type-fest';
 import { type ActionStatusType } from '../ActionStatusType.ts';
 import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema.ts';
 import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction.ts';
-import type { MockOf } from './MockOf.ts';
 import sortEntries from './sortEntries.ts';
 
 type ReviewAction = {
@@ -69,7 +68,7 @@ beforeEach(() => {
 type UseSchemaOrgActionForReviewActionResult = ReturnType<typeof useSchemaOrgAction<ReviewAction>>;
 
 describe('when rendered initially', () => {
-  let handler: MockOf<ActionHandler>;
+  let handler: Mock<ActionHandler>;
   let handlerResolvers: PromiseWithResolvers<PartialDeep<ReviewAction>>;
   let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void>;
 
@@ -449,7 +448,7 @@ describe('when rendered with initialAction containing invalid "actionStatus" pro
 });
 
 describe('initialAction with values', () => {
-  let handler: MockOf<ActionHandler>;
+  let handler: Mock<ActionHandler>;
   let handlerResolvers: PromiseWithResolvers<PartialDeep<ReviewAction>>;
   let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void>;
 
@@ -494,7 +493,7 @@ describe('initialAction with values', () => {
 });
 
 describe('initialAction with actionStatus', () => {
-  let handler: MockOf<ActionHandler>;
+  let handler: Mock<ActionHandler>;
   let handlerResolvers: PromiseWithResolvers<PartialDeep<ReviewAction>>;
   let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void>;
 
@@ -528,14 +527,16 @@ describe('initialAction with actionStatus', () => {
 });
 
 describe('calling setActionState', () => {
-  let handler: MockOf<ActionHandler>;
+  let handler: Mock<ActionHandler>;
   let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, void>;
 
   beforeEach(() => {
     handler = mock.fn();
-    handler.mock.mockImplementation(() => ({
-      result: { url: 'https://example.com/output' }
-    }));
+    handler.mock.mockImplementation(() =>
+      Promise.resolve({
+        result: { url: 'https://example.com/output' }
+      })
+    );
 
     renderResult = renderHook(() =>
       useSchemaOrgAction(
@@ -605,15 +606,17 @@ describe('calling setActionState', () => {
 });
 
 describe('call useSchemaOrgAction()', () => {
-  let handler: MockOf<ActionHandler>;
+  let handler: Mock<ActionHandler>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult, any>;
 
   beforeEach(() => {
     handler = mock.fn();
-    handler.mock.mockImplementation(() => ({
-      result: { url: 'https://example.com/output' }
-    }));
+    handler.mock.mockImplementation(() =>
+      Promise.resolve({
+        result: { url: 'https://example.com/output' }
+      })
+    );
 
     renderResult = renderHook(({ action }) => useSchemaOrgAction(action, handler), {
       initialProps: {

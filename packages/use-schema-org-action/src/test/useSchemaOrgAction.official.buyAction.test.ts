@@ -4,7 +4,7 @@ import { expect } from 'expect';
 import { beforeEach, describe, mock, test } from 'node:test';
 import { type PropertyValueSpecification } from '../PropertyValueSpecificationSchema.ts';
 import useSchemaOrgAction, { type ActionHandler } from '../useSchemaOrgAction.ts';
-import type { MockOf } from './MockOf.ts';
+import type {  } from './MockOf.ts';
 import sortEntries from './sortEntries.ts';
 
 type BuyAction = {
