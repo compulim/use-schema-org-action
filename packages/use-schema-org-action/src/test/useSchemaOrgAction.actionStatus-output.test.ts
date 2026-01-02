@@ -51,10 +51,10 @@ describe('an action where "actionStatus-output" is set', () => {
         })
       );
 
-      return act(() => {
+      act(() => {
         promise = renderResult.result.current[2].perform();
 
-        return promise.catch(() => {});
+        promise.catch(() => {});
       });
     });
 
@@ -75,10 +75,10 @@ describe('an action where "actionStatus-output" is set', () => {
         })
       );
 
-      return act(() => {
+      act(() => {
         promise = renderResult.result.current[2].perform();
 
-        return promise.catch(() => {});
+        promise.catch(() => {});
       });
     });
 
@@ -109,10 +109,10 @@ describe('an action where "actionStatus-output" is not set', () => {
         })
       );
 
-      return act(() => {
+      act(() => {
         promise = renderResult.result.current[2].perform();
 
-        return promise.catch(() => {});
+        promise.catch(() => {});
       });
     });
 
@@ -135,10 +135,10 @@ describe('an action where "actionStatus-output" is not set', () => {
         })
       );
 
-      return act(() => {
+      act(() => {
         promise = renderResult.result.current[2].perform();
 
-        return promise.catch(() => {});
+        promise.catch(() => {});
       });
     });
 

@@ -87,8 +87,8 @@ describe('Spec: Movie review site API with -input and -output', () => {
     });
 
     describe('when merged with input', () => {
-      beforeEach(() =>
-        act(() =>
+      beforeEach(() => {
+        act(() => {
           // [NOT-IN-SPEC]
           renderResult.result.current[1](actionState => ({
             ...actionState,
@@ -101,12 +101,16 @@ describe('Spec: Movie review site API with -input and -output', () => {
                 ratingValue: '4'
               }
             }
-          }))
-        )
-      );
+          }));
+        });
+      });
 
       describe('when submit() is called', () => {
-        beforeEach(() => act(() => renderResult.result.current[2].perform()));
+        beforeEach(() => {
+          act(() => {
+            renderResult.result.current[2].perform();
+          });
+        });
 
         test('should be called once', () => expect(handler.mock.callCount()).toBe(1));
 

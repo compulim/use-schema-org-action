@@ -39,7 +39,7 @@ test('should work', async () => {
   });
 
   // WHEN: Calling perform().
-  await act(() => renderResult.result.current[2].perform());
+  act(() => renderResult.result.current[2].perform());
 
   // THEN: Should have called the handler once.
   expect(handler.mock.callCount()).toBe(1);

@@ -98,8 +98,8 @@ describe('when rendered initially', () => {
     expect(renderResult.result.current[2]).toHaveProperty('inputValidity.valid', false));
 
   describe('when inputs are set to valid values', () => {
-    beforeEach(() =>
-      act(() =>
+    beforeEach(() => {
+      act(() => {
         renderResult.result.current[1](actionState => ({
           ...actionState,
           object: { url: 'https://example.com/input' },
@@ -111,9 +111,9 @@ describe('when rendered initially', () => {
               ratingValue: 5
             }
           }
-        }))
-      )
-    );
+        }));
+      });
+    });
 
     test('input should contain value', () =>
       expect(renderResult.result.current[2]).toHaveProperty(
@@ -139,12 +139,12 @@ describe('when rendered initially', () => {
     describe('when submit() is called', () => {
       let submitPromise: Promise<void>;
 
-      beforeEach(() =>
+      beforeEach(() => {
         act(() => {
           submitPromise = renderResult.result.current[2].perform();
           submitPromise.catch(() => {});
-        })
-      );
+        });
+      });
 
       describe('should call handler()', () => {
         test('once', () => expect(handler.mock.callCount()).toBe(1));
@@ -191,13 +191,11 @@ describe('when rendered initially', () => {
         });
 
         describe('when handler() is resolved with valid output', () => {
-          beforeEach(() =>
+          beforeEach(() => {
             act(() => {
               handlerResolvers.resolve({ result: { url: 'https://example.com/output' } });
-
-              return submitPromise;
-            })
-          );
+            });
+          });
 
           test('should merge output into action and mark as completed', () => {
             expect(renderResult.result.current[0]).toStrictEqual({
@@ -213,7 +211,11 @@ describe('when rendered initially', () => {
         });
 
         describe('when handler() is resolved with invalid output', () => {
-          beforeEach(() => act(() => handlerResolvers.resolve({ result: { url: 'too-short' } })));
+          beforeEach(() => {
+            act(() => {
+              handlerResolvers.resolve({ result: { url: 'too-short' } });
+            });
+          });
 
           test('should throw', () => expect(submitPromise).rejects.toThrow());
 
@@ -222,14 +224,12 @@ describe('when rendered initially', () => {
         });
 
         describe('when handler() is resolved after unmount', () => {
-          beforeEach(() =>
+          beforeEach(() => {
             act(() => {
               renderResult.unmount();
               handlerResolvers.resolve({ result: { url: 'https://example.com/output' } });
-
-              return submitPromise;
-            })
-          );
+            });
+          });
 
           test('should not merge output into action', () =>
             expect(renderResult.result.current[0]).toStrictEqual({
@@ -244,11 +244,11 @@ describe('when rendered initially', () => {
         });
 
         describe('when handler() is rejected after unmount', () => {
-          beforeEach(() =>
+          beforeEach(() => {
             act(() => {
               handlerResolvers.reject(new Error('Artificial failure.'));
-            })
-          );
+            });
+          });
 
           test('should throw', () => expect(submitPromise).rejects.toThrow('Artificial failure.'));
 
@@ -257,12 +257,12 @@ describe('when rendered initially', () => {
         });
 
         describe('when handler() is rejected after unmount', () => {
-          beforeEach(() =>
+          beforeEach(() => {
             act(() => {
               renderResult.unmount();
               handlerResolvers.resolve({ result: { url: 'too-short' } });
-            })
-          );
+            });
+          });
 
           test('should throw', () => expect(submitPromise).rejects.toThrow());
 
@@ -277,8 +277,8 @@ describe('when rendered initially', () => {
   });
 
   describe('when input is set to an invalid value', () => {
-    beforeEach(() =>
-      act(() =>
+    beforeEach(() => {
+      act(() => {
         renderResult.result.current[1](actionState => ({
           ...actionState,
           object: { url: 'https://example.com/input' },
@@ -287,9 +287,9 @@ describe('when rendered initially', () => {
             reviewBody: 'Great movie.',
             reviewRating: { ratingValue: -1 }
           }
-        }))
-      )
-    );
+        }));
+      });
+    });
 
     test('input should contain invalid value', () =>
       expect(sortEntries(renderResult.result.current[2].inputVariables.entries?.() || [])).toEqual([
@@ -328,22 +328,22 @@ describe('when rendered initially', () => {
   describe('when updating action', () => {
     let renderResult: RenderHookResult<UseSchemaOrgActionForReviewActionResult>;
 
-    beforeEach(async () => {
+    beforeEach(() => {
       renderResult = renderHook(() => useSchemaOrgAction<ReviewAction>(reviewAction, handler));
 
-      await act(() =>
+      act(() => {
         renderResult.result.current[1](actionState => ({
           ...actionState,
           object: { url: 'https://example.com/input-1' }
-        }))
-      );
+        }));
+      });
 
-      await act(() =>
+      act(() => {
         renderResult.result.current[1](actionState => ({
           ...actionState,
           object: { url: 'https://example.com/input-2' }
-        }))
-      );
+        }));
+      });
     });
 
     test('should have action updated', () =>
@@ -358,8 +358,8 @@ describe('when rendered initially', () => {
       }));
 
     describe('when submit() is called', () => {
-      beforeEach(async () => {
-        await act(() => {
+      beforeEach(() => {
+        act(() => {
           renderResult.result.current[1](actionState => ({
             ...actionState,
             result: {
@@ -374,7 +374,7 @@ describe('when rendered initially', () => {
           }));
         });
 
-        await act(() => {
+        act(() => {
           // Do not resolve the promise.
           renderResult.result.current[2].perform();
         });
@@ -593,8 +593,10 @@ describe('calling setActionState', () => {
     });
   });
 
-  test('should not change input', async () => {
-    await act(() => renderResult.result.current[2].perform());
+  test('should not change input', () => {
+    act(() => {
+      renderResult.result.current[2].perform();
+    });
 
     expect(handler.mock.callCount()).toBe(1);
     expect(handler.mock.calls[0]?.arguments[0]).toStrictEqual({
@@ -684,8 +686,10 @@ describe('call useSchemaOrgAction()', () => {
     });
   });
 
-  test('should not change input', async () => {
-    await act(() => renderResult.result.current[2].perform());
+  test('should not change input', () => {
+    act(() => {
+      renderResult.result.current[2].perform();
+    });
 
     expect(handler.mock.callCount()).toBe(1);
     expect(handler.mock.calls[0]?.arguments[0]).toStrictEqual({

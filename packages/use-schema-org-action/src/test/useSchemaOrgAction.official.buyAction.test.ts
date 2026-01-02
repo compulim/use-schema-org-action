@@ -76,7 +76,7 @@ describe('Spec: Product purchase API call with -output', () => {
     });
 
     describe('when submit() is called', () => {
-      beforeEach(async () => {
+      beforeEach(() => {
         // [FROM-SPEC]
         handler.mock.mockImplementationOnce(() =>
           Promise.resolve({
@@ -93,7 +93,9 @@ describe('Spec: Product purchase API call with -output', () => {
           })
         );
 
-        await act(() => renderResult.result.current[2].perform());
+        act(() => {
+          renderResult.result.current[2].perform();
+        });
       });
 
       test('should have called handler() once', () => expect(handler.mock.callCount()).toBe(1));
